@@ -7,6 +7,17 @@ void GameScene::Initialize() {
 	// カメラの初期化
 	camera_.Initialize();
 
+	 // カメラ位置と注視点を設定
+	camera_.translation_ = {0.0f, 10.0f, -30.0f};
+	camera_.rotation_ = {0.3f, 0.0f, 0.0f};
+	camera_.UpdateMatrix();  
+
+	//フィールドオブジェクト
+	fieldModel_ = Model::CreateFromOBJ("field");
+
+	//フィールドの生成
+	field = new Field();
+	field->Initialize(fieldModel_, &camera_, {0.0f, -5.0f, 0.0f});
 	
 }
 
@@ -25,11 +36,13 @@ void GameScene::Update() {
 }
 
 void GameScene::Draw() {
-	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
-	// 3Dモデル描画前処理
-	Model::PreDraw(dxCommon->GetCommandList());
+	field->Draw();
+}
+
+GameScene::~GameScene() { 
 	
-	Model::PostDraw();
+	//フィールドの解放
+	delete field; 
 }
 
 

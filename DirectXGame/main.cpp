@@ -75,11 +75,11 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		switch (currentSceneEnum) {
 		case Scene::kTitle:
 			titleScene = new TitleScene();
-			//titleScene->Initialize();
+			titleScene->Initialize();
 			break;
 		case Scene::kGame:
 			gameScene = new GameScene();
-			//gameScene->Initialize();
+			gameScene->Initialize();
 			break;
 		case Scene::kGameClear:
 			gameClearScene = new GameClearScene();
@@ -123,12 +123,12 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		switch (currentSceneEnum) {
 		case Scene::kTitle:
 			if (titleScene != nullptr) {
-				//titleScene->Draw();
+				titleScene->Draw();
 			}
 			break;
 		case Scene::kGame:
 			if (gameScene != nullptr) {
-				//gameScene->Draw();
+				gameScene->Draw();
 			}
 			break;
 		case Scene::kGameClear:
