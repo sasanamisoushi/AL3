@@ -1,6 +1,7 @@
 #pragma once
 #include "Field.h"
 #include "KamataEngine.h"
+#include "Player.h"
 
 using namespace KamataEngine;
 
@@ -29,6 +30,9 @@ private:
 	
 	Field* field = nullptr;
 	WorldTransform worldTransformField_;
+
+	Player* player = nullptr;
+	Model* playerModel_ = nullptr;
 
 	// 終了フラグ
 	bool isFinish = false;
