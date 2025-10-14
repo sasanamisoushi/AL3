@@ -25,7 +25,10 @@ void GameScene::Initialize() {
 
 	//プレイヤーオブジェクト
 	playerModel_ = Model::CreateFromOBJ("Enemy1");
-	player->Initialize(playerModel_, &camera_, {0.0f, 0.0f, 0.0f});
+
+	//プレイヤーの生成
+	player = new Player();
+	player->Initialize(playerModel_, &camera_, {0.0f, 0.5f, 0.0f});
 	
 }
 

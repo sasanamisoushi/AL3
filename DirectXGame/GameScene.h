@@ -2,6 +2,7 @@
 #include "Field.h"
 #include "KamataEngine.h"
 #include "Player.h"
+#include "MyMath.h"
 
 using namespace KamataEngine;
 
@@ -33,6 +34,7 @@ private:
 
 	Player* player = nullptr;
 	Model* playerModel_ = nullptr;
+
 
 	// 終了フラグ
 	bool isFinish = false;

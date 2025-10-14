@@ -16,8 +16,21 @@ void Player::Initialize(Model* model, Camera* camera, const Vector3& position) {
 
 	// ワールドトランスフォームの初期化
 	worldTransform_.Initialize();
+	worldTransform_.scale_ = {0.5f, 0.5f, 0.5f};
 	worldTransform_.translation_ = position;
+	worldTransform_.rotation_.y = 0.0f;
+	
+	
+	
 
+	//追従カメラの初期化
+	followCamera_.Initialize(camera_);
+	followCamera_.SetTarget(&worldTransform_.translation_);
+	followCamera_.SetTargetOffset({0.0f, 4.0f, 0.0f});
+	followCamera_.SetDistance(10.0f);
+
+	WorldTransformUpdate(worldTransform_);
+	
 }
 
 
@@ -26,6 +39,14 @@ void Player::Update() {
 	
 	//プレイヤー移動
 	UpdateMovement();
+
+	////カメラの回転をプレイヤーのY回転に合わせる
+	followCamera_.SetTarget(&worldTransform_.translation_);
+
+	followCamera_.SetTargetRotation(&worldTransform_.rotation_);
+
+	//カメラ更新
+	followCamera_.Update();
 
 }
 
@@ -38,33 +59,17 @@ void Player::UpdateMovement() {
 		if (Input::GetInstance()->PushKey(DIK_W)) {
 		
 			//上入力中の下入力
-			if (velocity_.z < 0.0f) {
+			if (velocity_.x > 0.0f) {
 			
 				//速度と逆方向に入力中は急ブレーキ
-				velocity_.z *= (1.0f - KAcceleration);
+				velocity_.x *= (1.0f - KAcceleration);
 			}
 
-			acceleration.z += KAcceleration / 60.0f;
+			acceleration.x -= KAcceleration / 60.0f;
 		
 		} else if (Input::GetInstance()->PushKey(DIK_S)) {
 
 			// 下入力中の上入力
-			if (velocity_.z > 0.0f) {
-
-				// 速度と逆方向に入力中は急ブレーキ
-				velocity_.z *= (1.0f - KAcceleration);
-			}
-
-			acceleration.z -= KAcceleration / 60.0f;
-		} else {
-			// 入力なしだと減衰
-			velocity_.z *= (1.0f - KAttenuation);
-		}
-
-
-		if (Input::GetInstance()->PushKey(DIK_A)) {
-
-			// 左入力中の右入力
 			if (velocity_.x < 0.0f) {
 
 				// 速度と逆方向に入力中は急ブレーキ
@@ -72,20 +77,36 @@ void Player::UpdateMovement() {
 			}
 
 			acceleration.x += KAcceleration / 60.0f;
+		} else {
+			// 入力なしだと減衰
+			velocity_.x *= (1.0f - KAttenuation);
+		}
+
+
+		if (Input::GetInstance()->PushKey(DIK_A)) {
+
+			// 左入力中の右入力
+			if (velocity_.z > 0.0f) {
+
+				// 速度と逆方向に入力中は急ブレーキ
+				velocity_.z *= (1.0f - KAcceleration);
+			}
+
+			acceleration.z-= KAcceleration / 60.0f;
 
 		} else if (Input::GetInstance()->PushKey(DIK_D)) {
 
 			// 右入力中の左入力
-			if (velocity_.x > 0.0f) {
+			if (velocity_.z < 0.0f) {
 
 				// 速度と逆方向に入力中は急ブレーキ
-				velocity_.x *= (1.0f - KAcceleration);
+				velocity_.z *= (1.0f - KAcceleration);
 			}
 
-			acceleration.x -= KAcceleration / 60.0f;
+			acceleration.z += KAcceleration / 60.0f;
 		} else {
 			// 入力なしだと減衰
-			velocity_.x *= (1.0f - KAttenuation);
+			velocity_.z *= (1.0f - KAttenuation);
 		}
 
 		//加速/減速
@@ -96,8 +117,10 @@ void Player::UpdateMovement() {
 		velocity_.z = std::clamp(velocity_.z, -KLimitRunSpeed, KLimitRunSpeed);
 
 		//カメラの向きに合わせて移動方向を変更
-		 Matrix4x4 matRotY = MakeRotateYMatrix(camera_->rotation_.y);
+		Matrix4x4 matRotY = MakeRotateYMatrix(worldTransform_.rotation_.y);
 		Vector3 move = TransformNormal(velocity_, matRotY);
+
+		
 
 		//ワールド座標に反映
 		worldTransform_.translation_ += move;
@@ -107,9 +130,12 @@ void Player::UpdateMovement() {
 
 }
 
+
 void Player::Draw() { 
-	
+	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
+	// 3Dモデル描画前処理
+	Model::PreDraw(dxCommon->GetCommandList());
 	//自機
 	model_->Draw(worldTransform_, *camera_);
-
+	Model::PostDraw();
 }

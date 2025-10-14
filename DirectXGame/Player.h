@@ -1,6 +1,7 @@
 #pragma once
 #include "KamataEngine.h"
 #include "MyMath.h"
+#include "FollowCamera.h"
 
 using namespace KamataEngine;
 
@@ -29,6 +30,8 @@ public:
 	// 描画
 	void Draw();
 
+	
+
 private:
 
 	// ワールド変換データ
@@ -54,5 +57,10 @@ private:
 
 	// 前後左右向き
 	Direction direction_ = Direction::kRight;
+
+	//追従カメラ
+	FollowCamera followCamera_;
+
+	
 
 };

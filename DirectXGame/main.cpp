@@ -1,7 +1,7 @@
+#include "GameClearScene.h"
 #include "GameScene.h"
 #include "KamataEngine.h"
 #include "TitleScene.h"
-#include "GameClearScene.h"
 #include <Windows.h>
 
 using namespace KamataEngine;
@@ -66,25 +66,25 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 			default:
 				break;
 			}
-		}
 
-		// 新しいシーンに更新
-		currentSceneEnum = nextSceneEnum;
+			// 新しいシーンに更新
+			currentSceneEnum = nextSceneEnum;
 
-		// 新しいシーンの初期化
-		switch (currentSceneEnum) {
-		case Scene::kTitle:
-			titleScene = new TitleScene();
-			titleScene->Initialize();
-			break;
-		case Scene::kGame:
-			gameScene = new GameScene();
-			gameScene->Initialize();
-			break;
-		case Scene::kGameClear:
-			gameClearScene = new GameClearScene();
-			gameClearScene->Initialize();
-			break;
+			// 新しいシーンの初期化
+			switch (currentSceneEnum) {
+			case Scene::kTitle:
+				titleScene = new TitleScene();
+				titleScene->Initialize();
+				break;
+			case Scene::kGame:
+				gameScene = new GameScene();
+				gameScene->Initialize();
+				break;
+			case Scene::kGameClear:
+				gameClearScene = new GameClearScene();
+				gameClearScene->Initialize();
+				break;
+			}
 		}
 
 		// 現在のシーンを更新
