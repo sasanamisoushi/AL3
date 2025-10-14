@@ -85,12 +85,15 @@ GameScene::~GameScene() {
 	
 	//フィールドの解放
 	delete field;
+	delete fieldModel_;
 
 	//プレイヤーの解放
 	delete player;
+	delete playerModel_;
 
 	//敵の解放
 	delete enemy;
+	delete enemyModel;
 }
 
 
