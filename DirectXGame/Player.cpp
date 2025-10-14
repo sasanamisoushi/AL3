@@ -45,6 +45,12 @@ void Player::Update() {
 
 	followCamera_.SetTargetRotation(&worldTransform_.rotation_);
 
+	 // ロックオン時は敵方向を向く
+	if (isLockOn_ && lockOnTarget_) {
+		Vector3 toEnemy = *lockOnTarget_ - worldTransform_.translation_;
+		worldTransform_.rotation_.y = std::atan2(toEnemy.x, toEnemy.z) + std::numbers::pi_v<float> / 2.0f;
+	}
+
 	//カメラ更新
 	followCamera_.Update();
 
@@ -137,3 +143,4 @@ void Player::Draw() {
 	model_->Draw(worldTransform_, *camera_);
 	
 }
+

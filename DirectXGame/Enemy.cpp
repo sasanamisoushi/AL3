@@ -16,6 +16,9 @@ void Enemy::Initialize(Model* model, Camera* camera, const Vector3& position) {
 	worldTransform_.translation_ = position;
 	worldTransform_.rotation_.y = std::numbers::pi_v<float> ;
 
+	//自身の座標を保持
+	position_ = position;
+
 	WorldTransformUpdate(worldTransform_);
 }
 
