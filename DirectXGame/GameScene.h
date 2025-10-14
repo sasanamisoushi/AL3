@@ -3,6 +3,7 @@
 #include "KamataEngine.h"
 #include "Player.h"
 #include "MyMath.h"
+#include "Enemy.h"
 
 using namespace KamataEngine;
 
@@ -34,6 +35,9 @@ private:
 
 	Player* player = nullptr;
 	Model* playerModel_ = nullptr;
+
+	Enemy* enemy = nullptr;
+	Model* enemyModel = nullptr;
 
 
 	// 終了フラグ

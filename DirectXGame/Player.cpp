@@ -132,10 +132,8 @@ void Player::UpdateMovement() {
 
 
 void Player::Draw() { 
-	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
-	// 3Dモデル描画前処理
-	Model::PreDraw(dxCommon->GetCommandList());
+	
 	//自機
 	model_->Draw(worldTransform_, *camera_);
-	Model::PostDraw();
+	
 }

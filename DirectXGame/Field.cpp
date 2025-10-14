@@ -17,10 +17,7 @@ void Field::Initialize(Model* model, Camera* camera, const Vector3& position) {
 void Field::Update() {}
 
 void Field::Draw() {
-	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
-	// 3Dモデル描画前処理
-	Model::PreDraw(dxCommon->GetCommandList());
+	
 	model_->Draw(worldTransform_, *camera_);
-	Model::PostDraw();
-
+	
 }

@@ -29,6 +29,17 @@ void GameScene::Initialize() {
 	//プレイヤーの生成
 	player = new Player();
 	player->Initialize(playerModel_, &camera_, {0.0f, 0.5f, 0.0f});
+
+	//------------敵-----------------
+
+	//敵のオブジェクト
+	enemyModel = Model::CreateFromOBJ("Enemy2");
+
+	//敵の生成
+	enemy = new Enemy();
+
+	enemy->Initialize(enemyModel, &camera_, {-5.0f, 0.5f, 5.0f});
+
 	
 }
 
@@ -50,8 +61,14 @@ void GameScene::Update() {
 }
 
 void GameScene::Draw() {
+
+	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
+	// 3Dモデル描画前処理
+	Model::PreDraw(dxCommon->GetCommandList());
 	field->Draw();
 	player->Draw();
+	enemy->Draw();
+	Model::PostDraw();
 }
 
 GameScene::~GameScene() { 
@@ -61,6 +78,9 @@ GameScene::~GameScene() {
 
 	//プレイヤーの解放
 	delete player;
+
+	//敵の解放
+	delete enemy;
 }
 
 
