@@ -30,7 +30,9 @@ public:
 	// 描画
 	void Draw();
 
-
+	void SetLockOnTarget(const Vector3* target) { lockOnTarget_ = target; }
+	void SetLockOn(bool flag) { isLockOn_ = flag; }
+	bool GetLockOn() const { return isLockOn_; }
 	
 
 private:
@@ -62,6 +64,7 @@ private:
 	//追従カメラ
 	FollowCamera followCamera_;
 
-	
+	const Vector3* lockOnTarget_ = nullptr;
+	bool isLockOn_ = false;
 
 };

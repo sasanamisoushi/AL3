@@ -4,6 +4,7 @@
 #include "Player.h"
 #include "MyMath.h"
 #include "Enemy.h"
+#include "FollowCamera.h"
 
 using namespace KamataEngine;
 
@@ -26,6 +27,7 @@ public:
 private:
 	// カメラ
 	Camera camera_;
+	FollowCamera followCamera_;
 
 	//フィールドモデル
 	Model *fieldModel_ = nullptr;

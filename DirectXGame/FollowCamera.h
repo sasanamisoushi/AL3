@@ -21,8 +21,11 @@ public:
 	void SetDistance(float distance) { distance_ = distance; }
 
 	//ロックオンターゲット設定
-	void SetLockOnTarget(Vector3* lockOnTarget) { lockOnTarget_ = lockOnTarget; }
+	void SetLockOnTarget(const Vector3* lockOnTarget) { lockOnTarget_ = lockOnTarget; }
 
+	void SetLockOn(bool flag) { isLockOn_ = flag;}
+
+	bool GetLockOn() const { return isLockOn_; }
 	
 
 private:
@@ -32,7 +35,7 @@ private:
 	const Vector3* targetRotation_ = nullptr;
 
 	// 敵ターゲット
-	Vector3* lockOnTarget_ = nullptr;
+	const Vector3* lockOnTarget_ = nullptr;
 	
 	//ロックオン状態
 	bool isLockOn_ = false;

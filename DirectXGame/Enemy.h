@@ -18,6 +18,8 @@ public:
 	// 描画
 	void Draw();
 
+	const Vector3& GetPosition() const { return position_; }
+
 private:
 
 	// ワールド変換データ
@@ -29,4 +31,5 @@ private:
 	// カメラ
 	Camera* camera_ = nullptr;
 
+	Vector3 position_;
 };

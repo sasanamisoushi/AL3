@@ -48,6 +48,16 @@ void GameScene::Update() {
 	player->Update();
 
 	
+	//Lキーでロックオン切り替え
+	if (Input::GetInstance()->TriggerKey(DIK_L)) {
+		bool now = player->GetLockOn();
+		player->SetLockOn(!now);
+		followCamera_.SetLockOn(!now);
+	}
+
+	//敵の座標を登録
+	player->SetLockOnTarget(&enemy->GetPosition());
+	followCamera_.SetLockOnTarget(&enemy->GetPosition());
 
 	// キーを押したらクリア画面に
 	if (Input::GetInstance()->TriggerKey(DIK_1)) {
