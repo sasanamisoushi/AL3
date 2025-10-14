@@ -20,6 +20,9 @@ public:
 	// 距離
 	void SetDistance(float distance) { distance_ = distance; }
 
+	//ロックオンターゲット設定
+	void SetLockOnTarget(Vector3* lockOnTarget) { lockOnTarget_ = lockOnTarget; }
+
 	
 
 private:
@@ -27,6 +30,12 @@ private:
 	const Vector3* target_ = nullptr; 
 
 	const Vector3* targetRotation_ = nullptr;
+
+	// 敵ターゲット
+	Vector3* lockOnTarget_ = nullptr;
+	
+	//ロックオン状態
+	bool isLockOn_ = false;
 
 	//注視店のオフセット
 	Vector3 targetOffset_ = {0.0f, 2.0f, 0.0f};
@@ -43,4 +52,6 @@ private:
 
 	//注視点
 	Vector3 lookAt_ = {0, 0, 0};
+
+	
 };
