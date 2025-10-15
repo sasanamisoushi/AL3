@@ -39,7 +39,7 @@ void Player::Initialize(Model* model, Camera* camera, const Vector3& position) {
 
 
 
-void Player::Update() { 
+void Player::Update(BulletManager* bulletManager) { 
 	
 	//プレイヤー移動
 	UpdateMovement();
@@ -78,6 +78,11 @@ void Player::Update() {
 		rifle_->Update();
 	}
 
+
+	// 弾の発射処理
+	if (Input::GetInstance()->TriggerKey(DIK_SPACE)) {
+		rifle_->Fire(bulletManager);
+	}
 
 	//カメラ更新
 	followCamera_.Update();
@@ -142,6 +147,9 @@ void Player::UpdateMovement() {
 			// 入力なしだと減衰
 			velocity_.z *= (1.0f - KAttenuation);
 		}
+
+
+		
 
 		//加速/減速
 		velocity_ += acceleration;

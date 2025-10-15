@@ -4,6 +4,7 @@
 #include "FollowCamera.h"
 #include "Rifle.h"
 
+
 using namespace KamataEngine;
 
 
@@ -23,7 +24,7 @@ public:
 	void Initialize(Model* model, Camera* camera, const Vector3& position);
 
 	// 更新
-	void Update();
+	void Update(BulletManager* bulletManager);
 
 	//移動用更新
 	void UpdateMovement();
@@ -75,5 +76,7 @@ private:
 	Rifle* rifle_ = nullptr;
 	//銃を装備しているか
 	bool choiceRifle_ = false;
+
+	
 
 };
