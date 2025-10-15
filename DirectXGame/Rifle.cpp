@@ -44,3 +44,9 @@ Vector3 Rifle::GetMuzzlePosition() const {
 	Matrix4x4 rotMat = MakeRotateYMatrix(worldTransform_.rotation_.y);
 	return worldTransform_.translation_+TransformNormal(muzzleoffset,rotMat); 
 }
+
+void Rifle::Fire(BulletManager* bulletManager) { 
+	Vector3 pos = GetMuzzlePosition();
+	Vector3 dir = GetForwardVector();
+	bulletManager->Fire(pos, dir);
+}

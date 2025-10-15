@@ -1,6 +1,7 @@
 #pragma once
 #include "KamataEngine.h"
 #include "MyMath.h"
+#include "BulletManager.h"
 
 using namespace KamataEngine;
 
@@ -22,6 +23,9 @@ public:
 
 	//銃口位置を取得
 	Vector3 GetMuzzlePosition() const;
+
+	//弾の発射処理
+	void Fire(BulletManager* bulletManager);
 
 private:
 	// ワールド変換データ

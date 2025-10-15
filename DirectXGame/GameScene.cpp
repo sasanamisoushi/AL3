@@ -45,7 +45,7 @@ void GameScene::Initialize() {
 
 void GameScene::Update() {
 
-	player->Update();
+	player->Update(&bulletManager_);
 
 	
 	//Lキーでロックオン切り替え

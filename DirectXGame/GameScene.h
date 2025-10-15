@@ -5,6 +5,7 @@
 #include "MyMath.h"
 #include "Enemy.h"
 #include "FollowCamera.h"
+#include "BulletManager.h"
 
 using namespace KamataEngine;
 
@@ -32,14 +33,20 @@ private:
 	//フィールドモデル
 	Model *fieldModel_ = nullptr;
 	
+	//地面
 	Field* field = nullptr;
 	WorldTransform worldTransformField_;
 
+	//プレイヤー
 	Player* player = nullptr;
 	Model* playerModel_ = nullptr;
 
+	//敵
 	Enemy* enemy = nullptr;
 	Model* enemyModel = nullptr;
+
+	//弾の管理
+	BulletManager bulletManager_;
 
 
 	// 終了フラグ
