@@ -20,6 +20,10 @@ void Player::Initialize(Model* model, Camera* camera, const Vector3& position) {
 	worldTransform_.translation_ = position;
 	worldTransform_.rotation_.y = 0.0f;
 	
+	//銃
+	rifle_ = new Rifle();
+	rifle_->Initialize(Model::CreateFromOBJ("Raifl"), camera_, position);
+	choiceRifle_ = false;
 	
 	
 
@@ -50,6 +54,30 @@ void Player::Update() {
 		Vector3 toEnemy = *lockOnTarget_ - worldTransform_.translation_;
 		worldTransform_.rotation_.y = std::atan2(toEnemy.x, toEnemy.z) + std::numbers::pi_v<float> / 2.0f;
 	}
+
+	//銃の装備切り替え
+	if (Input::GetInstance()->TriggerKey(DIK_R)) {
+		choiceRifle_ = !choiceRifle_;
+	}
+
+	//銃を選んでいるときはプレイヤーの手元に追従
+	if (choiceRifle_) {
+		//手元位置
+		Vector3 handOffset = {0.0f, 0.5f, 1.5f};
+		//プレイヤーの回転を考慮したオフセットを計算
+		Matrix4x4 rifleRotY = MakeRotateYMatrix(worldTransform_.rotation_.y);
+		Vector3 rotatedOffset = TransformNormal(handOffset, rifleRotY);
+
+		//ワールド座標での銃の位置
+		Vector3 riflePos = worldTransform_.translation_ + rotatedOffset;
+
+		 // 銃の回転（プレイヤーと同じY回転でOK）
+		Vector3 rifleRotation = {0.0f, worldTransform_.rotation_.y - std::numbers::pi_v<float> / 2.0f, 0.0f};
+		
+		rifle_->SetPosition(riflePos, rifleRotation);
+		rifle_->Update();
+	}
+
 
 	//カメラ更新
 	followCamera_.Update();
@@ -141,6 +169,16 @@ void Player::Draw() {
 	
 	//自機
 	model_->Draw(worldTransform_, *camera_);
+
+	if (choiceRifle_) {
 	
+		rifle_->Draw();
+	}
+	
+}
+
+Player::~Player() { 
+	
+	delete rifle_;
 }
 

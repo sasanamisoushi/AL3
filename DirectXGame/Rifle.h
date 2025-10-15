@@ -15,6 +15,14 @@ public:
 	// 描画
 	void Draw();
 
+	void SetPosition(const Vector3& position, const Vector3& rotation);
+
+	//銃の前方向を取得
+	Vector3 GetForwardVector() const;
+
+	//銃口位置を取得
+	Vector3 GetMuzzlePosition() const;
+
 private:
 	// ワールド変換データ
 	KamataEngine::WorldTransform worldTransform_;
