@@ -2,6 +2,7 @@
 #include "KamataEngine.h"
 #include "MyMath.h"
 #include "FollowCamera.h"
+#include "Rifle.h"
 
 using namespace KamataEngine;
 
@@ -29,6 +30,9 @@ public:
 
 	// 描画
 	void Draw();
+
+	//解放
+	~Player();
 
 	void SetLockOnTarget(const Vector3* target) { lockOnTarget_ = target; }
 	void SetLockOn(bool flag) { isLockOn_ = flag; }
@@ -66,5 +70,10 @@ private:
 
 	const Vector3* lockOnTarget_ = nullptr;
 	bool isLockOn_ = false;
+
+	//武器
+	Rifle* rifle_ = nullptr;
+	//銃を装備しているか
+	bool choiceRifle_ = false;
 
 };
