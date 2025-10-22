@@ -36,3 +36,5 @@ void BulletManager::Fire(const Vector3& position, const Vector3& direction) {
 	bullets_.push_back(newBullet);
 
 }
+
+

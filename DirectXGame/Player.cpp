@@ -76,13 +76,15 @@ void Player::Update(BulletManager* bulletManager) {
 		
 		rifle_->SetPosition(riflePos, rifleRotation);
 		rifle_->Update();
+
+		// 弾の発射処理
+		if (Input::GetInstance()->TriggerKey(DIK_SPACE)) {
+			rifle_->Fire(bulletManager);
+		}
 	}
 
 
-	// 弾の発射処理
-	if (Input::GetInstance()->TriggerKey(DIK_SPACE)) {
-		rifle_->Fire(bulletManager);
-	}
+	
 
 	//カメラ更新
 	followCamera_.Update();
