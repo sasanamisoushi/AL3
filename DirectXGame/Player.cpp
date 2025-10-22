@@ -24,6 +24,11 @@ void Player::Initialize(Model* model, Camera* camera, const Vector3& position) {
 	rifle_ = new Rifle();
 	rifle_->Initialize(Model::CreateFromOBJ("Raifl"), camera_, position);
 	choiceRifle_ = false;
+
+	//剣
+	saber_ = new saber();
+	saber_->Initialize(Model::CreateFromOBJ("saber"), camera_, position);
+	choiceSaber_ = true;
 	
 	
 
@@ -55,32 +60,44 @@ void Player::Update(BulletManager* bulletManager) {
 		worldTransform_.rotation_.y = std::atan2(toEnemy.x, toEnemy.z) + std::numbers::pi_v<float> / 2.0f;
 	}
 
-	//銃の装備切り替え
+	//装備切り替え
 	if (Input::GetInstance()->TriggerKey(DIK_R)) {
 		choiceRifle_ = !choiceRifle_;
+		choiceSaber_ = !choiceSaber_;
 	}
+
+
+	// 手元位置
+	Vector3 handOffset = {0.0f, 0.5f, 1.5f};
+	// プレイヤーの回転を考慮したオフセットを計算
+	Matrix4x4 rifleRotY = MakeRotateYMatrix(worldTransform_.rotation_.y);
+	Vector3 rotatedOffset = TransformNormal(handOffset, rifleRotY);
+
+	// ワールド座標での銃の位置
+	Vector3 handPos = worldTransform_.translation_ + rotatedOffset;
+
+	// 銃の回転（プレイヤーと同じY回転でOK）
+	Vector3 weaponRotation = {0.0f, worldTransform_.rotation_.y - std::numbers::pi_v<float> / 2.0f, 0.0f};
 
 	//銃を選んでいるときはプレイヤーの手元に追従
 	if (choiceRifle_) {
-		//手元位置
-		Vector3 handOffset = {0.0f, 0.5f, 1.5f};
-		//プレイヤーの回転を考慮したオフセットを計算
-		Matrix4x4 rifleRotY = MakeRotateYMatrix(worldTransform_.rotation_.y);
-		Vector3 rotatedOffset = TransformNormal(handOffset, rifleRotY);
-
-		//ワールド座標での銃の位置
-		Vector3 riflePos = worldTransform_.translation_ + rotatedOffset;
-
-		 // 銃の回転（プレイヤーと同じY回転でOK）
-		Vector3 rifleRotation = {0.0f, worldTransform_.rotation_.y - std::numbers::pi_v<float> / 2.0f, 0.0f};
 		
-		rifle_->SetPosition(riflePos, rifleRotation);
+		
+		rifle_->SetPosition(handPos, weaponRotation);
 		rifle_->Update();
 
 		// 弾の発射処理
 		if (Input::GetInstance()->TriggerKey(DIK_SPACE)) {
 			rifle_->Fire(bulletManager);
 		}
+	}
+
+
+	// 剣を選んでいるときはプレイヤーの手元に追従
+	if (choiceSaber_) {
+		
+		saber_->SetPosition(handPos, weaponRotation);
+		saber_->Update();
 	}
 
 
@@ -184,11 +201,18 @@ void Player::Draw() {
 	
 		rifle_->Draw();
 	}
+
+	if (choiceSaber_) {
+	
+		saber_->Draw();
+	}
 	
 }
 
 Player::~Player() { 
 	
 	delete rifle_;
+
+	delete saber_;
 }
 

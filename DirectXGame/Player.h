@@ -3,6 +3,7 @@
 #include "MyMath.h"
 #include "FollowCamera.h"
 #include "Rifle.h"
+#include "saber.h"
 
 
 using namespace KamataEngine;
@@ -72,11 +73,15 @@ private:
 	const Vector3* lockOnTarget_ = nullptr;
 	bool isLockOn_ = false;
 
-	//武器
+	//武器(銃)
 	Rifle* rifle_ = nullptr;
 	//銃を装備しているか
 	bool choiceRifle_ = false;
 
+	//武器(剣)
+	saber* saber_ = nullptr;
+	//剣を装備しているか
+	bool choiceSaber_ = true;
 	
 
 };
