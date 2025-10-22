@@ -18,6 +18,8 @@ public:
 	//発射処理
 	void Fire(const Vector3& position, const Vector3& direction);
 
+	
+
 private:
 	std::list<Bullet*> bullets_;
 	Model* model_ = nullptr;

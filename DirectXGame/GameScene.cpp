@@ -36,16 +36,27 @@ void GameScene::Initialize() {
 	enemyModel = Model::CreateFromOBJ("Enemy2");
 
 	//敵の生成
+	bulletManager_ = new BulletManager();
 	enemy = new Enemy();
 
 	enemy->Initialize(enemyModel, &camera_, {-5.0f, 0.5f, 5.0f});
 
-	
+	//------------弾-----------------
+
+	//弾のオブジェクト
+	bulletModel = Model::CreateFromOBJ("Bullet");
+
+	//弾の生成
+	bulletManager_->Initialize(bulletModel);
 }
 
 void GameScene::Update() {
 
-	player->Update(&bulletManager_);
+	//弾の更新
+	bulletManager_->Update();
+
+	//プレイヤーの更新
+	player->Update(bulletManager_);
 
 	
 	//Lキーでロックオン切り替え
@@ -76,6 +87,7 @@ void GameScene::Draw() {
 	// 3Dモデル描画前処理
 	Model::PreDraw(dxCommon->GetCommandList());
 	field->Draw();
+	bulletManager_->Draw(&camera_);
 	player->Draw();
 	enemy->Draw();
 	Model::PostDraw();
@@ -94,6 +106,11 @@ GameScene::~GameScene() {
 	//敵の解放
 	delete enemy;
 	delete enemyModel;
+
+	//弾の解放
+	delete bulletManager_;
+	delete bulletModel;
+
 }
 
 

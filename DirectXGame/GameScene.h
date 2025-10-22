@@ -41,12 +41,14 @@ private:
 	Player* player = nullptr;
 	Model* playerModel_ = nullptr;
 
+	
 	//敵
 	Enemy* enemy = nullptr;
 	Model* enemyModel = nullptr;
 
 	//弾の管理
-	BulletManager bulletManager_;
+	BulletManager* bulletManager_=nullptr;
+	Model* bulletModel = nullptr;
 
 
 	// 終了フラグ
