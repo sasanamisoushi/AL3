@@ -34,8 +34,14 @@ private:
 	//カメラ
 	Camera* camera_ = nullptr;
 
+	//攻撃モーション用
 	bool isAttacking_ = false;
-	
+	int attackTimer_ = 0;
 
+	//何フレームで1振り
+	const int attackDuration_ = 20;
+	
+	//通常の回転を保持
+	Vector3 baseRotation_ = {};
 
 };
