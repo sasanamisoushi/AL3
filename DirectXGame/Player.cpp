@@ -188,7 +188,6 @@ void Player::UpdateMovement() {
 		WorldTransformUpdate(worldTransform_);
 
 	}
-
 }
 
 
