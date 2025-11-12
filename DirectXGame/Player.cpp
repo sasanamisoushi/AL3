@@ -87,6 +87,22 @@ void Player::Update(BulletManager* bulletManager) {
 		
 		
 		rifle_->SetPosition(handPos, weaponRotation);
+		// ロックオン中は敵の方向を向かせる
+		if (isLockOn_ && lockOnTarget_) {
+			Vector3 toEnemy = *lockOnTarget_ - handPos;
+
+			// --- 水平角度（Y回転） ---
+			float ry = std::atan2(toEnemy.x, toEnemy.z);
+
+			// --- 垂直角度（X回転：ピッチ） ---
+			float horizontalDist = std::sqrt(toEnemy.x * toEnemy.x + toEnemy.z * toEnemy.z);
+			float rx = std::atan2(-toEnemy.y, horizontalDist); // 上下の角度（上を向くとマイナス）
+
+			// 銃の回転を設定（Z回転は使わない）
+			rifle_->SetPosition(handPos, {rx, ry, 0.0f});
+		}
+
+
 		rifle_->Update();
 
 		// 弾の発射処理
@@ -105,6 +121,8 @@ void Player::Update(BulletManager* bulletManager) {
 	if (choiceSaber_) {
 		
 		saber_->SetPosition(handPos, weaponRotation);
+
+		
 		saber_->Update();
 
 		//攻撃開始
