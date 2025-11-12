@@ -30,6 +30,9 @@ public:
 	//移動用更新
 	void UpdateMovement();
 
+	//重力と地面判定
+	void ApplyGravity();
+
 	// 描画
 	void Draw();
 
@@ -82,6 +85,13 @@ private:
 	saber* saber_ = nullptr;
 	//剣を装備しているか
 	bool choiceSaber_ = true;
+
+	// 地面にいるかどうか
+	bool isOnGround_ = false;
+
+	// ジャンプ時間管理
+	float jumpTime_ = 0.0f;
+	const float kMaxJumpTime = 600.0f;
 	
 
 };

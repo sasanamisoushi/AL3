@@ -46,6 +46,9 @@ void Player::Initialize(Model* model, Camera* camera, const Vector3& position) {
 
 void Player::Update(BulletManager* bulletManager) { 
 	
+	// 重力と地面判定
+	ApplyGravity();
+
 	//プレイヤー移動
 	UpdateMovement();
 
@@ -115,6 +118,14 @@ void Player::Update(BulletManager* bulletManager) {
 
 	#ifdef _DEBUG
 
+	//地面判定
+	ImGui::Begin("Player Info");
+	ImGui::Text("isOnGround: %s", isOnGround_ ? "true" : "false");
+	// ジャンプ時間
+	ImGui::Text("Jump Time: %.2f", jumpTime_);
+
+
+	//銃
 	if (choiceRifle_) {
 
 		ImGui::Begin("Rifle");
@@ -208,6 +219,55 @@ void Player::UpdateMovement() {
 		WorldTransformUpdate(worldTransform_);
 
 	}
+}
+
+void Player::ApplyGravity() {
+	// 重力加速度
+	const float kGravity = -0.3f;
+	// 地面高さ
+	const float kGroundHeight = 0.0f;
+	// 押している間の上昇速度
+	const float kJumpPower = 0.005f;
+	// 落下速度の上限
+	const float kMaxFallSpeed = -0.2f;
+
+	auto* input = Input::GetInstance();
+
+	// ====== ジャンプ ======
+	if (input->TriggerKey(DIK_O) && isOnGround_) {
+		isOnGround_ = false;
+		velocity_.y = 0.0f; // 上昇開始時は初速0から
+	}
+
+	 // ===== 押している間は上昇 =====
+	if (!isOnGround_) {
+		if (input->PushKey(DIK_O) && jumpTime_ < kMaxJumpTime) {
+			velocity_.y += kJumpPower; // 押してる間は上昇
+			jumpTime_ += 1.5f;
+		} else {
+			velocity_.y += kGravity; // 離したら重力が働く
+			jumpTime_ -= 1.0f;
+		}
+	}
+
+	if (isOnGround_) {
+		jumpTime_ = 0.0f;
+	}
+
+	// 落下速度制限
+	velocity_.y = std::max<float>(velocity_.y, kMaxFallSpeed);
+
+	// Y方向の移動
+	worldTransform_.translation_.y += velocity_.y;
+
+	// 地面判定
+	if (worldTransform_.translation_.y < kGroundHeight) {
+		worldTransform_.translation_.y = kGroundHeight;
+		velocity_.y = 0.0f;
+		isOnGround_ = true;
+	} 
+	
+	WorldTransformUpdate(worldTransform_);
 }
 
 
