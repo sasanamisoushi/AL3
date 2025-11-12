@@ -90,6 +90,11 @@ void Player::Update(BulletManager* bulletManager) {
 		if (Input::GetInstance()->TriggerKey(DIK_SPACE)) {
 			rifle_->Fire(bulletManager);
 		}
+
+		// リロード
+		if (Input::GetInstance()->TriggerKey(DIK_E)) {
+			rifle_->Reload();
+		}
 	}
 
 
@@ -98,13 +103,28 @@ void Player::Update(BulletManager* bulletManager) {
 		
 		saber_->SetPosition(handPos, weaponRotation);
 		saber_->Update();
+
+		//攻撃開始
+		if (Input::GetInstance()->TriggerKey(DIK_SPACE)) {
+			saber_->StartAttack();
+		}
 	}
-
-
-	
 
 	//カメラ更新
 	followCamera_.Update();
+
+	#ifdef _DEBUG
+
+	if (choiceRifle_) {
+
+		ImGui::Begin("Rifle");
+		ImGui::Text("Ammo: %d", rifle_->GetAmmo());
+	}
+
+
+#endif 
+
+
 
 }
 

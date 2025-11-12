@@ -19,7 +19,7 @@ public:
 	void SetPosition(const Vector3& position, const Vector3& rotation);
 
 	//攻撃開始
-	//void StartAttack(const Vector3& playerPos, const Vector3& forward);
+	void StartAttack();
 
 	//攻撃中かどうか
 	bool IsAttacking() const { return isAttacking_; }
@@ -39,7 +39,7 @@ private:
 	int attackTimer_ = 0;
 
 	//何フレームで1振り
-	const int attackDuration_ = 20;
+	const int attackDuration_ = 40;
 	
 	//通常の回転を保持
 	Vector3 baseRotation_ = {};

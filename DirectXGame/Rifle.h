@@ -27,6 +27,11 @@ public:
 	//弾の発射処理
 	void Fire(BulletManager* bulletManager);
 
+	//弾のリロード
+	void Reload();
+	int GetAmmo() const { return ammo_; }
+   
+
 private:
 	// ワールド変換データ
 	KamataEngine::WorldTransform worldTransform_;
@@ -36,4 +41,15 @@ private:
 
 	// カメラ
 	Camera* camera_ = nullptr;
+
+	//弾数
+	int ammo_ = 10;
+	
+	//最大弾数
+	int maxAmmo_ = 10;
+
+	//リロード時間
+	float reloadTime_ = 2.0f;
+	bool isReloading_ = false;
+	float reloadTimer_ = 0.0f;
 };
