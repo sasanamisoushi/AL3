@@ -5,7 +5,6 @@
 void saber::Initialize(Model* model, Camera* camera, const Vector3& position) { 
 	model_ = model;
 	camera_ = camera;
-	worldTransform_.Initialize();
 
 	// ワールドトランスフォームの初期化
 	worldTransform_.Initialize();
@@ -34,8 +33,16 @@ void saber::Update() {
 		//サイン波で滑らかな動きを作る
 		float swing = std::sin(t * std::numbers::pi_v<float>);
 
-		//サーベルをX軸方向に振る
-		worldTransform_.rotation_.x = swing * 0.8f;
+		//-------------モーション設定-------------
+
+		//X軸方向縦に振る
+		worldTransform_.rotation_.x = baseRotation_.x + swing * 1.7f; 
+
+		//Z軸方向に右から左に傾ける
+		worldTransform_.rotation_.z = baseRotation_.z - swing * 0.4f;
+
+		// Y軸に少し回転を加える
+		worldTransform_.rotation_.y = baseRotation_.y - swing * 0.4f;
 
 		WorldTransformUpdate(worldTransform_);
 
@@ -72,4 +79,12 @@ void saber::SetPosition(const Vector3& position, const Vector3& rotation) {
 
 }
 
-//void saber::StartAttack(const Vector3& playerPos, const Vector3& forward) {}
+void saber::StartAttack() {
+
+	//攻撃中出なければ攻撃開始
+	if (!isAttacking_) {
+
+		isAttacking_ = true;
+		attackTimer_ = 0;
+	}
+}
