@@ -55,6 +55,9 @@ float EaseIn(float x1, float x2, float t);
 // 02_06のスライド24枚目のLerp関数
 Vector3 Lerp(const Vector3& v1, const Vector3& v2, float t);
 
+// 角度差を考慮した線形補間
+float LerpAngle(float a, float b, float t);
+
 // AABB関数
 struct AABB {
 	Vector3 min;
