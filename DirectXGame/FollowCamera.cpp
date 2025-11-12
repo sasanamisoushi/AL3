@@ -39,7 +39,12 @@ void FollowCamera::Update() {
 	float followSpeed = 0.15f;
 
 	// 現在位置から目標位置に保管してスムーズに移動
-	translation_ = Lerp(translation_, desiredPos, followSpeed);
+	translation_.x = Lerp(translation_.x, desiredPos.x, followSpeed);
+	translation_.z = Lerp(translation_.z, desiredPos.z, followSpeed);
+
+	// 高さだけ別のスピードで追従（ちょっと遅めにすると自然）
+	float heightFollowSpeed = 0.25f;
+	translation_.y = Lerp(translation_.y, desiredPos.y, heightFollowSpeed);
 
 	// ---- 注視点設定 ----
 	Vector3 desiredLookAt;
@@ -53,10 +58,10 @@ void FollowCamera::Update() {
 	}
 
 	// 見やすさのため、注視点を少し上にずらす
-	desiredLookAt.y += 1.0f;
+	desiredLookAt.y += 1.5f;
 
 	// スムーズに注視点を補間
-	lookAt_ = Lerp(lookAt_, desiredLookAt, 0.2f);
+	lookAt_ = Lerp(lookAt_, desiredLookAt, 0.25f);
 	
 	// ---- カメラ回転を自動補正 ----
 	float desiredY;
