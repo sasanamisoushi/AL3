@@ -30,6 +30,7 @@ public:
 	//弾のリロード
 	void Reload();
 	int GetAmmo() const { return ammo_; }
+	int GetReserveAmmo() const { return reserveAmmo_; }
    
 
 private:
@@ -48,8 +49,11 @@ private:
 	//最大弾数
 	int maxAmmo_ = 10;
 
+	//総弾数
+	int reserveAmmo_ = 90;
+
 	//リロード時間
-	float reloadTime_ = 2.0f;
+	float reloadTime_ = 1.5f;
 	bool isReloading_ = false;
 	float reloadTimer_ = 0.0f;
 };

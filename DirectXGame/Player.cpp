@@ -148,9 +148,8 @@ void Player::Update(BulletManager* bulletManager) {
 
 		ImGui::Begin("Rifle");
 		ImGui::Text("Ammo: %d", rifle_->GetAmmo());
+		ImGui::Text("Reserve: %d", rifle_->GetReserveAmmo());
 	}
-
-
 #endif 
 
 

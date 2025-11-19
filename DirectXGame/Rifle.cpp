@@ -1,5 +1,8 @@
+#define NOMINMAX
+#include <windows.h>
 #include "Rifle.h"
 #include <numbers>
+#include <algorithm> 
 
 void Rifle::Initialize(Model* model, Camera* camera, const Vector3& position) {
 
@@ -11,6 +14,9 @@ void Rifle::Initialize(Model* model, Camera* camera, const Vector3& position) {
 	// カメラ
 	camera_ = camera;
 
+	// 初期弾数
+	ammo_ = maxAmmo_;
+
 	// ワールドトランスフォームの初期化
 	worldTransform_.Initialize();
 	worldTransform_.scale_ = {0.5f, 0.5f, 0.5f};
@@ -18,7 +24,6 @@ void Rifle::Initialize(Model* model, Camera* camera, const Vector3& position) {
 	worldTransform_.rotation_.y = std::numbers::pi_v<float>;
 
 	WorldTransformUpdate(worldTransform_);
-
 }
 
 void Rifle::Update() {
@@ -27,7 +32,14 @@ void Rifle::Update() {
 		reloadTimer_ -= 1.0f / 60.0f; // 60FPS想定
 		if (reloadTimer_ <= 0.0f) {
 			isReloading_ = false;
-			ammo_ = maxAmmo_;
+			// 残弾の欠け分を計算
+			int need = maxAmmo_ - ammo_;
+
+			// 実際に装填できる弾数（予備弾が足りない場合あり）
+			int load = std::min(need, reserveAmmo_);
+
+			ammo_ += load;
+			reserveAmmo_ -= load;
 		}
 	}
 
@@ -86,11 +98,21 @@ void Rifle::Fire(BulletManager* bulletManager) {
 }
 
 void Rifle::Reload() { 
+
 	// 既にリロード中、または弾が満タンならリロードしない
-	if (!isReloading_ && ammo_ < maxAmmo_) {
+	if (isReloading_ || ammo_ == maxAmmo_) {
+		return;
+	}
+
+
+	// 予備弾が０ならリロードしない
+	if (reserveAmmo_ <= 0) {
+		return;
+	}
+
 	
 		isReloading_ = true;
 		reloadTimer_ = reloadTime_;
-	} 
+	
 
 }

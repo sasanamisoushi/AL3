@@ -77,6 +77,10 @@ void GameScene::Update() {
 
 #ifdef _DEBUG
 	ImGui::Begin("Game Scene");
+	ImGui::Text("R choiceWeapon");
+	ImGui::Text("L lock on");
+	ImGui::Text("E Reload");
+	ImGui::Text("SPACE attack");
 	ImGui::End();
 #endif
 }
