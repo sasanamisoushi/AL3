@@ -1,6 +1,7 @@
 #pragma once
 #include "KamataEngine.h"
 #include "Enemy.h"
+#include <unordered_set>
 
 using namespace KamataEngine;
 
@@ -29,7 +30,7 @@ public:
 
 	float GetRadius() const { return 1.5f; }
 
-	bool CheckHit(const Enemy* enemy) const;
+	bool CheckHit(const Enemy* enemy);
 
 private:
 	// ワールド変換データ
@@ -42,6 +43,7 @@ private:
 	Camera* camera_ = nullptr;
 
 	//攻撃モーション用
+	std::unordered_set<const Enemy*> hitEnemies_;
 	bool isAttacking_ = false;
 	int attackTimer_ = 0;
 

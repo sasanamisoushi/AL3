@@ -42,11 +42,12 @@ public:
 
 	void SetLockOnTarget(const Vector3* target) { lockOnTarget_ = target; }
 	void SetLockOn(bool flag) { isLockOn_ = flag; }
+	void SetPosition(const Vector3& pos) {worldTransform_.translation_ = pos;WorldTransformUpdate(worldTransform_);}
 	bool GetLockOn() const { return isLockOn_; }
 	Vector3 GetPosition() const { return worldTransform_.translation_; }
 
 	// あたり判定
-	float GetRadius() const { return 1.0f; }
+	float GetRadius() const { return radius_; }
 	// ダメージ処理
 	void Damage(int damage) { hp_ -= damage; }
 	
@@ -100,6 +101,8 @@ private:
 	float jumpTime_ = 0.0f;
 	const float kMaxJumpTime = 600.0f;
 
+	//半径
+	float radius_ = 1.0f;
 	
 	//hp
 	int hp_ = 100;
