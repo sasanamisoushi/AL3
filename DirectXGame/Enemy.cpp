@@ -1,7 +1,9 @@
 #include "Enemy.h"
+#include "Player.h"
+#include "BulletManager.h"
 #include <numbers>
 
-void Enemy::Initialize(Model* model, Camera* camera, const Vector3& position) {
+void Enemy::Initialize(Model* model, Camera* camera, const Vector3& position, Player* player) {
 	// NULLポインタチェック
 	assert(model);
 	// モデル
@@ -9,6 +11,9 @@ void Enemy::Initialize(Model* model, Camera* camera, const Vector3& position) {
 
 	// カメラ
 	camera_ = camera;
+
+	//プレイヤー
+	player_ = player;
 
 	// ワールドトランスフォームの初期化
 	worldTransform_.Initialize();
@@ -22,7 +27,39 @@ void Enemy::Initialize(Model* model, Camera* camera, const Vector3& position) {
 	WorldTransformUpdate(worldTransform_);
 }
 
-void Enemy::Update() {
+void Enemy::Update(BulletManager* bulletManager) {
+
+	 // 座標更新
+	position_ = worldTransform_.translation_;
+
+	// クールタイム（攻撃間隔）
+	if (attackCoolTime_ > 0) {
+		attackCoolTime_--;
+	}
+
+	Vector3 playerPos = player_->GetPosition();
+	float dist = Length(playerPos - position_);
+
+	if (dist < attackRange_) {
+		// ----- 近距離（サーベル攻撃） -----
+		if (attackCoolTime_ <= 0) {
+			player_->Damage(10);  // 例：プレイヤーにダメージ
+			attackCoolTime_ = 60; // 60フレーム攻撃間隔
+		}
+	} else {
+		// ----- 遠距離（ライフル） -----
+		if (attackCoolTime_ <= 0) {
+
+			Vector3 dir = Normalize(playerPos - position_);
+
+			bulletManager->Fire(position_, dir); // プレイヤーに向けて発射
+
+			attackCoolTime_ = 45; // 射撃間隔
+		}
+	}
+
+	// 行列更新
+	WorldTransformUpdate(worldTransform_);
 #ifdef _DEBUG
 	ImGui::Begin("Enemy");
 	ImGui::Text("HP:%d", hp_);

@@ -38,7 +38,7 @@ void GameScene::Initialize() {
 	//敵の生成
 	
 	enemies_.push_back(new Enemy());
-	enemies_.back()->Initialize(enemyModel, &camera_, {-5.0f, 0.5f, 5.0f});
+	enemies_.back()->Initialize(enemyModel, &camera_, {-5.0f, 0.5f, 5.0f},player);
 
 	//------------弾-----------------
 
@@ -60,7 +60,7 @@ void GameScene::Update() {
 	player->Update(bulletManager_,enemies_);
 
 	for (auto* enemy : enemies_) {
-		enemy->Update();
+		enemy->Update(bulletManager_);
 	}
 	
 	//Lキーでロックオン切り替え
