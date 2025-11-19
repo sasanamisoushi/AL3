@@ -53,4 +53,8 @@ private:
 
 	// 終了フラグ
 	bool isFinish = false;
+
+	// ロックオン中の敵インデックス
+	int lockOnIndex = -1;
+
 };
