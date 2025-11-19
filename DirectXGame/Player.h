@@ -43,6 +43,12 @@ public:
 	void SetLockOnTarget(const Vector3* target) { lockOnTarget_ = target; }
 	void SetLockOn(bool flag) { isLockOn_ = flag; }
 	bool GetLockOn() const { return isLockOn_; }
+	Vector3 GetPosition() const { return worldTransform_.translation_; }
+
+	// あたり判定
+	float GetRadius() const { return 1.0f; }
+	// ダメージ処理
+	void Damage(int damage) { hp_ -= damage; }
 	
 
 private:
@@ -95,6 +101,7 @@ private:
 	const float kMaxJumpTime = 600.0f;
 
 	
-	
+	//hp
+	int hp_ = 100;
 
 };

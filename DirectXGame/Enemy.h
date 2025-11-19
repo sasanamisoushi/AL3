@@ -2,16 +2,20 @@
 #include "KamataEngine.h"
 #include "MyMath.h"
 
+
 using namespace KamataEngine;
+
+class Player;
+class BulletManager;
 
 
 class Enemy {
 public:
 	// 初期化
-	void Initialize(Model* model, Camera* camera, const Vector3& position);
+	void Initialize(Model* model, Camera* camera, const Vector3& position, Player* player);
 
 	// 更新
-	void Update();
+	void Update(BulletManager* bulletManager);
 
 	
 
@@ -39,6 +43,9 @@ private:
 	// カメラ
 	Camera* camera_ = nullptr;
 
+	// プレイヤーへの参照
+	Player* player_ = nullptr;
+
 	Vector3 position_;
 
 	//あたり判定
@@ -46,4 +53,9 @@ private:
 
 	//HP
 	int hp_ = 100;
+
+	//攻撃
+	float attackRange_ = 3.0f; //サーベル距離
+	float shootRange_ = 20.0f; // 射撃距離
+	int attackCoolTime_ = 0;
 };
