@@ -17,7 +17,7 @@ public:
 	void Draw(Camera* camera);
 
 	//発射処理
-	void Fire(const Vector3& position, const Vector3& direction);
+	void Fire(const Vector3& position, const Vector3& direction, Bullet::Owner owner);
 
 	
 

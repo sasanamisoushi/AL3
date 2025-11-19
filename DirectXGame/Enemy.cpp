@@ -52,7 +52,7 @@ void Enemy::Update(BulletManager* bulletManager) {
 
 			Vector3 dir = Normalize(playerPos - position_);
 
-			bulletManager->Fire(position_, dir); // プレイヤーに向けて発射
+			bulletManager->Fire(position_, dir,Bullet::Owner::kEnemy); // プレイヤーに向けて発射
 
 			attackCoolTime_ = 45; // 射撃間隔
 		}

@@ -5,6 +5,11 @@
 class Bullet {
 public:
 
+	enum class Owner {
+		kPlayer,
+		kEnemy,	
+	};
+
 	// 初期化
 	void Initialize(Model* model, const Vector3& position,const Vector3& velocity);
 
@@ -17,8 +22,15 @@ public:
 	
 	bool IsDead() const { return IsDead_; }
 
+	//ゲッター
 	Vector3 GetPosition() const { return worldTransform_.translation_; }
 	float GetRadius() const { return 0.5f; }
+	Owner GetOwner() const { return owner_; }
+
+	//セッター
+	void SetOwner(Owner owner) { owner_ = owner; }
+
+	
 
 private:
 	// ワールド変換データ
@@ -36,5 +48,8 @@ private:
 	float lifeTime_ = 0.0f;
 
 	bool isAlive_ = true;
+
+	//デフォプレイヤー
+	Owner owner_ = Owner::kPlayer;
 
 };

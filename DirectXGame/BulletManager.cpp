@@ -16,6 +16,12 @@ void BulletManager::Update(std::vector<Enemy*>& enemies) {
 		// --- 敵との当たり判定 ---
 		if (!bullet->IsDead()) {
 			for (Enemy* enemy : enemies) {
+
+				 // 敵の弾なら敵との判定をスキップ
+				if (bullet->GetOwner() == Bullet::Owner::kEnemy) {
+					continue;
+				}
+
 				if (enemy->IsDead()) {
 					continue;
 				}
@@ -60,7 +66,7 @@ void BulletManager::Draw(Camera* camera) {
 
 }
 
-void BulletManager::Fire(const Vector3& position, const Vector3& direction) { 
+void BulletManager::Fire(const Vector3& position, const Vector3& direction, Bullet::Owner owner) { 
 
 	//新しい弾を生成
 	Bullet* newBullet = new Bullet();
@@ -69,6 +75,8 @@ void BulletManager::Fire(const Vector3& position, const Vector3& direction) {
 	Vector3 velocity = direction * 1.0f;
 
 	newBullet->Initialize(model_, position, velocity);
+	newBullet->SetOwner(owner);
+
 	bullets_.push_back(newBullet);
 
 }
