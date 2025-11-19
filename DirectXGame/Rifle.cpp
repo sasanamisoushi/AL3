@@ -92,7 +92,7 @@ void Rifle::Fire(BulletManager* bulletManager) {
 	// 弾の発射処理	
 	Vector3 pos = GetMuzzlePosition();
 	Vector3 dir = GetForwardVector();
-	bulletManager->Fire(pos, dir);
+	bulletManager->Fire(pos, dir,Bullet::Owner::kPlayer);
 
 	ammo_--;
 }

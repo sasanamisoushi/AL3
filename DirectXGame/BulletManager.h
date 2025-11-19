@@ -4,6 +4,7 @@
 #include <list>
 #include "Enemy.h"
 
+
 class BulletManager {
 public:
 
@@ -11,13 +12,13 @@ public:
 	void Initialize(Model* model);
 
 	//更新
-	void Update(std::vector<Enemy*>& enemies);
+	void Update(std::vector<Enemy*>& enemies, Player* player);
 
 	//描画
 	void Draw(Camera* camera);
 
 	//発射処理
-	void Fire(const Vector3& position, const Vector3& direction);
+	void Fire(const Vector3& position, const Vector3& direction, Bullet::Owner owner);
 
 	
 

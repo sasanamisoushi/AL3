@@ -1,10 +1,11 @@
 #include "BulletManager.h"
+#include "Player.h"
 
 void BulletManager::Initialize(Model* model) { 
 	model_ = model;
 }
 
-void BulletManager::Update(std::vector<Enemy*>& enemies) {
+void BulletManager::Update(std::vector<Enemy*>& enemies, Player* player) {
 
 	//弾のリストをループして更新
 	for (auto it = bullets_.begin(); it != bullets_.end();) {
@@ -16,6 +17,12 @@ void BulletManager::Update(std::vector<Enemy*>& enemies) {
 		// --- 敵との当たり判定 ---
 		if (!bullet->IsDead()) {
 			for (Enemy* enemy : enemies) {
+
+				 // 敵の弾なら敵との判定をスキップ
+				if (bullet->GetOwner() == Bullet::Owner::kEnemy) {
+					continue;
+				}
+
 				if (enemy->IsDead()) {
 					continue;
 				}
@@ -39,6 +46,26 @@ void BulletManager::Update(std::vector<Enemy*>& enemies) {
 			continue;
 		}
 
+		 // --- プレイヤーとの当たり判定 ---
+		// 敵弾だけプレイヤーに当たる
+		if (bullet->GetOwner() == Bullet::Owner::kEnemy) {
+
+			float dist = Length(player->GetPosition() - bullet->GetPosition());
+			if (dist < (player->GetRadius() + bullet->GetRadius())) {
+
+				player->Damage(10); // 好きなダメージ値に変更可能
+
+				delete bullet;
+				it = bullets_.erase(it);
+				erased = true;
+			}
+		}
+
+		// 弾が削除済みなら次へ
+		if (erased) {
+			continue;
+		}
+
 		// --- 寿命で消える場合 ---
 		if (bullet->IsDead()) {
 			delete bullet;
@@ -46,9 +73,7 @@ void BulletManager::Update(std::vector<Enemy*>& enemies) {
 		} else {
 			++it;
 		}
-
 	}
-
 }
 
 void BulletManager::Draw(Camera* camera) {
@@ -60,7 +85,7 @@ void BulletManager::Draw(Camera* camera) {
 
 }
 
-void BulletManager::Fire(const Vector3& position, const Vector3& direction) { 
+void BulletManager::Fire(const Vector3& position, const Vector3& direction, Bullet::Owner owner) { 
 
 	//新しい弾を生成
 	Bullet* newBullet = new Bullet();
@@ -69,6 +94,8 @@ void BulletManager::Fire(const Vector3& position, const Vector3& direction) {
 	Vector3 velocity = direction * 1.0f;
 
 	newBullet->Initialize(model_, position, velocity);
+	newBullet->SetOwner(owner);
+
 	bullets_.push_back(newBullet);
 
 }

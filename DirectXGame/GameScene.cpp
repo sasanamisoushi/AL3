@@ -54,7 +54,7 @@ void GameScene::Initialize() {
 void GameScene::Update() {
 
 	//弾の更新
-	bulletManager_->Update(enemies_);
+	bulletManager_->Update(enemies_,player);
 
 	//プレイヤーの更新
 	player->Update(bulletManager_,enemies_);
@@ -65,14 +65,32 @@ void GameScene::Update() {
 	
 	//Lキーでロックオン切り替え
 	if (Input::GetInstance()->TriggerKey(DIK_L)) {
-		bool now = player->GetLockOn();
-		player->SetLockOn(!now);
-		followCamera_.SetLockOn(!now);
-	}
+		if (enemies_.empty()) {
+			return;
+		}
+		// ロックオンされていないなら最初の敵へ
+		if (lockOnIndex == -1) {
+			lockOnIndex = 0;
+		} else {
+			// 次の敵へ
+			lockOnIndex++;
+			// はみ出したらロックオン解除、または先頭に戻す
+			if (lockOnIndex >= enemies_.size()) {
+				lockOnIndex = -1; // ここでロック解除
+				player->SetLockOn(false);
+				followCamera_.SetLockOn(false);
+				return;
+			}
+		}
 
-	//敵の座標を登録
-	/*player->SetLockOnTarget(&enemy->GetPosition());
-	followCamera_.SetLockOnTarget(&enemy->GetPosition());*/
+		// ロックオン実行
+		player->SetLockOn(true);
+		followCamera_.SetLockOn(true);
+
+		// ロックオン対象をセットする
+		player->SetLockOnTarget(&enemies_[lockOnIndex]->GetPosition());
+		followCamera_.SetLockOnTarget(&enemies_[lockOnIndex]->GetPosition());
+	}
 
 	// キーを押したらクリア画面に
 	if (Input::GetInstance()->TriggerKey(DIK_1)) {
