@@ -54,7 +54,7 @@ void GameScene::Initialize() {
 void GameScene::Update() {
 
 	//弾の更新
-	bulletManager_->Update(enemies_);
+	bulletManager_->Update(enemies_,player);
 
 	//プレイヤーの更新
 	player->Update(bulletManager_,enemies_);
