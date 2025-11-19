@@ -82,6 +82,33 @@ void Player::Update(BulletManager* bulletManager, std::vector<Enemy*>& enemies) 
 	// 銃の回転（プレイヤーと同じY回転でOK）
 	Vector3 weaponRotation = {0.0f, worldTransform_.rotation_.y - std::numbers::pi_v<float> / 2.0f, 0.0f};
 
+	// --- プレイヤー本体と敵の衝突（重なり防止） ---
+	for (Enemy* enemy : enemies) {
+		if (enemy->IsDead())
+			continue;
+
+		Vector3 diff = worldTransform_.translation_ - enemy->GetPosition();
+		float dist = Length(diff);
+		float minDist = GetRadius() + enemy->GetRadius();
+
+		// 重なっているか？
+		if (dist < minDist && dist > 0.001f) {
+
+			// 正規化（方向）
+			Vector3 dir = diff / dist;
+
+			// 押し戻し量
+			float push = minDist - dist;
+
+			// プレイヤーを押し戻す
+			worldTransform_.translation_ += dir * push;
+
+			// 座標をワールドに反映
+			WorldTransformUpdate(worldTransform_);
+		}
+	}
+
+
 	//銃を選んでいるときはプレイヤーの手元に追従
 	if (choiceRifle_) {
 		

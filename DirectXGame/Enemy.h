@@ -32,6 +32,8 @@ public:
 	//弾の当たり判定
 	bool HitChek(const Vector3& point, float r);
 
+	void ResolveCollisionWithPlayer();
+
 private:
 
 	// ワールド変換データ
