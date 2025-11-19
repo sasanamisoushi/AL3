@@ -2,6 +2,7 @@
 #include "KamataEngine.h"
 #include "Bullet.h"
 #include <list>
+#include "Enemy.h"
 
 class BulletManager {
 public:
@@ -10,7 +11,7 @@ public:
 	void Initialize(Model* model);
 
 	//更新
-	void Update();
+	void Update(std::vector<Enemy*>& enemies);
 
 	//描画
 	void Draw(Camera* camera);

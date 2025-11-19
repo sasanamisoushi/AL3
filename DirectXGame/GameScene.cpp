@@ -36,15 +36,16 @@ void GameScene::Initialize() {
 	enemyModel = Model::CreateFromOBJ("Enemy2");
 
 	//敵の生成
-	bulletManager_ = new BulletManager();
-	enemy = new Enemy();
-
-	enemy->Initialize(enemyModel, &camera_, {-5.0f, 0.5f, 5.0f});
+	
+	enemies_.push_back(new Enemy());
+	enemies_.back()->Initialize(enemyModel, &camera_, {-5.0f, 0.5f, 5.0f});
 
 	//------------弾-----------------
 
 	//弾のオブジェクト
 	bulletModel = Model::CreateFromOBJ("Bullet");
+
+	bulletManager_ = new BulletManager();
 
 	//弾の生成
 	bulletManager_->Initialize(bulletModel);
@@ -53,11 +54,14 @@ void GameScene::Initialize() {
 void GameScene::Update() {
 
 	//弾の更新
-	bulletManager_->Update();
+	bulletManager_->Update(enemies_);
 
 	//プレイヤーの更新
-	player->Update(bulletManager_);
+	player->Update(bulletManager_,enemies_);
 
+	for (auto* enemy : enemies_) {
+		enemy->Update();
+	}
 	
 	//Lキーでロックオン切り替え
 	if (Input::GetInstance()->TriggerKey(DIK_L)) {
@@ -67,8 +71,8 @@ void GameScene::Update() {
 	}
 
 	//敵の座標を登録
-	player->SetLockOnTarget(&enemy->GetPosition());
-	followCamera_.SetLockOnTarget(&enemy->GetPosition());
+	/*player->SetLockOnTarget(&enemy->GetPosition());
+	followCamera_.SetLockOnTarget(&enemy->GetPosition());*/
 
 	// キーを押したらクリア画面に
 	if (Input::GetInstance()->TriggerKey(DIK_1)) {
@@ -93,7 +97,9 @@ void GameScene::Draw() {
 	field->Draw();
 	bulletManager_->Draw(&camera_);
 	player->Draw();
-	enemy->Draw();
+	for (auto* enemy : enemies_) {
+		enemy->Draw();
+	}
 	Model::PostDraw();
 }
 
@@ -108,7 +114,11 @@ GameScene::~GameScene() {
 	delete playerModel_;
 
 	//敵の解放
-	delete enemy;
+	for (auto* enemy : enemies_) {
+		delete enemy;
+	}
+	enemies_.clear();
+
 	delete enemyModel;
 
 	//弾の解放

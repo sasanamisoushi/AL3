@@ -4,6 +4,7 @@
 #include "FollowCamera.h"
 #include "Rifle.h"
 #include "saber.h"
+#include "Enemy.h"
 
 
 using namespace KamataEngine;
@@ -25,7 +26,7 @@ public:
 	void Initialize(Model* model, Camera* camera, const Vector3& position);
 
 	// 更新
-	void Update(BulletManager* bulletManager);
+	void Update(BulletManager* bulletManager, std::vector<Enemy*>& enemies);
 
 	//移動用更新
 	void UpdateMovement();
@@ -92,6 +93,8 @@ private:
 	// ジャンプ時間管理
 	float jumpTime_ = 0.0f;
 	const float kMaxJumpTime = 600.0f;
+
+	
 	
 
 };

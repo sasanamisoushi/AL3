@@ -19,6 +19,14 @@ public:
 	void Draw();
 
 	const Vector3& GetPosition() const { return position_; }
+	float GetRadius() const { return radius_; }
+
+	// あたり判定取得
+	bool IsDead() const { return hp_ <= 0; }
+	void Damage(int damage) { hp_ -= damage; }
+
+	//弾の当たり判定
+	bool HitChek(const Vector3& point, float r);
 
 private:
 
@@ -32,4 +40,10 @@ private:
 	Camera* camera_ = nullptr;
 
 	Vector3 position_;
+
+	//あたり判定
+	float radius_ = 0.5f;
+
+	//HP
+	int hp_ = 100;
 };

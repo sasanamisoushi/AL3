@@ -44,7 +44,7 @@ void Player::Initialize(Model* model, Camera* camera, const Vector3& position) {
 
 
 
-void Player::Update(BulletManager* bulletManager) { 
+void Player::Update(BulletManager* bulletManager, std::vector<Enemy*>& enemies) { 
 	
 	// 重力と地面判定
 	ApplyGravity();
@@ -128,6 +128,14 @@ void Player::Update(BulletManager* bulletManager) {
 		//攻撃開始
 		if (Input::GetInstance()->TriggerKey(DIK_SPACE)) {
 			saber_->StartAttack();
+		}
+
+		if (saber_->IsAttacking()) {
+			for (Enemy* enemy : enemies) {
+				if (!enemy->IsDead() && saber_->CheckHit(enemy)) {
+					enemy->Damage(35); // ← ここがダメージ処理の正しい場所
+				}
+			}
 		}
 	}
 

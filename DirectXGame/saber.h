@@ -1,5 +1,6 @@
 #pragma once
 #include "KamataEngine.h"
+#include "Enemy.h"
 
 using namespace KamataEngine;
 
@@ -23,6 +24,12 @@ public:
 
 	//攻撃中かどうか
 	bool IsAttacking() const { return isAttacking_; }
+
+	Vector3 GetPosition() const { return worldTransform_.translation_; }
+
+	float GetRadius() const { return 1.5f; }
+
+	bool CheckHit(const Enemy* enemy) const;
 
 private:
 	// ワールド変換データ

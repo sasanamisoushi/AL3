@@ -88,3 +88,13 @@ void saber::StartAttack() {
 		attackTimer_ = 0;
 	}
 }
+
+bool saber::CheckHit(const Enemy* enemy) const {
+	if (!isAttacking_)
+		return false;
+
+	// 敵の中心との距離
+	float dist = Length(enemy->GetPosition() - GetPosition());
+
+	return dist < (enemy->GetRadius() + GetRadius());
+}

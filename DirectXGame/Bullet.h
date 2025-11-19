@@ -17,6 +17,9 @@ public:
 	
 	bool IsDead() const { return IsDead_; }
 
+	Vector3 GetPosition() const { return worldTransform_.translation_; }
+	float GetRadius() const { return 0.5f; }
+
 private:
 	// ワールド変換データ
 	KamataEngine::WorldTransform worldTransform_;
@@ -32,5 +35,6 @@ private:
 	//生存タイマー
 	float lifeTime_ = 0.0f;
 
+	bool isAlive_ = true;
 
 };

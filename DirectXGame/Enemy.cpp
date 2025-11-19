@@ -23,6 +23,11 @@ void Enemy::Initialize(Model* model, Camera* camera, const Vector3& position) {
 }
 
 void Enemy::Update() {
+#ifdef _DEBUG
+	ImGui::Begin("Enemy");
+	ImGui::Text("HP:%d", hp_);
+	ImGui::End();
+#endif
 
 
 }
@@ -30,5 +35,9 @@ void Enemy::Update() {
 void Enemy::Draw() {
 
 	
-	model_->Draw(worldTransform_, *camera_);
+	model_->Draw(worldTransform_, *camera_); }
+
+bool Enemy::HitChek(const Vector3& point, float r) {
+	float dist = Length(position_ - point);
+	return dist < (radius_ + r);
 }

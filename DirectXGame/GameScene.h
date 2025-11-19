@@ -43,7 +43,7 @@ private:
 
 	
 	//敵
-	Enemy* enemy = nullptr;
+	std::vector<Enemy*> enemies_;
 	Model* enemyModel = nullptr;
 
 	//弾の管理
