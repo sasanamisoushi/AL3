@@ -7,9 +7,6 @@
 #include "Enemy.h"
 
 
-using namespace KamataEngine;
-
-
 class Player {
 public:
 
@@ -66,14 +63,22 @@ private:
 	//速度
 	Vector3 velocity_ = {};
 
+	//------------地上------------
+
 	//加速度
 	const float KAcceleration = 0.3f;
-
 	//減速率
 	const float KAttenuation = 0.2f;
-
 	//最大速度
 	const float KLimitRunSpeed = 0.4f;
+
+	//------------空中------------
+	//加速度
+	const float KAirAcceleration = 0.1f;
+	//減速率
+	const float KAirAttenuation = 0.1f;
+	//最大速度
+	const float KLimitAirSpeed = 0.4f;
 
 	// 前後左右向き
 	Direction direction_ = Direction::kRight;

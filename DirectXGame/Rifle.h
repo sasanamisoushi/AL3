@@ -3,7 +3,6 @@
 #include "MyMath.h"
 #include "BulletManager.h"
 
-using namespace KamataEngine;
 
 class Rifle {
 public:
