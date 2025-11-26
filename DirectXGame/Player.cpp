@@ -193,6 +193,11 @@ void Player::Update(BulletManager* bulletManager, std::vector<Enemy*>& enemies) 
 
 void Player::UpdateMovement() { 
 
+	//地上と空中によって定数を切り分ける
+	const float currentAcc = isOnGround_ ? KAcceleration : KAirAcceleration;
+	const float currentAtt = isOnGround_ ? KAttenuation : KAirAttenuation;
+	const float currentLimit = isOnGround_ ? KLimitRunSpeed : KLimitAirSpeed;
+
 	if (Input::GetInstance()->PushKey(DIK_W) ||Input::GetInstance()->PushKey(DIK_S) ||
 		Input::GetInstance()->PushKey(DIK_A) || Input::GetInstance()->PushKey(DIK_D)) {
 
@@ -203,10 +208,10 @@ void Player::UpdateMovement() {
 			if (velocity_.x > 0.0f) {
 			
 				//速度と逆方向に入力中は急ブレーキ
-				velocity_.x *= (1.0f - KAcceleration);
+				velocity_.x *= (1.0f - currentAcc);
 			}
 
-			acceleration.x -= KAcceleration / 60.0f;
+			acceleration.x -= currentAcc / 60.0f;
 		
 		} else if (Input::GetInstance()->PushKey(DIK_S)) {
 
@@ -214,13 +219,13 @@ void Player::UpdateMovement() {
 			if (velocity_.x < 0.0f) {
 
 				// 速度と逆方向に入力中は急ブレーキ
-				velocity_.x *= (1.0f - KAcceleration);
+				velocity_.x *= (1.0f - currentAcc);
 			}
 
-			acceleration.x += KAcceleration / 60.0f;
+			acceleration.x += currentAcc / 60.0f;
 		} else {
 			// 入力なしだと減衰
-			velocity_.x *= (1.0f - KAttenuation);
+			velocity_.x *= (1.0f - currentAtt);
 		}
 
 
@@ -230,10 +235,10 @@ void Player::UpdateMovement() {
 			if (velocity_.z > 0.0f) {
 
 				// 速度と逆方向に入力中は急ブレーキ
-				velocity_.z *= (1.0f - KAcceleration);
+				velocity_.z *= (1.0f - currentAcc);
 			}
 
-			acceleration.z-= KAcceleration / 60.0f;
+			acceleration.z -= currentAcc / 60.0f;
 
 		} else if (Input::GetInstance()->PushKey(DIK_D)) {
 
@@ -241,13 +246,13 @@ void Player::UpdateMovement() {
 			if (velocity_.z < 0.0f) {
 
 				// 速度と逆方向に入力中は急ブレーキ
-				velocity_.z *= (1.0f - KAcceleration);
+				velocity_.z *= (1.0f - currentAcc);
 			}
 
-			acceleration.z += KAcceleration / 60.0f;
+			acceleration.z += currentAcc / 60.0f;
 		} else {
 			// 入力なしだと減衰
-			velocity_.z *= (1.0f - KAttenuation);
+			velocity_.z *= (1.0f - currentAtt);
 		}
 
 
@@ -257,8 +262,8 @@ void Player::UpdateMovement() {
 		velocity_ += acceleration;
 
 		//最大速度制限
-		velocity_.x = std::clamp(velocity_.x, -KLimitRunSpeed, KLimitRunSpeed);
-		velocity_.z = std::clamp(velocity_.z, -KLimitRunSpeed, KLimitRunSpeed);
+		velocity_.x = std::clamp(velocity_.x, -currentLimit, currentLimit);
+		velocity_.z = std::clamp(velocity_.z, -currentLimit, currentLimit);
 
 		//カメラの向きに合わせて移動方向を変更
 		Matrix4x4 matRotY = MakeRotateYMatrix(worldTransform_.rotation_.y);
@@ -297,6 +302,10 @@ void Player::ApplyGravity() {
 			velocity_.y += kJumpPower; // 押してる間は上昇
 			jumpTime_ += 1.5f;
 		} else {
+
+			if (velocity_.y > 0.0f) {
+				velocity_.y *= 0.95f; // 速度を緩やかに減速させる
+			}
 			velocity_.y += kGravity; // 離したら重力が働く
 			jumpTime_ -= 1.0f;
 		}
