@@ -100,4 +100,15 @@ void BulletManager::Fire(const Vector3& position, const Vector3& direction, Bull
 
 }
 
+BulletManager::~BulletManager() {
+
+	//コンテナ内の全てのBullet*を解放する
+	for (Bullet* bullet : bullets_) {
+		delete bullet;
+	}
+
+	//コンテナ自体をクリア
+	bullets_.clear();
+}
+
 

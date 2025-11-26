@@ -61,7 +61,7 @@ Matrix4x4 MakeTranslateMatrix(const Vector3& translate) {
 }
 
 // 拡大縮小
-Matrix4x4 MkeScaleMatrix(const Vector3& scale) {
+Matrix4x4 MakeScaleMatrix(const Vector3& scale) {
 	Matrix4x4 result = {scale.x, 0, 0, 0, 0, scale.y, 0, 0, 0, 0, scale.z, 0, 0, 0, 0, 1};
 	return result;
 }
@@ -106,7 +106,7 @@ Matrix4x4 Multiply(const Matrix4x4& m1, const Matrix4x4& m2) {
 // アフィン変換
 Matrix4x4 MakeAffineMatrix(const Vector3& scale, const Vector3& rotate, const Vector3& translate) {
 	Matrix4x4 rot = Multiply(Multiply(MakeRoteXMatrix(rotate.x), MakeRotateYMatrix(rotate.y)), MakeRotateZMatrix(rotate.z));
-	Matrix4x4 result = Multiply(Multiply(MkeScaleMatrix(scale), rot), MakeTranslateMatrix(translate));
+	Matrix4x4 result = Multiply(Multiply(MakeScaleMatrix(scale), rot), MakeTranslateMatrix(translate));
 
 	return result;
 }

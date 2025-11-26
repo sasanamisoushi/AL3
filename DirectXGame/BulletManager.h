@@ -20,7 +20,8 @@ public:
 	//発射処理
 	void Fire(const Vector3& position, const Vector3& direction, Bullet::Owner owner);
 
-	
+	//デストラクタ
+	~BulletManager();
 
 private:
 	std::list<Bullet*> bullets_;
