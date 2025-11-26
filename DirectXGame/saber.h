@@ -32,6 +32,9 @@ public:
 
 	bool CheckHit(const Enemy* enemy);
 
+	//デストラクタ
+	~saber();
+
 private:
 	// ワールド変換データ
 	KamataEngine::WorldTransform worldTransform_;

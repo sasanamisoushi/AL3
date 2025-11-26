@@ -116,3 +116,5 @@ void Rifle::Reload() {
 	
 
 }
+
+Rifle::~Rifle() { delete model_; }

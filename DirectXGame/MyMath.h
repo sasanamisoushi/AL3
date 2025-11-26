@@ -23,7 +23,7 @@ Vector3 operator-(const Vector3& lhv, const Vector3& rhv);
 Matrix4x4 MakeTranslateMatrix(const Vector3& translate);
 
 // 拡大縮小
-Matrix4x4 MkeScaleMatrix(const Vector3& scale);
+Matrix4x4 MakeScaleMatrix(const Vector3& scale);
 
 // X軸回転行列
 Matrix4x4 MakeRoteXMatrix(float radian);

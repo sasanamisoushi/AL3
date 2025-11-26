@@ -103,3 +103,5 @@ bool saber::CheckHit(const Enemy* enemy)  {
 
 	return false;
 }
+
+saber::~saber() { delete model_; }

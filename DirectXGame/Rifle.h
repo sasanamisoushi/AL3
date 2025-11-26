@@ -31,7 +31,9 @@ public:
 	void Reload();
 	int GetAmmo() const { return ammo_; }
 	int GetReserveAmmo() const { return reserveAmmo_; }
-   
+
+	//デストラクタ
+	~Rifle();
 
 private:
 	// ワールド変換データ
