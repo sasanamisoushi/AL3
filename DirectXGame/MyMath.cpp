@@ -5,6 +5,8 @@
 #include "MyMath.h"
 #include <numbers>
 
+using namespace KamataEngine;
+
 namespace KamataEngine {
 
 // 単項演算子オーバーロード

@@ -1,6 +1,8 @@
 #include "Bullet.h"
 #include <numbers>
 
+using namespace KamataEngine;
+
 void Bullet::Initialize(Model* model, const Vector3& position, const Vector3& velocity) {
 
 	//NULLポインタチェック

@@ -2,6 +2,8 @@
 #include <numbers>
 #include <algorithm>
 
+using namespace KamataEngine;
+
 void FollowCamera::Initialize(Camera* camera_) {
 	camera = camera_;
 	camera->Initialize();

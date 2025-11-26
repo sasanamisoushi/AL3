@@ -11,19 +11,19 @@ public:
 	};
 
 	// 初期化
-	void Initialize(Model* model, const Vector3& position,const Vector3& velocity);
+	void Initialize(KamataEngine::Model* model, const KamataEngine::Vector3& position, const KamataEngine::Vector3& velocity);
 
 	// 更新
 	void Update();
 
 	// 描画
-	void Draw(Camera* camera);
+	void Draw(KamataEngine::Camera* camera);
 
 	
 	bool IsDead() const { return IsDead_; }
 
 	//ゲッター
-	Vector3 GetPosition() const { return worldTransform_.translation_; }
+	KamataEngine::Vector3 GetPosition() const { return worldTransform_.translation_; }
 	float GetRadius() const { return 0.5f; }
 	Owner GetOwner() const { return owner_; }
 
@@ -37,10 +37,10 @@ private:
 	KamataEngine::WorldTransform worldTransform_;
 
 	// モデル
-	Model* model_ = nullptr;
+	KamataEngine::Model* model_ = nullptr;
 
 	//速度
-	Vector3 velocity_ = {};
+	KamataEngine::Vector3 velocity_ = {};
 
 	bool IsDead_ = false;
 
