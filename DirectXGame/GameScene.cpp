@@ -7,86 +7,106 @@ void GameScene::Initialize() {
 	// カメラの初期化
 	camera_.Initialize();
 
-	 // カメラ位置と注視点を設定
+	// カメラ位置と注視点を設定
 	camera_.translation_ = {0.0f, 10.0f, -30.0f};
 	camera_.rotation_ = {0.3f, 0.0f, 0.0f};
-	camera_.UpdateMatrix();  
+	camera_.UpdateMatrix();
 
 	//------------フェールド-----------------
 
-	//フィールドオブジェクト
+	// フィールドオブジェクト
 	fieldModel_ = Model::CreateFromOBJ("field");
 
-	//フィールドの生成
+	// フィールドの生成
 	field = new Field();
 	field->Initialize(fieldModel_, &camera_, {0.0f, -5.0f, 0.0f});
 
 	//------------プレイヤー-----------------
 
-	//プレイヤーオブジェクト
+	// プレイヤーオブジェクト
 	playerModel_ = Model::CreateFromOBJ("Enemy1");
 
-	//プレイヤーの生成
+	// プレイヤーの生成
 	player = new Player();
 	player->Initialize(playerModel_, &camera_, {0.0f, 0.5f, 0.0f});
 
 	//------------敵-----------------
 
-	//敵のオブジェクト
+	// 敵のオブジェクト
 	enemyModel = Model::CreateFromOBJ("Enemy2");
 
-	//敵の生成
-	
-	enemies_.push_back(new Enemy());
-	enemies_.back()->Initialize(enemyModel, &camera_, {-5.0f, 0.5f, 5.0f},player);
+	// EnemyManager 初期化
+	enemyManager_.Initialize(enemyModel, &camera_, player);
+
+	////敵の生成
+	// enemies_.push_back(new Enemy());
+	// enemies_.back()->Initialize(enemyModel, &camera_, {-5.0f, 0.5f, 5.0f},player);
 
 	//------------弾-----------------
 
-	//弾のオブジェクト
+	// 弾のオブジェクト
 	bulletModel = Model::CreateFromOBJ("Bullet");
 
 	bulletManager_ = new BulletManager();
 
-	//弾の生成
+	// 弾の生成
 	bulletManager_->Initialize(bulletModel);
 }
 
 void GameScene::Update() {
 
-	//弾の更新
-	bulletManager_->Update(enemies_,player);
+	// 弾の更新
+	bulletManager_->Update(enemyManager_.GetEnemies(), player);
 
-	//プレイヤーの更新
-	player->Update(bulletManager_,enemies_);
+	// プレイヤーの更新
+	player->Update(bulletManager_, enemyManager_.GetEnemies());
 
-	for (auto* enemy : enemies_) {
-		enemy->Update(bulletManager_);
+	// 敵の更新
+	enemyManager_.Update(bulletManager_);
+
+	auto& enemies_ = enemyManager_.GetEnemies();
+
+	// 敵がいなければロック不可
+	if (enemies_.empty()) {
+		lockOnIndex = -1;
+		player->SetLockOn(false);
+		followCamera_.SetLockOn(false);
+		return;
 	}
-	
-	//Lキーでロックオン切り替え
+
+	// Lキーでロックオン切り替え
 	if (Input::GetInstance()->TriggerKey(DIK_L)) {
-		if (enemies_.empty()) {
-			return;
-		}
-		// ロックオンされていないなら最初の敵へ
 		if (lockOnIndex == -1) {
+			// ロックオン開始
 			lockOnIndex = 0;
+			player->SetLockOn(true);
+			followCamera_.SetLockOn(true);
 		} else {
-			// 次の敵へ
+			// ロック解除
+			lockOnIndex = -1;
+			player->SetLockOn(false);
+			followCamera_.SetLockOn(false);
+		}
+	}
+
+	// --- ロックオン中に矢印で敵を切り替える ---
+	if (lockOnIndex != -1) {
+
+		// → 次の敵
+		if (Input::GetInstance()->TriggerKey(DIK_RIGHT)) {
 			lockOnIndex++;
-			// はみ出したらロックオン解除、または先頭に戻す
 			if (lockOnIndex >= enemies_.size()) {
-				lockOnIndex = -1; // ここでロック解除
-				player->SetLockOn(false);
-				followCamera_.SetLockOn(false);
-				return;
+				lockOnIndex = 0; // ループ
 			}
 		}
 
-		// ロックオン実行
-		player->SetLockOn(true);
-		followCamera_.SetLockOn(true);
-
+		// ← 前の敵
+		if (Input::GetInstance()->TriggerKey(DIK_LEFT)) {
+			lockOnIndex--;
+			if (lockOnIndex < 0) {
+				lockOnIndex = (int)enemies_.size() - 1; // ループ
+			}
+		}
 		// ロックオン対象をセットする
 		player->SetLockOnTarget(&enemies_[lockOnIndex]->GetPosition());
 		followCamera_.SetLockOnTarget(&enemies_[lockOnIndex]->GetPosition());
@@ -116,34 +136,24 @@ void GameScene::Draw() {
 	field->Draw();
 	bulletManager_->Draw(&camera_);
 	player->Draw();
-	for (auto* enemy : enemies_) {
-		enemy->Draw();
-	}
+	enemyManager_.Draw();
 	Model::PostDraw();
 }
 
-GameScene::~GameScene() { 
-	
-	//フィールドの解放
+GameScene::~GameScene() {
+
+	// フィールドの解放
 	delete field;
 	delete fieldModel_;
 
-	//プレイヤーの解放
+	// プレイヤーの解放
 	delete player;
 	delete playerModel_;
 
-	//敵の解放
-	for (auto* enemy : enemies_) {
-		delete enemy;
-	}
-	enemies_.clear();
-
+	// 敵の解放
 	delete enemyModel;
 
-	//弾の解放
+	// 弾の解放
 	delete bulletManager_;
 	delete bulletModel;
-
 }
-
-

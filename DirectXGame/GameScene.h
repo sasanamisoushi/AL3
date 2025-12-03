@@ -6,8 +6,9 @@
 #include "Enemy.h"
 #include "FollowCamera.h"
 #include "BulletManager.h"
+#include "EnemyManager.h"
 
-using namespace KamataEngine;
+
 
 class GameScene {
 public:
@@ -27,28 +28,29 @@ public:
 
 private:
 	// カメラ
-	Camera camera_;
+	KamataEngine::Camera camera_;
 	FollowCamera followCamera_;
 
 	//フィールドモデル
-	Model *fieldModel_ = nullptr;
+	KamataEngine::Model* fieldModel_ = nullptr;
 	
 	//地面
 	Field* field = nullptr;
-	WorldTransform worldTransformField_;
+	KamataEngine::WorldTransform worldTransformField_;
 
 	//プレイヤー
 	Player* player = nullptr;
-	Model* playerModel_ = nullptr;
+	KamataEngine::Model* playerModel_ = nullptr;
 
-	
-	//敵
-	std::vector<Enemy*> enemies_;
-	Model* enemyModel = nullptr;
+	//敵のモデル
+	KamataEngine::Model* enemyModel = nullptr;
 
 	//弾の管理
 	BulletManager* bulletManager_=nullptr;
-	Model* bulletModel = nullptr;
+	KamataEngine::Model* bulletModel = nullptr;
+
+	//敵の管理
+	EnemyManager enemyManager_;
 
 
 	// 終了フラグ

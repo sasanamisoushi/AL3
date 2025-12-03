@@ -3,8 +3,6 @@
 #include "MyMath.h"
 
 
-using namespace KamataEngine;
-
 class Player;
 class BulletManager;
 
@@ -12,7 +10,7 @@ class BulletManager;
 class Enemy {
 public:
 	// 初期化
-	void Initialize(Model* model, Camera* camera, const Vector3& position, Player* player);
+	void Initialize(KamataEngine::Model* model, KamataEngine::Camera* camera, const KamataEngine::Vector3& position, Player* player);
 
 	// 更新
 	void Update(BulletManager* bulletManager);
@@ -22,7 +20,7 @@ public:
 	// 描画
 	void Draw();
 
-	const Vector3& GetPosition() const { return position_; }
+	const KamataEngine::Vector3& GetPosition() const { return position_; }
 	float GetRadius() const { return radius_; }
 
 	// あたり判定取得
@@ -30,7 +28,7 @@ public:
 	void Damage(int damage) { hp_ -= damage; }
 
 	//弾の当たり判定
-	bool HitChek(const Vector3& point, float r);
+	bool HitChek(const KamataEngine::Vector3& point, float r);
 
 	void ResolveCollisionWithPlayer();
 
@@ -40,15 +38,15 @@ private:
 	KamataEngine::WorldTransform worldTransform_;
 
 	// モデル
-	Model* model_ = nullptr;
+	KamataEngine::Model* model_ = nullptr;
 
 	// カメラ
-	Camera* camera_ = nullptr;
+	KamataEngine::Camera* camera_ = nullptr;
 
 	// プレイヤーへの参照
 	Player* player_ = nullptr;
 
-	Vector3 position_;
+	KamataEngine::Vector3 position_;
 
 	//あたり判定
 	float radius_ = 0.5f;

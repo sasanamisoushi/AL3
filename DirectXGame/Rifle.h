@@ -7,7 +7,7 @@
 class Rifle {
 public:
 	// 初期化
-	void Initialize(Model* model, Camera* camera, const Vector3& position);
+	void Initialize(KamataEngine::Model* model, KamataEngine::Camera* camera, const KamataEngine::Vector3& position);
 
 	// 更新
 	void Update();
@@ -15,13 +15,13 @@ public:
 	// 描画
 	void Draw();
 
-	void SetPosition(const Vector3& position, const Vector3& rotation);
+	void SetPosition(const KamataEngine::Vector3& position, const KamataEngine::Vector3& rotation);
 
 	//銃の前方向を取得
-	Vector3 GetForwardVector() const;
+	KamataEngine::Vector3 GetForwardVector() const;
 
 	//銃口位置を取得
-	Vector3 GetMuzzlePosition() const;
+	KamataEngine::Vector3 GetMuzzlePosition() const;
 
 	//弾の発射処理
 	void Fire(BulletManager* bulletManager);
@@ -39,10 +39,10 @@ private:
 	KamataEngine::WorldTransform worldTransform_;
 
 	// モデル
-	Model* model_ = nullptr;
+	KamataEngine::Model* model_ = nullptr;
 
 	// カメラ
-	Camera* camera_ = nullptr;
+	KamataEngine::Camera* camera_ = nullptr;
 
 	//弾数
 	int ammo_ = 10;
@@ -51,7 +51,7 @@ private:
 	int maxAmmo_ = 10;
 
 	//総弾数
-	int reserveAmmo_ = 90;
+	int reserveAmmo_ = 200;
 
 	//リロード時間
 	float reloadTime_ = 1.5f;

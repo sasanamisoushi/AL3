@@ -3,6 +3,8 @@
 #include "BulletManager.h"
 #include <numbers>
 
+using namespace KamataEngine;
+
 void Enemy::Initialize(Model* model, Camera* camera, const Vector3& position, Player* player) {
 	// NULLポインタチェック
 	assert(model);
@@ -28,6 +30,10 @@ void Enemy::Initialize(Model* model, Camera* camera, const Vector3& position, Pl
 }
 
 void Enemy::Update(BulletManager* bulletManager) {
+
+	if (hp_ <= 0) {
+		return;
+	}
 
 	 // 座標更新
 	position_ = worldTransform_.translation_;
@@ -73,7 +79,9 @@ void Enemy::Update(BulletManager* bulletManager) {
 }
 
 void Enemy::Draw() {
-
+	if (hp_ <= 0) {
+		return;
+	}
 	
 	model_->Draw(worldTransform_, *camera_); }
 
