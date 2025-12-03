@@ -30,6 +30,10 @@ void Player::Initialize(Model* model, Camera* camera, const Vector3& position) {
 	saber_->Initialize(Model::CreateFromOBJ("saber"), camera_, position);
 	choiceSaber_ = true;
 	
+	//盾
+	shield_ = new Shield();
+	shield_->Initialize(Model::CreateFromOBJ("shield"), camera_, position);
+	
 	
 
 	//追従カメラの初期化
@@ -166,6 +170,36 @@ void Player::Update(BulletManager* bulletManager, std::vector<Enemy*>& enemies) 
 		}
 	}
 
+	//---------------------盾----------------------
+
+	// 盾の位置オフセット（左手の横に）
+	Vector3 shieldOffsetSide = {0.0f, -0.3f, -1.3f};
+
+	// 盾を前に構えるオフセット
+	Vector3 shieldOffsetFront = { -1.0f, -0.3f, 0.0f};
+
+	// プレイヤーの回転を考慮
+	Matrix4x4 rotY = MakeRotateYMatrix(worldTransform_.rotation_.y);
+
+	// 回転後のオフセット
+	Vector3 shieldPosSide = worldTransform_.translation_ + TransformNormal(shieldOffsetSide, rotY);
+	Vector3 shieldPosFront = worldTransform_.translation_ + TransformNormal(shieldOffsetFront, rotY);
+
+	// ガード中（P押しっぱなし）かどうか
+	bool guarding = Input::GetInstance()->PushKey(DIK_P);
+	shield_->SetGuarding(guarding);
+
+	if (guarding) {
+		// 盾を前に構える
+		shield_->SetPosition(shieldPosFront, {0.0f, 
+			worldTransform_.rotation_.y + std::numbers::pi_v<float> / 2.0f, 
+			0.0f}
+		);
+	} else {
+		// 盾を横に構える
+		shield_->SetPosition(shieldPosSide, {0.0f, worldTransform_.rotation_.y, 0.0f});
+	}
+
 	//カメラ更新
 	followCamera_.Update();
 
@@ -174,6 +208,9 @@ void Player::Update(BulletManager* bulletManager, std::vector<Enemy*>& enemies) 
 	//地面判定
 	ImGui::Begin("Player Info");
 	ImGui::Text("isOnGround: %s", isOnGround_ ? "true" : "false");
+	ImGui::Text("Shield HP: %d ", shield_->GetShieldHp());
+	ImGui::Text("Shield Broken: %s", shield_->IsBroken() ? "true" : "false");
+	ImGui::Text("Guarding: %s", shield_->IsGuarding() ? "true" : "false");
 	// ジャンプ時間
 	ImGui::Text("Jump Time: %.2f", jumpTime_);
 
@@ -346,6 +383,8 @@ void Player::Draw() {
 	
 		saber_->Draw();
 	}
+
+	shield_->Draw();
 	
 }
 
@@ -354,5 +393,7 @@ Player::~Player() {
 	delete rifle_;
 
 	delete saber_;
+
+	delete shield_;
 }
 

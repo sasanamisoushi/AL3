@@ -5,6 +5,7 @@
 #include "Rifle.h"
 #include "saber.h"
 #include "Enemy.h"
+#include "Shield.h"
 
 
 class Player {
@@ -47,6 +48,8 @@ public:
 	float GetRadius() const { return radius_; }
 	// ダメージ処理
 	void Damage(int damage) { hp_ -= damage; }
+
+	Shield* GetShield() const { return shield_; }
 	
 
 private:
@@ -89,6 +92,8 @@ private:
 	const Vector3* lockOnTarget_ = nullptr;
 	bool isLockOn_ = false;
 
+	//------------------武器------------------
+
 	//武器(銃)
 	Rifle* rifle_ = nullptr;
 	//銃を装備しているか
@@ -98,6 +103,9 @@ private:
 	saber* saber_ = nullptr;
 	//剣を装備しているか
 	bool choiceSaber_ = true;
+
+	//盾
+	Shield* shield_ = nullptr;
 
 	// 地面にいるかどうか
 	bool isOnGround_ = false;
