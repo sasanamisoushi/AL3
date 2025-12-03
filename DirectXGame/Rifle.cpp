@@ -87,7 +87,6 @@ void Rifle::Fire(BulletManager* bulletManager) {
 
 	// 弾数が0なら発射できない
 	if (ammo_ <= 0) {
-		Reload();
 		return;
 	}
 
