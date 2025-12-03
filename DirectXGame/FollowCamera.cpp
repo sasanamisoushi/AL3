@@ -81,6 +81,8 @@ void FollowCamera::Update() {
 	// カメラへの反転
 	camera->translation_ = translation_;
 	camera->UpdateMatrix();
+
+	
 }
 
 

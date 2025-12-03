@@ -102,6 +102,7 @@ void GameScene::Update() {
 	ImGui::Text("R choiceWeapon");
 	ImGui::Text("L lock on");
 	ImGui::Text("E Reload");
+	ImGui::Text("O Jump");
 	ImGui::Text("SPACE attack");
 	ImGui::End();
 #endif
