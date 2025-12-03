@@ -14,6 +14,9 @@ public:
 	//描画
 	void Draw();
 
+	// デストラクタを追加
+	~EnemyManager();
+
 	std::vector<Enemy*>& GetEnemies()  { return enemies_; }
 
 private:

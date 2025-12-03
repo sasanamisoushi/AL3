@@ -146,12 +146,15 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	switch (currentSceneEnum) {
 	case Scene::kTitle:
 		delete titleScene;
+		titleScene = nullptr;
 		break;
 	case Scene::kGame:
 		delete gameScene;
+		gameScene = nullptr;
 		break;
 	case Scene::kGameClear:
 		delete gameClearScene;
+		gameClearScene = nullptr;
 		break;
 	}
 

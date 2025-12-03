@@ -144,16 +144,23 @@ GameScene::~GameScene() {
 
 	// フィールドの解放
 	delete field;
+	field = nullptr;
 	delete fieldModel_;
+	fieldModel_ = nullptr;
 
 	// プレイヤーの解放
 	delete player;
+	player = nullptr;
 	delete playerModel_;
+	playerModel_ = nullptr;
 
 	// 敵の解放
 	delete enemyModel;
+	enemyModel = nullptr;
 
 	// 弾の解放
 	delete bulletManager_;
+	bulletManager_ = nullptr;
 	delete bulletModel;
+	bulletModel = nullptr;
 }
