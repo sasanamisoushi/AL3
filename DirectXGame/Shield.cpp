@@ -62,3 +62,5 @@ void Shield::TakeDamage(int amount) {
 		isBroken_ = true; // 盾が破壊される！
 	}
 }
+
+Shield::~Shield() { delete model_; }

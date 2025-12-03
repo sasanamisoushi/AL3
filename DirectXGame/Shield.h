@@ -30,6 +30,10 @@ public:
 
 	int GetShieldHp() const { return durability_; }
 
+
+	// デストラクタの宣言を追加
+	~Shield();
+
 private:
 
 	// ワールド変換データ

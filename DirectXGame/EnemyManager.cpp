@@ -38,6 +38,15 @@ void EnemyManager::Draw() {
 	}
 }
 
+EnemyManager::~EnemyManager() {
+
+// 管理している全ての敵オブジェクトを解放
+	for (Enemy* enemy : enemies_) {
+		delete enemy;
+	}
+	enemies_.clear();
+}
+
 void EnemyManager::SpawnEnemies(int count) {
 	for (int i = 0; i < count; i++) {
 		Enemy* enemy = new Enemy();
