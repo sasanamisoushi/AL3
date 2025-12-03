@@ -1,6 +1,8 @@
 #include "BulletManager.h"
 #include "Player.h"
 
+using namespace KamataEngine;
+
 void BulletManager::Initialize(Model* model) { model_ = model; }
 
 void BulletManager::Update(std::vector<Enemy*>& enemies, Player* player) {

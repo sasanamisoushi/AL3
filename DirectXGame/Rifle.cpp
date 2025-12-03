@@ -4,6 +4,8 @@
 #include <numbers>
 #include <algorithm> 
 
+using namespace KamataEngine;
+
 void Rifle::Initialize(Model* model, Camera* camera, const Vector3& position) {
 
 	// NULLポインタチェック

@@ -9,23 +9,23 @@ class BulletManager {
 public:
 
 	//初期化
-	void Initialize(Model* model);
+	void Initialize(KamataEngine::Model* model);
 
 	//更新
 	void Update(std::vector<Enemy*>& enemies, Player* player);
 
 	//描画
-	void Draw(Camera* camera);
+	void Draw(KamataEngine::Camera* camera);
 
 	//発射処理
-	void Fire(const Vector3& position, const Vector3& direction, Bullet::Owner owner);
+	void Fire(const KamataEngine::Vector3& position, const KamataEngine::Vector3& direction, Bullet::Owner owner);
 
 	//デストラクタ
 	~BulletManager();
 
 private:
 	std::list<Bullet*> bullets_;
-	Model* model_ = nullptr;
+	KamataEngine::Model* model_ = nullptr;
 
 
 };
