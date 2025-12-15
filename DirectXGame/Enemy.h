@@ -38,6 +38,10 @@ public:
 
 	void ResolveCollisionWithPlayer();
 
+
+	//デストラクタ
+	~Enemy();
+
 private:
 
 	// ワールド変換データ
@@ -62,7 +66,7 @@ private:
 
 	//攻撃
 	float attackRange_ = 5.0f; //サーベル距離
-	float shootRange_ = 20.0f; // 射撃距離
+	float shootRange_ = 200.0f; // 射撃距離
 	int attackCoolTime_ = 0;
 
 	//移動速度
@@ -73,4 +77,7 @@ private:
 
 	//武器
 	Rifle* rifle_ = nullptr;
+
+	KamataEngine::Vector3 rifleOffset_ = {1.0f, 1.2f, -0.4f}; // 敵の手元
+	KamataEngine::Vector3 muzzleOffset_ = {0.0f, -0.35f, 0.8f}; // 銃口
 };
