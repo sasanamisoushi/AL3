@@ -19,6 +19,9 @@ public:
 
 	std::vector<Enemy*>& GetEnemies()  { return enemies_; }
 
+	//敵同士の衝突
+	void ResolveEnemyCollisions();
+
 private:
 
 	//指定数の敵を生成

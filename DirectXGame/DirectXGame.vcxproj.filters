@@ -16,18 +16,24 @@
     <Filter Include="シェーダー ファイル">
       <UniqueIdentifier>{718c7f4c-fc51-40ad-a221-b9456a7a1a3c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ソース ファイル\Enemy">
+      <UniqueIdentifier>{104d24c5-ab48-4600-988f-9f277fcb4804}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\weapon">
+      <UniqueIdentifier>{7770c622-687c-4fc4-ae12-1800803defb1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Scene">
+      <UniqueIdentifier>{ed8301ed-cd1f-4e9f-87d9-8759a92387f7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Enemy">
+      <UniqueIdentifier>{7d43b7b2-d428-423b-9124-bd560fefc6b2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\weapon">
+      <UniqueIdentifier>{6b079ce4-85a1-4aeb-a40d-dbc755512ff6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="TitleScene.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="GameScene.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="GameClearScene.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="Field.cpp">
@@ -43,22 +49,34 @@
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="Enemy.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>ソース ファイル\Enemy</Filter>
     </ClCompile>
-    <ClCompile Include="Rifle.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Bullet.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="BulletManager.cpp">
-      <Filter>ソース ファイル</Filter>
+    <ClCompile Include="EnemyManager.cpp">
+      <Filter>ソース ファイル\Enemy</Filter>
     </ClCompile>
     <ClCompile Include="saber.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>ソース ファイル\weapon</Filter>
+    </ClCompile>
+    <ClCompile Include="Rifle.cpp">
+      <Filter>ソース ファイル\weapon</Filter>
     </ClCompile>
     <ClCompile Include="Shield.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>ソース ファイル\weapon</Filter>
+    </ClCompile>
+    <ClCompile Include="Bullet.cpp">
+      <Filter>ソース ファイル\weapon</Filter>
+    </ClCompile>
+    <ClCompile Include="BulletManager.cpp">
+      <Filter>ソース ファイル\weapon</Filter>
+    </ClCompile>
+    <ClCompile Include="GameClearScene.cpp">
+      <Filter>ソース ファイル\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="TitleScene.cpp">
+      <Filter>ソース ファイル\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="GameScene.cpp">
+      <Filter>ソース ファイル\Scene</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -133,22 +151,25 @@
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="Enemy.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>ヘッダー ファイル\Enemy</Filter>
     </ClInclude>
-    <ClInclude Include="Rifle.h">
-      <Filter>ヘッダー ファイル</Filter>
+    <ClInclude Include="EnemyManager.h">
+      <Filter>ヘッダー ファイル\Enemy</Filter>
     </ClInclude>
     <ClInclude Include="Bullet.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>ヘッダー ファイル\weapon</Filter>
     </ClInclude>
     <ClInclude Include="BulletManager.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>ヘッダー ファイル\weapon</Filter>
     </ClInclude>
-    <ClInclude Include="saber.h">
-      <Filter>ヘッダー ファイル</Filter>
+    <ClInclude Include="Rifle.h">
+      <Filter>ヘッダー ファイル\weapon</Filter>
     </ClInclude>
     <ClInclude Include="Shield.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>ヘッダー ファイル\weapon</Filter>
+    </ClInclude>
+    <ClInclude Include="saber.h">
+      <Filter>ヘッダー ファイル\weapon</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

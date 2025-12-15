@@ -20,8 +20,13 @@ public:
 	// 描画
 	void Draw();
 
+	//--------------------ゲッター--------------------
 	const KamataEngine::Vector3& GetPosition() const { return position_; }
 	float GetRadius() const { return radius_; }
+	void AddPosition(const KamataEngine::Vector3& v) { worldTransform_.translation_ += v; }
+
+	//--------------------セッター--------------------
+	void SetSurroundAngle(float angle) { surroundAngle_ = angle; }
 
 	// あたり判定取得
 	bool IsDead() const { return hp_ <= 0; }
@@ -49,13 +54,19 @@ private:
 	KamataEngine::Vector3 position_;
 
 	//あたり判定
-	float radius_ = 0.5f;
+	float radius_ = 0.8f;
 
 	//HP
 	int hp_ = 100;
 
 	//攻撃
-	float attackRange_ = 3.0f; //サーベル距離
+	float attackRange_ = 5.0f; //サーベル距離
 	float shootRange_ = 20.0f; // 射撃距離
 	int attackCoolTime_ = 0;
+
+	//移動速度
+	float moveSpeed_ = 0.1f;
+
+	//ラシアン
+	float surroundAngle_ = 0.0f;
 };

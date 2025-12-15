@@ -1,6 +1,6 @@
 #include "Enemy.h"
-#include "Player.h"
 #include "BulletManager.h"
+#include "Player.h"
 #include <numbers>
 
 using namespace KamataEngine;
@@ -14,16 +14,16 @@ void Enemy::Initialize(Model* model, Camera* camera, const Vector3& position, Pl
 	// カメラ
 	camera_ = camera;
 
-	//プレイヤー
+	// プレイヤー
 	player_ = player;
 
 	// ワールドトランスフォームの初期化
 	worldTransform_.Initialize();
 	worldTransform_.scale_ = {0.5f, 0.5f, 0.5f};
 	worldTransform_.translation_ = position;
-	worldTransform_.rotation_.y = std::numbers::pi_v<float> ;
+	worldTransform_.rotation_.y = std::numbers::pi_v<float>;
 
-	//自身の座標を保持
+	// 自身の座標を保持
 	position_ = position;
 
 	WorldTransformUpdate(worldTransform_);
@@ -35,7 +35,7 @@ void Enemy::Update(BulletManager* bulletManager) {
 		return;
 	}
 
-	 // 座標更新
+	// 座標更新
 	position_ = worldTransform_.translation_;
 
 	// クールタイム（攻撃間隔）
@@ -43,8 +43,32 @@ void Enemy::Update(BulletManager* bulletManager) {
 		attackCoolTime_--;
 	}
 
+	//----------移動----------
 	Vector3 playerPos = player_->GetPosition();
-	float dist = Length(playerPos - position_);
+	Vector3 toPlayer = playerPos - position_;
+	float dist = Length(toPlayer);
+
+	// プレイヤーからの距離
+	float surroundRadius = 4.0f;
+
+	Vector3 targetPos = playerPos + Vector3{std::cos(surroundAngle_) * surroundRadius, 0.0f, std::sin(surroundAngle_) * surroundRadius};
+
+	Vector3 toTarget = targetPos - position_;
+	float distToTarget = Length(toTarget);
+
+	// 向き更新
+	worldTransform_.rotation_.y = std::atan2(toPlayer.x, toPlayer.z) + std::numbers::pi_v<float> / 2.0f;
+
+	if (distToTarget > 0.1f) {
+		Vector3 moveDir = Normalize(toTarget);
+		worldTransform_.translation_ += moveDir * moveSpeed_;
+	}
+
+
+	
+
+	playerPos = player_->GetPosition();
+	dist = Length(playerPos - position_);
 
 	if (dist < attackRange_) {
 		// ----- 近距離（サーベル攻撃） -----
@@ -58,7 +82,7 @@ void Enemy::Update(BulletManager* bulletManager) {
 
 			Vector3 dir = Normalize(playerPos - position_);
 
-			bulletManager->Fire(position_, dir,Bullet::Owner::kEnemy); // プレイヤーに向けて発射
+			bulletManager->Fire(position_, dir, Bullet::Owner::kEnemy); // プレイヤーに向けて発射
 
 			attackCoolTime_ = 45; // 射撃間隔
 		}
@@ -74,16 +98,15 @@ void Enemy::Update(BulletManager* bulletManager) {
 	ImGui::Text("HP:%d", hp_);
 	ImGui::End();
 #endif
-
-
 }
 
 void Enemy::Draw() {
 	if (hp_ <= 0) {
 		return;
 	}
-	
-	model_->Draw(worldTransform_, *camera_); }
+
+	model_->Draw(worldTransform_, *camera_);
+}
 
 bool Enemy::HitChek(const Vector3& point, float r) {
 	float dist = Length(position_ - point);
