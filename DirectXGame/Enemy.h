@@ -5,6 +5,7 @@
 
 class Player;
 class BulletManager;
+class Rifle;
 
 
 class Enemy {
@@ -69,4 +70,7 @@ private:
 
 	//ラシアン
 	float surroundAngle_ = 0.0f;
+
+	//武器
+	Rifle* rifle_ = nullptr;
 };

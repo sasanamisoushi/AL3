@@ -23,8 +23,13 @@ void Enemy::Initialize(Model* model, Camera* camera, const Vector3& position, Pl
 	worldTransform_.translation_ = position;
 	worldTransform_.rotation_.y = std::numbers::pi_v<float>;
 
+
+
 	// 自身の座標を保持
 	position_ = position;
+
+	rifle_ = new Rifle();
+	rifle_->Initialize(Model::CreateFromOBJ("Raifl"), camera_, position);
 
 	WorldTransformUpdate(worldTransform_);
 }
@@ -35,18 +40,14 @@ void Enemy::Update(BulletManager* bulletManager) {
 		return;
 	}
 
-	// 座標更新
-	position_ = worldTransform_.translation_;
-
-	// クールタイム（攻撃間隔）
-	if (attackCoolTime_ > 0) {
-		attackCoolTime_--;
-	}
-
-	//----------移動----------
 	Vector3 playerPos = player_->GetPosition();
 	Vector3 toPlayer = playerPos - position_;
 	float dist = Length(toPlayer);
+
+	
+
+	//----------移動----------
+	
 
 	// プレイヤーからの距離
 	float surroundRadius = 4.0f;
@@ -85,6 +86,25 @@ void Enemy::Update(BulletManager* bulletManager) {
 			bulletManager->Fire(position_, dir, Bullet::Owner::kEnemy); // プレイヤーに向けて発射
 
 			attackCoolTime_ = 45; // 射撃間隔
+
+
+			//// 銃の位置・向きを敵に追従
+			//rifle_->SetPosition(worldTransform_.translation_, worldTransform_.rotation_);
+
+			//rifle_->Update();
+
+			//// 射撃判定
+			//if (dist < shootRange_) {
+
+			//	if (rifle_->GetAmmo() > 0) {
+			//		rifle_->Fire(bulletManager);
+			//	}
+
+			//	if (rifle_->GetAmmo() == 0 && !rifle_->IsReloading()) {
+			//		rifle_->Reload();
+			//	}
+			//}
+			
 		}
 	}
 

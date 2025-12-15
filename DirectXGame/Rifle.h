@@ -34,6 +34,8 @@ public:
 	//デストラクタ
 	~Rifle();
 
+	bool IsReloading() const { return isReloading_; }
+
 private:
 	// ワールド変換データ
 	KamataEngine::WorldTransform worldTransform_;
