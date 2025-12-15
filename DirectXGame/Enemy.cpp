@@ -128,12 +128,6 @@ void Enemy::Update(BulletManager* bulletManager) {
 	ImGui::Begin("Enemy");
 	ImGui::Text("HP:%d", hp_);
 	ImGui::End();
-
-	ImGui::Begin("Enemy Shoot Debug");
-	ImGui::Text("Dist: %.2f", dist);
-	ImGui::Text("AttackCool: %d", attackCoolTime_);
-	ImGui::Text("Ammo: %d", rifle_->GetAmmo());
-	ImGui::End();
 #endif
 }
 
