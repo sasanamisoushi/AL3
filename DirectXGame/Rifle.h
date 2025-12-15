@@ -34,6 +34,10 @@ public:
 	//デストラクタ
 	~Rifle();
 
+	bool IsReloading() const { return isReloading_; }
+
+	void ConsumeAmmo() { ammo_--; }
+
 private:
 	// ワールド変換データ
 	KamataEngine::WorldTransform worldTransform_;
@@ -57,4 +61,8 @@ private:
 	float reloadTime_ = 1.5f;
 	bool isReloading_ = false;
 	float reloadTimer_ = 0.0f;
+
+	//クールタイム
+	float fireInterval_ = 0.3f; 
+	float fireTimer_ = 0.0f;
 };

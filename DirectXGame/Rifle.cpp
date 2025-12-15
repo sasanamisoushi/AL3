@@ -29,6 +29,12 @@ void Rifle::Initialize(Model* model, Camera* camera, const Vector3& position) {
 }
 
 void Rifle::Update() {
+
+	//発射クールタイム処理
+	if (fireTimer_ > 0.0f) {
+		fireTimer_ -= 1.0f / 60.0f;
+	}
+
 	// リロード処理
 	if (isReloading_) {
 		reloadTimer_ -= 1.0f / 60.0f; // 60FPS想定
@@ -90,12 +96,18 @@ void Rifle::Fire(BulletManager* bulletManager) {
 		return;
 	}
 
+	//クールタイム中は発射できない
+	if(fireTimer_ > 0.0f) {
+		return;
+	}
+
 	// 弾の発射処理	
 	Vector3 pos = GetMuzzlePosition();
 	Vector3 dir = GetForwardVector();
 	bulletManager->Fire(pos, dir,Bullet::Owner::kPlayer);
 
 	ammo_--;
+	fireTimer_ = fireInterval_;
 }
 
 void Rifle::Reload() { 

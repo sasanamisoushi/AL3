@@ -1,6 +1,6 @@
 #include "Enemy.h"
-#include "Player.h"
 #include "BulletManager.h"
+#include "Player.h"
 #include <numbers>
 
 using namespace KamataEngine;
@@ -14,17 +14,22 @@ void Enemy::Initialize(Model* model, Camera* camera, const Vector3& position, Pl
 	// カメラ
 	camera_ = camera;
 
-	//プレイヤー
+	// プレイヤー
 	player_ = player;
 
 	// ワールドトランスフォームの初期化
 	worldTransform_.Initialize();
 	worldTransform_.scale_ = {0.5f, 0.5f, 0.5f};
 	worldTransform_.translation_ = position;
-	worldTransform_.rotation_.y = std::numbers::pi_v<float> ;
+	worldTransform_.rotation_.y = std::numbers::pi_v<float>;
 
-	//自身の座標を保持
+
+
+	// 自身の座標を保持
 	position_ = position;
+
+	rifle_ = new Rifle();
+	rifle_->Initialize(Model::CreateFromOBJ("Raifl"), camera_, position);
 
 	WorldTransformUpdate(worldTransform_);
 }
@@ -35,16 +40,57 @@ void Enemy::Update(BulletManager* bulletManager) {
 		return;
 	}
 
-	 // 座標更新
+	// ----------プレイヤー情報----------
+	Vector3 playerPos = player_->GetPosition();
+	Vector3 toPlayer = playerPos - position_;
+	float dist = Length(toPlayer);
+
+
+	// 座標更新
 	position_ = worldTransform_.translation_;
 
 	// クールタイム（攻撃間隔）
 	if (attackCoolTime_ > 0) {
 		attackCoolTime_--;
 	}
+	
+	
 
-	Vector3 playerPos = player_->GetPosition();
-	float dist = Length(playerPos - position_);
+	
+
+	//----------移動----------
+	
+	// プレイヤーからの距離
+	float surroundRadius = 4.0f;
+
+	Vector3 targetPos = playerPos + Vector3{std::cos(surroundAngle_) * surroundRadius, 0.0f, std::sin(surroundAngle_) * surroundRadius};
+
+	Vector3 toTarget = targetPos - position_;
+	float distToTarget = Length(toTarget);
+
+	// 向き更新
+	worldTransform_.rotation_.y = std::atan2(toPlayer.x, toPlayer.z) + std::numbers::pi_v<float> / 2.0f;
+
+	if (distToTarget > 0.1f) {
+		Vector3 moveDir = Normalize(toTarget);
+		worldTransform_.translation_ += moveDir * moveSpeed_;
+	}
+
+	// 敵のY回転のみ反映
+	Matrix4x4 rotY = MakeRotateYMatrix(worldTransform_.rotation_.y - std::numbers::pi_v<float> / 2.0f);
+	Vector3 offset = TransformNormal(rifleOffset_, rotY);
+
+	Vector3 riflePos = worldTransform_.translation_ + offset;
+	Vector3 rifleRot = worldTransform_.rotation_;
+	rifleRot.y -= std::numbers::pi_v<float> / 2.0f;
+
+	// 銃の位置・向きを敵に追従
+	rifle_->SetPosition(riflePos, rifleRot);
+
+	rifle_->Update();
+
+	playerPos = player_->GetPosition();
+	dist = Length(playerPos - worldTransform_.translation_);
 
 	if (dist < attackRange_) {
 		// ----- 近距離（サーベル攻撃） -----
@@ -52,16 +98,25 @@ void Enemy::Update(BulletManager* bulletManager) {
 			player_->Damage(10);  // 例：プレイヤーにダメージ
 			attackCoolTime_ = 60; // 60フレーム攻撃間隔
 		}
-	} else {
+	} else if (dist < shootRange_) {
 		// ----- 遠距離（ライフル） -----
+
 		if (attackCoolTime_ <= 0) {
+			// 射撃
+			if (rifle_->GetAmmo() > 0) {
+				// 敵がプレイヤーを向いている方向を作る
+				Vector3 dir = Normalize(playerPos - worldTransform_.translation_);
 
-			Vector3 dir = Normalize(playerPos - position_);
+				Vector3 muzzle = riflePos + TransformNormal(muzzleOffset_, rotY);
 
-			bulletManager->Fire(position_, dir,Bullet::Owner::kEnemy); // プレイヤーに向けて発射
-
-			attackCoolTime_ = 45; // 射撃間隔
+				bulletManager->Fire(muzzle, dir, Bullet::Owner::kEnemy);
+				rifle_->ConsumeAmmo();
+				attackCoolTime_ = 45;
+			} else if (!rifle_->IsReloading()) {
+				rifle_->Reload();
+			}
 		}
+		
 	}
 
 	// --- プレイヤーとの衝突（重なり防止） ---
@@ -73,17 +128,24 @@ void Enemy::Update(BulletManager* bulletManager) {
 	ImGui::Begin("Enemy");
 	ImGui::Text("HP:%d", hp_);
 	ImGui::End();
+
+	ImGui::Begin("Enemy Shoot Debug");
+	ImGui::Text("Dist: %.2f", dist);
+	ImGui::Text("AttackCool: %d", attackCoolTime_);
+	ImGui::Text("Ammo: %d", rifle_->GetAmmo());
+	ImGui::End();
 #endif
-
-
 }
 
 void Enemy::Draw() {
 	if (hp_ <= 0) {
 		return;
 	}
-	
-	model_->Draw(worldTransform_, *camera_); }
+
+	model_->Draw(worldTransform_, *camera_);
+
+	rifle_->Draw();
+}
 
 bool Enemy::HitChek(const Vector3& point, float r) {
 	float dist = Length(position_ - point);
@@ -104,4 +166,9 @@ void Enemy::ResolveCollisionWithPlayer() {
 		worldTransform_.translation_ += dir * (push * 0.5f);
 		player_->SetPosition(player_->GetPosition() - dir * (push * 0.5f));
 	}
+}
+
+Enemy::~Enemy() {
+	delete rifle_;
+	rifle_ = nullptr;
 }

@@ -55,14 +55,16 @@ void GameScene::Initialize() {
 
 void GameScene::Update() {
 
-	// 弾の更新
-	bulletManager_->Update(enemyManager_.GetEnemies(), player);
+	
 
 	// プレイヤーの更新
 	player->Update(bulletManager_, enemyManager_.GetEnemies());
 
 	// 敵の更新
 	enemyManager_.Update(bulletManager_);
+
+	// 弾の更新
+	bulletManager_->Update(enemyManager_.GetEnemies(), player);
 
 	auto& enemies_ = enemyManager_.GetEnemies();
 
