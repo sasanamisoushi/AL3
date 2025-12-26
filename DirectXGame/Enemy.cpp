@@ -5,11 +5,13 @@
 
 using namespace KamataEngine;
 
-void Enemy::Initialize(Model* model, Camera* camera, const Vector3& position, Player* player) {
+void Enemy::Initialize(Model* model, Camera* camera, const Vector3& position, Player* player, Model* downModel) {
 	// NULLポインタチェック
 	assert(model);
 	// モデル
 	model_ = model;
+	downModel_ = downModel;
+	normalModel_ = model;
 
 	// カメラ
 	camera_ = camera;
@@ -35,7 +37,17 @@ void Enemy::Initialize(Model* model, Camera* camera, const Vector3& position, Pl
 }
 
 void Enemy::Update(BulletManager* bulletManager) {
+	//ダウン処理
+	if (state_ == EnemyState::Down) {
+		downTimer_--;
 
+		if (downTimer_ <= 0) {
+			Recover();
+		}
+
+		WorldTransformUpdate(worldTransform_);
+		return;
+	}
 	if (hp_ <= 0) {
 		return;
 	}
@@ -141,6 +153,21 @@ void Enemy::Draw() {
 	rifle_->Draw();
 }
 
+
+void Enemy::Damage(int damage) {
+	if (state_ == EnemyState::Down) {
+		return;
+	}
+
+	hp_ -= damage;
+	downCount_++;
+
+	if (downCount_ >= downThreshold_) {
+		Down();
+	}
+}
+
+
 bool Enemy::HitChek(const Vector3& point, float r) {
 	float dist = Length(position_ - point);
 	return dist < (radius_ + r);
@@ -160,6 +187,34 @@ void Enemy::ResolveCollisionWithPlayer() {
 		worldTransform_.translation_ += dir * (push * 0.5f);
 		player_->SetPosition(player_->GetPosition() - dir * (push * 0.5f));
 	}
+}
+
+void Enemy::Down() {
+	state_ = EnemyState::Down;
+
+	downTimer_ = downTime_;
+
+	// 攻撃完全停止
+	attackCoolTime_ = INT_MAX;
+
+	// ダウン用モデルに切り替え
+	model_ = downModel_;
+
+	// 必要なら回転や姿勢を変える
+	worldTransform_.rotation_.x = std::numbers::pi_v<float> / 2.0f;
+
+	// 地面にめり込まないように持ち上げる
+	worldTransform_.translation_.y += downHeightOffset_;
+}
+
+void Enemy::Recover() {
+	state_ = EnemyState::Alive;
+
+	model_ = normalModel_; // 元のモデル
+	worldTransform_.rotation_.x = 0.0f;
+
+	attackCoolTime_ = 60; // 起き上がり後の硬直
+	downCount_ = 0;       // 再びダウン可能
 }
 
 Enemy::~Enemy() {

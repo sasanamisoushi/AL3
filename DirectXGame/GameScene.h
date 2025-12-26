@@ -44,6 +44,7 @@ private:
 
 	//敵のモデル
 	KamataEngine::Model* enemyModel = nullptr;
+	KamataEngine::Model* enemyDown = nullptr;
 
 	//弾の管理
 	BulletManager* bulletManager_=nullptr;

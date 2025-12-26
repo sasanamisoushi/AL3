@@ -8,10 +8,15 @@ class BulletManager;
 class Rifle;
 
 
+enum class EnemyState {
+	Alive, // 通常
+	Down   // ダウン
+};
+
 class Enemy {
 public:
 	// 初期化
-	void Initialize(KamataEngine::Model* model, KamataEngine::Camera* camera, const KamataEngine::Vector3& position, Player* player);
+	void Initialize(KamataEngine::Model* model, KamataEngine::Camera* camera, const KamataEngine::Vector3& position, Player* player, KamataEngine::Model* downModel);
 
 	// 更新
 	void Update(BulletManager* bulletManager);
@@ -31,13 +36,18 @@ public:
 
 	// あたり判定取得
 	bool IsDead() const { return hp_ <= 0; }
-	void Damage(int damage) { hp_ -= damage; }
+	void Damage(int damage);
 
 	//弾の当たり判定
 	bool HitChek(const KamataEngine::Vector3& point, float r);
 
 	void ResolveCollisionWithPlayer();
 
+	//ダウン
+	void Down();
+
+	//ダウンからの復帰
+	void Recover();
 
 	//デストラクタ
 	~Enemy();
@@ -49,6 +59,8 @@ private:
 
 	// モデル
 	KamataEngine::Model* model_ = nullptr;
+	KamataEngine::Model* downModel_ = nullptr;
+	KamataEngine::Model* normalModel_ = nullptr;
 
 	// カメラ
 	KamataEngine::Camera* camera_ = nullptr;
@@ -80,4 +92,12 @@ private:
 
 	KamataEngine::Vector3 rifleOffset_ = {1.0f, 1.2f, -0.4f}; // 敵の手元
 	KamataEngine::Vector3 muzzleOffset_ = {0.0f, -0.35f, 0.8f}; // 銃口
+
+	EnemyState state_ = EnemyState::Alive;
+	int downCount_ = 0;  //攻撃を受けた回数
+	int downThreshold_ = 3; //何回でダウンするか
+	int downTimer_ = 0; //ダウン用タイマー
+	const int downTime_ = 180;
+	float downHeightOffset_ = 0.5f;
+
 };

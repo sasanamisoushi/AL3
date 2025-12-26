@@ -6,7 +6,7 @@
 class EnemyManager {
 public:
 	//初期化
-	void Initialize(KamataEngine::Model* model, KamataEngine::Camera* camera, Player* player);
+	void Initialize(KamataEngine::Model* model, KamataEngine::Camera* camera, Player* player, KamataEngine::Model* downModel);
 
 	//更新
 	void Update(BulletManager* bulletManager);
@@ -29,6 +29,7 @@ private:
 
 	std::vector<Enemy*> enemies_;
 	KamataEngine::Model* model_;
+	KamataEngine::Model* downModel_;
 	KamataEngine::Camera* camera_;
 	Player* player_;
 
