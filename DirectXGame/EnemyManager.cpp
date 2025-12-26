@@ -4,10 +4,11 @@
 
 using namespace KamataEngine;
 
-void EnemyManager::Initialize(Model* model, Camera* camera, Player* player) {
+void EnemyManager::Initialize(Model* model, Camera* camera, Player* player, Model* downModel) {
 	model_ = model;
 	camera_ = camera;
 	player_ = player;
+	downModel_ = downModel;
 
 	wave_ = 1;
 	SpawnEnemies(3); // 初期は3体
@@ -102,7 +103,7 @@ void EnemyManager::SpawnEnemies(int count) {
 		std::uniform_real_distribution<float> offset(-0.3f, 0.3f);
 
 		enemy->SetSurroundAngle(angle + offset(gen));
-		enemy->Initialize(model_, camera_, pos, player_);
+		enemy->Initialize(model_, camera_, pos, player_,downModel_);
 		enemies_.push_back(enemy);
 	}
 }

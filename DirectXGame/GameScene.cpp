@@ -34,9 +34,10 @@ void GameScene::Initialize() {
 
 	// 敵のオブジェクト
 	enemyModel = Model::CreateFromOBJ("Enemy2");
+	enemyDown = Model::CreateFromOBJ("Enemy2Down");
 
 	// EnemyManager 初期化
-	enemyManager_.Initialize(enemyModel, &camera_, player);
+	enemyManager_.Initialize(enemyModel, &camera_, player, enemyDown);
 
 	////敵の生成
 	// enemies_.push_back(new Enemy());
