@@ -10,13 +10,14 @@ void EnemyManager::Initialize(Model* model, Camera* camera, Player* player, Mode
 	player_ = player;
 	downModel_ = downModel;
 
+
 	wave_ = 1;
 	SpawnEnemies(3); // 初期は3体
 }
 
 void EnemyManager::Update(BulletManager* bulletManager) {
 	// 敵更新
-	for (Enemy* enemy : enemies_) {
+	for (auto& enemy : enemies_) {
 		enemy->Update(bulletManager);
 	}
 
@@ -25,9 +26,7 @@ void EnemyManager::Update(BulletManager* bulletManager) {
 
 	// 死んでいる敵を削除（メモリを解放してからベクタから消す）
 	for (auto it = enemies_.begin(); it != enemies_.end();) {
-		Enemy* e = *it;
-		if (e->IsDead()) {
-			delete e;
+		if ((*it)->IsDead()) {
 			it = enemies_.erase(it);
 		} else {
 			++it;
@@ -47,26 +46,29 @@ void EnemyManager::Update(BulletManager* bulletManager) {
 }
 
 void EnemyManager::Draw() {
-	for (Enemy* enemy : enemies_) {
+	for (auto& enemy : enemies_) {
 		enemy->Draw();
 	}
 }
 
 EnemyManager::~EnemyManager() {
+	//enemies_.clear();
+}
 
-// 管理している全ての敵オブジェクトを解放
-	for (Enemy* enemy : enemies_) {
-		delete enemy;
+std::vector<Enemy*> EnemyManager::GetEnemyPointers() const {
+	std::vector<Enemy*> result;
+	for (const auto& e : enemies_) {
+		result.push_back(e.get());
 	}
-	enemies_.clear();
+	return result;
 }
 
 void EnemyManager::ResolveEnemyCollisions() {
 	for (size_t i = 0; i < enemies_.size(); i++) {
 		for (size_t j = i + 1; j < enemies_.size(); j++) {
 
-			Enemy* a = enemies_[i];
-			Enemy* b = enemies_[j];
+			Enemy* a = enemies_[i].get();
+			Enemy* b = enemies_[j].get();
 
 			Vector3 diff = a->GetPosition() - b->GetPosition();
 			float dist = Length(diff);
@@ -83,6 +85,15 @@ void EnemyManager::ResolveEnemyCollisions() {
 	}
 }
 
+bool EnemyManager::IsAllDead() const {
+	for (const auto& enemy : enemies_) {
+		if (!enemy->IsDead()) {
+			return false;
+		}
+	}
+	return true;
+}
+
 void EnemyManager::SpawnEnemies(int count) {
 
 	// 乱数生成器
@@ -96,14 +107,16 @@ void EnemyManager::SpawnEnemies(int count) {
 	
 	
 	for (int i = 0; i < count; i++) {
-		Enemy* enemy = new Enemy();
+		auto enemy = std::make_unique<Enemy>();
 		Vector3 pos = {distX(gen), 0, distZ(gen)}; // 適当に配置
 		//円周上に配置
 		float angle = (2.0f * std::numbers::pi_v<float> * i) / count;
 		std::uniform_real_distribution<float> offset(-0.3f, 0.3f);
 
 		enemy->SetSurroundAngle(angle + offset(gen));
-		enemy->Initialize(model_, camera_, pos, player_,downModel_);
-		enemies_.push_back(enemy);
+		enemy->Initialize(model_, camera_, pos, player_, downModel_);
+		enemies_.push_back(std::move(enemy));
 	}
 }
+
+void EnemyManager::ClearEnemies() { enemies_.clear(); }

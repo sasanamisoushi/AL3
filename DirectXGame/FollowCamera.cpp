@@ -82,7 +82,30 @@ void FollowCamera::Update() {
 	camera->translation_ = translation_;
 	camera->UpdateMatrix();
 
-	
+
+	// ===== カメラシェイク =====
+	if (isShaking_) {
+		shakeTimer_++;
+
+		float t = (float)shakeTimer_ / shakeDuration_;
+
+		// 減衰（最初強く、すぐ弱く）
+		float power = shakePower_ * (1.0f - t);
+
+		shakeOffset_.x = ((rand() / (float)RAND_MAX) * 2.0f - 1.0f) * power;
+		shakeOffset_.y = ((rand() / (float)RAND_MAX) * 2.0f - 1.0f) * power;
+		shakeOffset_.z = 0.0f;
+
+		if (shakeTimer_ >= shakeDuration_) {
+			isShaking_ = false;
+			shakeOffset_ = {0, 0, 0};
+		}
+	}
+
+	// 最後に足す
+	translation_ += shakeOffset_;
+	camera->translation_ = translation_;
+	camera->UpdateMatrix();
 }
 
 

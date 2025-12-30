@@ -1,7 +1,10 @@
 #pragma once
 #include <vector>
+#include <memory>
 #include "Enemy.h"
+#include "KamataEngine.h"
 
+class BulletManager;
 
 class EnemyManager {
 public:
@@ -17,17 +20,23 @@ public:
 	// デストラクタを追加
 	~EnemyManager();
 
-	std::vector<Enemy*>& GetEnemies()  { return enemies_; }
+	std::vector<std::unique_ptr<Enemy>>& GetEnemies() { return enemies_; }
+
+	std::vector<Enemy*> GetEnemyPointers() const;
 
 	//敵同士の衝突
 	void ResolveEnemyCollisions();
+
+	bool IsAllDead() const;
+
+	void ClearEnemies();
 
 private:
 
 	//指定数の敵を生成
 	void SpawnEnemies(int count);
 
-	std::vector<Enemy*> enemies_;
+	std::vector<std::unique_ptr<Enemy>> enemies_;
 	KamataEngine::Model* model_;
 	KamataEngine::Model* downModel_;
 	KamataEngine::Camera* camera_;

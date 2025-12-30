@@ -6,6 +6,7 @@
 #include "saber.h"
 #include "Enemy.h"
 #include "Shield.h"
+#include <vector>
 
 
 class Player {
@@ -24,7 +25,7 @@ public:
 	void Initialize(Model* model, Camera* camera, const Vector3& position);
 
 	// 更新
-	void Update(BulletManager* bulletManager, std::vector<Enemy*>& enemies);
+	void Update(BulletManager* bulletManager, const std::vector<Enemy*>& enemies);
 
 	//移動用更新
 	void UpdateMovement();
@@ -40,7 +41,7 @@ public:
 
 	void SetLockOnTarget(const Vector3* target) { lockOnTarget_ = target; }
 	void SetLockOn(bool flag) { isLockOn_ = flag; }
-	void SetPosition(const Vector3& pos) {worldTransform_.translation_ = pos;WorldTransformUpdate(worldTransform_);}
+	void SetPosition(const Vector3& pos) {worldTransform_.translation_ = pos;WorldTransformUpdate(worldTransform_);} 
 	bool GetLockOn() const { return isLockOn_; }
 	Vector3 GetPosition() const { return worldTransform_.translation_; }
 

@@ -37,6 +37,11 @@ void Enemy::Initialize(Model* model, Camera* camera, const Vector3& position, Pl
 }
 
 void Enemy::Update(BulletManager* bulletManager) {
+
+	if (isDead_) {
+		return;
+	}
+
 	//ダウン処理
 	if (state_ == EnemyState::Down) {
 		downTimer_--;
@@ -48,9 +53,7 @@ void Enemy::Update(BulletManager* bulletManager) {
 		WorldTransformUpdate(worldTransform_);
 		return;
 	}
-	if (hp_ <= 0) {
-		return;
-	}
+	
 
 	// ----------プレイヤー情報----------
 	Vector3 playerPos = player_->GetPosition();
@@ -144,27 +147,62 @@ void Enemy::Update(BulletManager* bulletManager) {
 }
 
 void Enemy::Draw() {
-	if (hp_ <= 0) {
+	if (isDead_) {
 		return;
 	}
 
 	model_->Draw(worldTransform_, *camera_);
 
-	rifle_->Draw();
+	if (rifle_) {
+		rifle_->Draw();
+	}
 }
 
 
 void Enemy::Damage(int damage) {
-	if (state_ == EnemyState::Down) {
+
+	if (isDead_) {
 		return;
 	}
 
 	hp_ -= damage;
-	downCount_++;
 
-	if (downCount_ >= downThreshold_) {
-		Down();
+	if (hp_ <= 0) {
+	
+		Die();
+		return;
 	}
+
+	if (state_ == EnemyState::Down) {
+		return;
+	}
+
+	
+	// ダウン判定（死亡してない場合のみ）
+	if (state_ != EnemyState::Down) {
+		downCount_++;
+		if (downCount_ >= downThreshold_) {
+			Down();
+		}
+	}
+}
+
+void Enemy::Die() {
+	isDead_ = true;
+
+	// 行動停止
+	state_ = EnemyState::Down;
+	attackCoolTime_ = INT_MAX;
+
+	// 表示を消す or 死亡モデルに切り替え
+	// model_ = deadModel_; ← あれば
+
+	// 銃を消す
+	if (rifle_) {
+		delete rifle_;
+		rifle_ = nullptr;
+	}
+
 }
 
 

@@ -5,7 +5,11 @@ using namespace KamataEngine;
 
 void BulletManager::Initialize(Model* model) { model_ = model; }
 
-void BulletManager::Update(std::vector<Enemy*>& enemies, Player* player) {
+
+
+
+
+void BulletManager::Update(const std::vector<Enemy*>& enemies, Player* player) {
 
 	// 弾のリストをループして更新
 	for (auto it = bullets_.begin(); it != bullets_.end();) {

@@ -7,6 +7,8 @@
 #include "FollowCamera.h"
 #include "BulletManager.h"
 #include "EnemyManager.h"
+#include "Boss.h"
+
 
 
 
@@ -59,5 +61,12 @@ private:
 
 	// ロックオン中の敵インデックス
 	int lockOnIndex = -1;
+
+	//ボス
+	Boss* boss_ = nullptr;
+	bool bossSpawned_ = false;
+
+	KamataEngine::Model* bossModel_ = nullptr;
+	KamataEngine::Model* bossSwordModel_ = nullptr;
 
 };

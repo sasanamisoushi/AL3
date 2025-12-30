@@ -35,8 +35,9 @@ public:
 	void SetSurroundAngle(float angle) { surroundAngle_ = angle; }
 
 	// あたり判定取得
-	bool IsDead() const { return hp_ <= 0; }
+	bool IsDead() const { return isDead_; }
 	void Damage(int damage);
+	void Die();
 
 	//弾の当たり判定
 	bool HitChek(const KamataEngine::Vector3& point, float r);
@@ -99,5 +100,8 @@ private:
 	int downTimer_ = 0; //ダウン用タイマー
 	const int downTime_ = 180;
 	float downHeightOffset_ = 0.5f;
+
+	//死亡フラグ
+	bool isDead_ = false;
 
 };

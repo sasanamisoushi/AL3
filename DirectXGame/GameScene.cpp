@@ -43,6 +43,17 @@ void GameScene::Initialize() {
 	// enemies_.push_back(new Enemy());
 	// enemies_.back()->Initialize(enemyModel, &camera_, {-5.0f, 0.5f, 5.0f},player);
 
+
+	//------------ボス-----------------
+
+	bossModel_ = Model::CreateFromOBJ("boss", true);
+	bossSwordModel_ = Model::CreateFromOBJ("saber",true);
+
+	
+
+	boss_ = nullptr;
+	bossSpawned_ = false;
+
 	//------------弾-----------------
 
 	// 弾のオブジェクト
@@ -52,6 +63,7 @@ void GameScene::Initialize() {
 
 	// 弾の生成
 	bulletManager_->Initialize(bulletModel);
+
 }
 
 void GameScene::Update() {
@@ -59,13 +71,31 @@ void GameScene::Update() {
 	
 
 	// プレイヤーの更新
-	player->Update(bulletManager_, enemyManager_.GetEnemies());
+	player->Update(bulletManager_, enemyManager_.GetEnemyPointers());
 
 	// 敵の更新
 	enemyManager_.Update(bulletManager_);
 
 	// 弾の更新
-	bulletManager_->Update(enemyManager_.GetEnemies(), player);
+	bulletManager_->Update(enemyManager_.GetEnemyPointers(), player);
+
+
+	// 　雑魚全滅チェック
+	if (!bossSpawned_ && enemyManager_.IsAllDead()) {
+
+		boss_ = new Boss();
+		boss_->Initialize(
+		    bossModel_, bossSwordModel_, &camera_, {0.0f, 0.0f, 0.0f} // 出現位置
+		);
+
+		bossSpawned_ = true;
+	}
+
+	// ボスの更新
+	if (boss_) {
+	
+	boss_->Update(player->GetPosition());
+	}
 
 	auto& enemies_ = enemyManager_.GetEnemies();
 
@@ -128,6 +158,32 @@ void GameScene::Update() {
 	ImGui::Text("O Jump");
 	ImGui::Text("SPACE attack");
 	ImGui::End();
+
+	ImGui::Begin("Game Scene Debug");
+
+	// ===== ボス =====
+	ImGui::Checkbox("Boss Spawned", &bossSpawned_);
+
+
+	// ボス位置表示
+	if (boss_) {
+		Vector3 pos = boss_->GetPosition();
+		ImGui::Text("Boss Pos: %.2f, %.2f, %.2f", pos.x, pos.y, pos.z);
+	} else {
+		ImGui::Text("Boss : nullptr");
+	}
+
+	// ===== 敵 =====
+	static bool enemyEnable = true;
+	ImGui::Checkbox("Enemy Enable", &enemyEnable);
+
+	if (!enemyEnable) {
+		enemyManager_.ClearEnemies(); // ※下で追加
+	}
+
+	ImGui::Text("Enemy Count: %d", (int)enemyManager_.GetEnemies().size());
+
+	ImGui::End();
 #endif
 }
 
@@ -140,6 +196,9 @@ void GameScene::Draw() {
 	bulletManager_->Draw(&camera_);
 	player->Draw();
 	enemyManager_.Draw();
+	if (boss_) {
+		boss_->Draw();  
+	}
 	Model::PostDraw();
 }
 
@@ -160,6 +219,11 @@ GameScene::~GameScene() {
 	// 敵の解放
 	delete enemyModel;
 	enemyModel = nullptr;
+	// 敵ダウンモデルを解放 (漏れを修正)
+	delete enemyDown;
+	enemyDown = nullptr;
+	//ボスの解放
+	delete boss_;
 
 	// 弾の解放
 	delete bulletManager_;
