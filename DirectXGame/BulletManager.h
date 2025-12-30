@@ -3,6 +3,7 @@
 #include "Bullet.h"
 #include <list>
 #include "Enemy.h"
+#include <vector>
 
 
 class BulletManager {
@@ -12,7 +13,7 @@ public:
 	void Initialize(KamataEngine::Model* model);
 
 	//更新
-	void Update(std::vector<Enemy*>& enemies, Player* player);
+	void Update(const std::vector<Enemy*>& enemies, Player* player);
 
 	//描画
 	void Draw(KamataEngine::Camera* camera);

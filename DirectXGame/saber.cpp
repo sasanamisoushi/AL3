@@ -1,6 +1,7 @@
 #include "saber.h"
 #include "MyMath.h"
 #include <numbers>
+#include "MeleeWeapon.h"
 
 void saber::Initialize(Model* model, Camera* camera, const Vector3& position) {
 	model_ = model;
@@ -68,6 +69,8 @@ void saber::SetPosition(const Vector3& position, const Vector3& rotation) {
 
 	WorldTransformUpdate(worldTransform_);
 }
+
+
 
 void saber::StartAttack() {
 

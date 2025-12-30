@@ -26,6 +26,16 @@ public:
 	void SetLockOn(bool flag) { isLockOn_ = flag;}
 
 	bool GetLockOn() const { return isLockOn_; }
+
+	//シェイク
+	void startShake(float power, int duration) { 
+		isShaking_ = true;
+		shakePower_ = power;
+		shakeDuration_ = duration;
+		shakeTimer_ = 0;
+	}
+
+	
 	
 
 private:
@@ -55,6 +65,15 @@ private:
 
 	//注視点
 	KamataEngine::Vector3 lookAt_ = {0, 0, 0};
+
+
+	//カメラシェイク
+	bool isShaking_ = false;
+	int shakeTimer_ = 0;
+	int shakeDuration_ = 0;
+
+	float shakePower_ = 0.0f;
+	KamataEngine::Vector3 shakeOffset_{};
 
 	
 };

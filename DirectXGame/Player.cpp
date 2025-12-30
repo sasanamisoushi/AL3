@@ -34,7 +34,6 @@ void Player::Initialize(Model* model, Camera* camera, const Vector3& position) {
 	shield_ = new Shield();
 	shield_->Initialize(Model::CreateFromOBJ("shield"), camera_, position);
 	
-	
 
 	//追従カメラの初期化
 	followCamera_.Initialize(camera_);
@@ -48,7 +47,7 @@ void Player::Initialize(Model* model, Camera* camera, const Vector3& position) {
 
 
 
-void Player::Update(BulletManager* bulletManager, std::vector<Enemy*>& enemies) { 
+void Player::Update(BulletManager* bulletManager, const std::vector<Enemy*>& enemies) { 
 	
 	// 重力と地面判定
 	ApplyGravity();
@@ -291,7 +290,6 @@ void Player::UpdateMovement() {
 			// 入力なしだと減衰
 			velocity_.z *= (1.0f - currentAtt);
 		}
-
 
 		
 
