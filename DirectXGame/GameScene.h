@@ -59,7 +59,8 @@ private:
 	// 終了フラグ
 	bool isFinish = false;
 
-	// ロックオン中の敵インデックス
+	// ロックオン
+	std::vector<const Vector3*> lockOnTargets_;
 	int lockOnIndex = -1;
 
 	//ボス
