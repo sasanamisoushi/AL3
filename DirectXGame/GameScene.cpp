@@ -85,7 +85,7 @@ void GameScene::Update() {
 
 		boss_ = new Boss();
 		boss_->Initialize(
-		    bossModel_, bossSwordModel_, &camera_, {0.0f, 0.0f, 0.0f} // 出現位置
+		    bossModel_, bossSwordModel_, &camera_, {0.0f, 0.0f, 0.0f},bulletManager_
 		);
 
 		bossSpawned_ = true;
