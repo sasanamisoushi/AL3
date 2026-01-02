@@ -7,6 +7,7 @@
 #include "Enemy.h"
 #include "Shield.h"
 #include <vector>
+#include <memory>
 
 
 class Player {
@@ -36,6 +37,8 @@ public:
 	// 描画
 	void Draw();
 
+	void DrawDamageEffect();
+
 	//解放
 	~Player();
 
@@ -48,9 +51,11 @@ public:
 	// あたり判定
 	float GetRadius() const { return radius_; }
 	// ダメージ処理
-	void Damage(int damage) { hp_ -= damage; }
+	void Damage(int damage);
 
 	Shield* GetShield() const { return shield_; }
+
+	
 	
 
 private:
@@ -120,5 +125,14 @@ private:
 	
 	//hp
 	int hp_ = 100;
+
+	//ダメージエフェクト
+	float damageEffectTimer_ = 0.0f;
+	const float damageEffectDuration_ = 0.3f;
+	std::unique_ptr<KamataEngine::Sprite> damageSprite_ = nullptr;
+
+	//無敵タイマー
+	float invincibleTimer_ = 0.0f;
+	const float invincibleTime_ = 0.6f;
 
 };

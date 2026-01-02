@@ -42,7 +42,14 @@ void Player::Initialize(Model* model, Camera* camera, const Vector3& position) {
 	followCamera_.SetDistance(10.0f);
 
 	WorldTransformUpdate(worldTransform_);
-	
+
+	// 被弾用赤スプライトを一度だけ生成
+	damageSprite_.reset(Sprite::Create(
+		TextureManager::Load("./Resources/white1x1.png"), // 真っ白な1x1画像
+		{0.0f, 0.0f}));
+	damageSprite_->SetSize({1280.0f, 720.0f}); // 画面サイズ
+	damageSprite_->SetAnchorPoint({0.0f, 0.0f});
+	damageSprite_->SetColor({1, 0, 0, 0});     // 最初は透明
 }
 
 
@@ -65,6 +72,8 @@ void Player::Update(BulletManager* bulletManager, const std::vector<Enemy*>& ene
 		Vector3 toEnemy = *lockOnTarget_ - worldTransform_.translation_;
 		worldTransform_.rotation_.y = std::atan2(toEnemy.x, toEnemy.z) + std::numbers::pi_v<float> / 2.0f;
 	}
+
+	
 
 	//装備切り替え
 	if (Input::GetInstance()->TriggerKey(DIK_R)) {
@@ -197,6 +206,16 @@ void Player::Update(BulletManager* bulletManager, const std::vector<Enemy*>& ene
 	} else {
 		// 盾を横に構える
 		shield_->SetPosition(shieldPosSide, {0.0f, worldTransform_.rotation_.y, 0.0f});
+	}
+
+	// ダメージエフェクトタイマー更新
+	if (damageEffectTimer_ > 0.0f) {
+		damageEffectTimer_ -= 1.0f / 60.0f;
+	}
+
+	//無敵タイマー
+	if (invincibleTimer_ > 0.0f) {
+		invincibleTimer_ -= 1.0f / 60.0f;
 	}
 
 	//カメラ更新
@@ -366,6 +385,21 @@ void Player::ApplyGravity() {
 	WorldTransformUpdate(worldTransform_);
 }
 
+void Player::Damage(int damage) {
+
+	 if (invincibleTimer_ > 0.0f) {
+		return; // 無敵中
+	}
+
+	// HP減少
+	hp_ -= damage;
+
+	// 被弾エフェクト開始
+	damageEffectTimer_ = damageEffectDuration_;
+	invincibleTimer_ = invincibleTime_;
+	
+}
+
 
 void Player::Draw() { 
 	
@@ -382,8 +416,16 @@ void Player::Draw() {
 		saber_->Draw();
 	}
 
-	shield_->Draw();
-	
+	shield_->Draw();	
+}
+
+void Player::DrawDamageEffect() {
+	if (damageEffectTimer_ > 0.0f && damageSprite_) {
+
+		float alpha = damageEffectTimer_ / damageEffectDuration_;
+		damageSprite_->SetColor({1.0f, 0.0f, 0.0f, alpha * 0.4f});
+		damageSprite_->Draw();
+	}
 }
 
 Player::~Player() { 
