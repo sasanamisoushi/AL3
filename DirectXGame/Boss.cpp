@@ -23,14 +23,22 @@ static const char* BossPhaseToString(BossPhase phase) {
 }
 #endif
 
-void Boss::Initialize(Model* model, Model* swordModel, Camera* camera, const Vector3& position) {
+void Boss::Initialize(Model* model, Model* swordModel, Camera* camera, const Vector3& position, BulletManager* bulletManager) {
 	model_ = model;
 	swordModel_ = swordModel;
 	camera_ = camera;
-
+	bulletManager_ = bulletManager;
+	// ワールドトランスフォーム初期化
 	worldTransform_.Initialize();
 	worldTransform_.translation_ = position;
 	worldTransform_.scale_ = {1.5f, 1.5f, 1.5f};
+
+	 // ===== Rifle生成 =====
+	rifle_ = new Rifle();
+	rifle_->Initialize(
+	    Model::CreateFromOBJ("Raifl"), // Enemyと同じ
+	    camera_, position);
+
 	WorldTransformUpdate(worldTransform_);
 
 	// 羽剣生成
@@ -85,6 +93,24 @@ void Boss::Update(const Vector3& playerPos) {
 		break;
 	}
 
+
+	// 向き
+	Vector3 toPlayer = playerPos - worldTransform_.translation_;
+	Vector3 dir = Normalize(toPlayer);
+	worldTransform_.rotation_.y = std::atan2(dir.x, dir.z);
+
+	// BossのY回転のみ反映
+	Matrix4x4 rotY = MakeRotateYMatrix(worldTransform_.rotation_.y);
+
+	// Rifleの位置
+	Vector3 riflePos = worldTransform_.translation_ + TransformNormal(rifleOffset_, rotY);
+
+	// Rifleの回転
+	Vector3 rifleRot = worldTransform_.rotation_;
+
+	rifle_->SetPosition(riflePos, rifleRot);
+	rifle_->Update();
+
 	//float rotateSpeed = 0.01f;
 
 	
@@ -135,6 +161,10 @@ void Boss::Update(const Vector3& playerPos) {
 
 void Boss::Draw() {
 	model_->Draw(worldTransform_, *camera_);
+
+	 if (rifle_) {
+		rifle_->Draw();
+	}
 
 	for (auto& sword : wingSwords_) {
 		sword->Draw(camera_);
@@ -225,16 +255,46 @@ void Boss::UpdateFunnelAttack(const KamataEngine::Vector3& playerPos) {
 }
 void Boss::UpdateMeleeAttack(const KamataEngine::Vector3& playerPos) {
 
-	Vector3 dir = Normalize(playerPos - worldTransform_.translation_);
-	worldTransform_.translation_ += dir * 0.15f;
-	WorldTransformUpdate(worldTransform_);
+	Vector3 toPlayer = playerPos - worldTransform_.translation_;
+	float dist = Length(toPlayer);
+	Vector3 dir = Normalize(toPlayer);
 
-	if (phaseTimer_ > 120) {
-	
-		ChangePhase(BossPhase::Cooldown);
+	// ===== 移動制御 =====
+	if (dist < idealDistance_) {
+		// 近すぎ → 離れる
+		worldTransform_.translation_ -= dir * moveSpeed_;
+	} else {
+		// 遠い → 近づく
+		worldTransform_.translation_ += dir * moveSpeed_;
 	}
 
+	// ===== 向きは常にプレイヤー =====
+	worldTransform_.rotation_.y = std::atan2(dir.x, dir.z);
+
+	// ===== 射撃クールタイム =====
+	if (shootCoolTime_ > 0) {
+		shootCoolTime_--;
+	}
+
+	// ===== 射撃 =====
+	if (shootCoolTime_ <= 0) {
+
+		if (rifle_->GetAmmo() > 0) {
+			rifle_->Fire(bulletManager_);
+			shootCoolTime_ = shootInterval_;
+		} else if (!rifle_->IsReloading()) {
+			rifle_->Reload();
+		}
+	}
+
+	WorldTransformUpdate(worldTransform_);
+
+	// フェーズ終了条件（例）
+	if (phaseTimer_ > 240) {
+		ChangePhase(BossPhase::Cooldown);
+	}
 }
+
 void Boss::UpdateSwordRing() {
 
 	float rotateSpeed = 0.02f;

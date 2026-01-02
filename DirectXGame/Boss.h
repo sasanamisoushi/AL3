@@ -1,7 +1,8 @@
 #pragma once
 #include "KamataEngine.h"
 #include "WingSword.h"
-#include "FollowCamera.h"
+#include "BulletManager.h"
+#include "Rifle.h"
 #include <vector>
 #include <memory>
 
@@ -18,7 +19,7 @@ class Boss {
 public:
 
 	//初期化
-	void Initialize(KamataEngine::Model* model, KamataEngine::Model* swordModel, KamataEngine::Camera* camera, const KamataEngine::Vector3& position);
+	void Initialize(KamataEngine::Model* model, KamataEngine::Model* swordModel, KamataEngine::Camera* camera, const KamataEngine::Vector3& position, BulletManager* bulletManager);
 
 	//更新
 	void Update(const KamataEngine::Vector3& playerPos);
@@ -48,6 +49,7 @@ public:
 	//羽剣リセット
 	void ResetWingSwords();
 
+
 private:
 	// ワールド変換データ
 	KamataEngine::WorldTransform worldTransform_;
@@ -64,7 +66,7 @@ private:
 	// 行動管理
 	int timer_ = 0;
 
-	FollowCamera* followCamera_ = nullptr;
+	
 
 	//ボスの行動フェーズ
 	BossPhase phase_ = BossPhase::DecideAction;
@@ -78,4 +80,23 @@ private:
 
 	// 何フレームおきに撃つか
 	int launchInterval_ = 10;
+
+	BulletManager* bulletManager_ = nullptr;
+
+	
+	float idealDistance_ = 20.0f; 
+
+	//移動速度
+	float moveSpeed_ = 0.1f;
+
+	//射撃クールタイム
+	int shootCoolTime_ = 0;
+
+	//射撃間隔
+	int shootInterval_ = 30;
+
+	//銃
+	Rifle* rifle_ = nullptr;
+
+	KamataEngine::Vector3 rifleOffset_ = {0.0f, 1.5f, 0.8f};
 };
