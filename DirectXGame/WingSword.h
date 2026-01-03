@@ -1,5 +1,6 @@
 #pragma once
 #include "KamataEngine.h"
+#include "Player.h"
 
 
 
@@ -18,7 +19,7 @@ public:
 	//初期化
 	void Initialize(KamataEngine::Model* model);
 	//更新
-	void Update();
+	void Update(Player* player);
 
 	//描画
 	void Draw(KamataEngine::Camera* camera);
@@ -35,6 +36,13 @@ public:
 	void AddStandbyAngle(float delta);
 	
 	void ResetToStandby(const KamataEngine::Vector3& centerPos, float bossYaw);
+	
+	//ゲッター
+	KamataEngine::Vector3 GetPosition() const { return worldTransform_.translation_; }
+	float GetRadius() const { return hitRadius_; }
+
+	bool IsActive() const { return state_ == WingSwordState::Flying || state_ == WingSwordState::Stuck; }
+
 
 private:
 
@@ -58,8 +66,11 @@ private:
 	float riseHeight_ = 5.0f;
 	float riseSpeed_ = 0.2f;
 
-	
+	float hitRadius_ = 0.5f;
 
-	
+	float damageRadius_ = 1.5f; // 刺さっている剣の危険範囲
+	int damage_ = 15;
+
+	int damageCooldown_ = 0; // 連続ヒット防止
 };
 

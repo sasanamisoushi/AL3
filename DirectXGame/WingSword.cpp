@@ -13,7 +13,7 @@ void WingSword::Initialize(Model *model) {
 }
 
 
-void WingSword::Update() {
+void WingSword::Update(Player* player) {
 	switch (state_) {
 
 	case WingSwordState::Standby:
@@ -45,23 +45,37 @@ void WingSword::Update() {
 
 		// 地面に刺さる
 		if (worldTransform_.translation_.y <= 0.0f) {
-			worldTransform_.translation_.y += 1.5f;
+			worldTransform_.translation_.y = 1.0f;
 			state_ = WingSwordState::Stuck;
-
-		
 
 			// 刺さる向き
 			worldTransform_.rotation_.x = -std::numbers::pi_v<float>/1.0f ;
 			worldTransform_.rotation_.y = -std::atan2(dir.x, dir.z);
-
-		
 		}
 		break;
 
 	case WingSwordState::Stuck:
-		// 何もしない
+		// クールタイム減少
+		if (damageCooldown_ > 0) {
+			damageCooldown_--;
+		}
+
+		// プレイヤーと距離判定
+		float dist = Length(player->GetPosition() - worldTransform_.translation_);
+
+		// 使用 <= so touching at exact radius counts
+		if (dist <= damageRadius_) {
+
+			if (damageCooldown_ <= 0) {
+
+				player->Damage(damage_);
+				damageCooldown_ = 30; // 0.5秒ごとにダメージ
+			}
+		}
 		break;
 	}
+
+	
 
 	WorldTransformUpdate(worldTransform_);
 }

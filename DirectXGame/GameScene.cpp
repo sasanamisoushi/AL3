@@ -86,7 +86,7 @@ void GameScene::Update() {
 	if (!bossSpawned_ && enemyManager_.IsAllDead()) {
 
 		boss_ = new Boss();
-		boss_->Initialize(bossModel_, bossSwordModel_, &camera_, {0.0f, 0.0f, 0.0f}, bulletManager_);
+		boss_->Initialize(bossModel_, bossSwordModel_, &camera_, {0.0f, 0.0f, 0.0f}, bulletManager_,player);
 
 		bossSpawned_ = true;
 	}

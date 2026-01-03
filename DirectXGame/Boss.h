@@ -3,6 +3,7 @@
 #include "WingSword.h"
 #include "BulletManager.h"
 #include "Rifle.h"
+#include "Player.h"
 #include <vector>
 #include <memory>
 
@@ -19,7 +20,7 @@ class Boss {
 public:
 
 	//初期化
-	void Initialize(KamataEngine::Model* model, KamataEngine::Model* swordModel, KamataEngine::Camera* camera, const KamataEngine::Vector3& position, BulletManager* bulletManager);
+	void Initialize(KamataEngine::Model* model, KamataEngine::Model* swordModel, KamataEngine::Camera* camera, const KamataEngine::Vector3& position, BulletManager* bulletManager,Player* player);
 
 	//更新
 	void Update(const KamataEngine::Vector3& playerPos);
@@ -99,4 +100,6 @@ private:
 	Rifle* rifle_ = nullptr;
 
 	KamataEngine::Vector3 rifleOffset_ = {0.0f, 1.5f, 0.8f};
+
+	Player* player_ = nullptr;
 };

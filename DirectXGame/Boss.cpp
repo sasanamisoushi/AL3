@@ -23,11 +23,12 @@ static const char* BossPhaseToString(BossPhase phase) {
 }
 #endif
 
-void Boss::Initialize(Model* model, Model* swordModel, Camera* camera, const Vector3& position, BulletManager* bulletManager) {
+void Boss::Initialize(Model* model, Model* swordModel, Camera* camera, const Vector3& position, BulletManager* bulletManager,Player* player) {
 	model_ = model;
 	swordModel_ = swordModel;
 	camera_ = camera;
 	bulletManager_ = bulletManager;
+	player_ = player;
 	// ワールドトランスフォーム初期化
 	worldTransform_.Initialize();
 	worldTransform_.translation_ = position;
@@ -110,6 +111,11 @@ void Boss::Update(const Vector3& playerPos) {
 
 	rifle_->SetPosition(riflePos, rifleRot);
 	rifle_->Update();
+
+	// ===== 全フェーズ共通：剣の更新 =====
+	for (auto& sword : wingSwords_) {
+		sword->Update(player_);
+	}
 
 	//float rotateSpeed = 0.01f;
 
@@ -199,22 +205,11 @@ void Boss::ChangePhase(BossPhase next) {
 	phase_ = next;
 	phaseTimer_ = 0;
 
-	// ===== フェーズ開始時の処理 =====
-	switch (phase_) {
-	case BossPhase::SwordRing:
-		ResetWingSwords(); 
-		break;
+	
 
-	case BossPhase::FunnelAttack:
-		ResetWingSwords(); 
-		break;
-
-	case BossPhase::DecideAction:
-		ResetWingSwords(); 
-		break;
-
-	default:
-		break;
+	// 剣を戻すのは SwordRing に入る時だけ
+	if (phase_ == BossPhase::SwordRing) {
+		ResetWingSwords();
 	}
 
 	if (next != BossPhase::FunnelAttack) {
@@ -230,7 +225,9 @@ void Boss::UpdateFunnelAttack(const KamataEngine::Vector3& playerPos) {
 	// 待機位置更新
 	for (auto& sword : wingSwords_) {
 		sword->SetStandbyPosition(backPos, bossYaw);
-		sword->Update();
+		//sword->Update(player);
+
+		 
 	}
 
 	// ===== 一本ずつ発射 =====
@@ -287,6 +284,18 @@ void Boss::UpdateMeleeAttack(const KamataEngine::Vector3& playerPos) {
 		}
 	}
 
+	float hitRadius = 2.0f;
+
+	Vector3 diff = playerPos - worldTransform_.translation_;
+
+	dist = Length(diff);
+
+	if (dist < hitRadius + player_->GetRadius()) {
+		player_->Damage(20);
+	}
+
+	
+
 	WorldTransformUpdate(worldTransform_);
 
 	// フェーズ終了条件（例）
@@ -301,7 +310,7 @@ void Boss::UpdateSwordRing() {
 	for (auto& sword : wingSwords_) {
 	
 		sword->AddStandbyAngle(rotateSpeed);
-		sword->Update();
+		//sword->Update(player_);
 	}
 
 	if (phaseTimer_ > 180) {
