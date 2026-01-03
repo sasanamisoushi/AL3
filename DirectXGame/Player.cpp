@@ -41,15 +41,26 @@ void Player::Initialize(Model* model, Camera* camera, const Vector3& position) {
 	followCamera_.SetTargetOffset({0.0f, 4.0f, 0.0f});
 	followCamera_.SetDistance(10.0f);
 
-	WorldTransformUpdate(worldTransform_);
+	textureHandle_ = TextureManager::Load("white1x1.png");
 
 	// 被弾用赤スプライトを一度だけ生成
 	damageSprite_.reset(Sprite::Create(
-		TextureManager::Load("./Resources/white1x1.png"), // 真っ白な1x1画像
-		{0.0f, 0.0f}));
+	    TextureManager::Load("./Resources/white1x1.png"), // 真っ白な1x1画像
+	    {0.0f, 0.0f}));
 	damageSprite_->SetSize({1280.0f, 720.0f}); // 画面サイズ
 	damageSprite_->SetAnchorPoint({0.0f, 0.0f});
-	damageSprite_->SetColor({1, 0, 0, 0});     // 最初は透明
+	damageSprite_->SetColor({1, 0, 0, 0}); // 最初は透明
+
+	// HPバー背景
+	spriteHPBack_ = Sprite::Create(
+	    TextureManager::Load("./Resources/UI/HP,StaminaB.png"), hpBarPos_, {1, 1, 1, 1}, {0.0f, 0.0f});
+	
+
+	// HPバー本体
+	spriteHp_ = Sprite::Create(textureHandle_, {193.0f, 624.0f}, {0.0f, 0.0f, 1.0f, 1.0f}, {0.0f, 0.0f});
+	spriteHp_->SetSize(hpBarBaseSize_);
+
+	WorldTransformUpdate(worldTransform_);
 }
 
 
@@ -217,6 +228,21 @@ void Player::Update(BulletManager* bulletManager, const std::vector<Enemy*>& ene
 	if (invincibleTimer_ > 0.0f) {
 		invincibleTimer_ -= 1.0f / 60.0f;
 	}
+
+	// HPが0未満にならないように
+	if (currentHp_ < 0) {
+		currentHp_ = 0;
+	}
+
+	// HPが範囲外にならないようクランプ
+	currentHp_ = std::clamp(currentHp_, 0.0f, maxHp_);
+
+	// HPの割合を計算 (0.0 ～ 1.0)
+	float hpRate = currentHp_ / maxHp_;
+
+	// 元の最大幅（hpBarBaseSize_.x）に割合を掛けて、現在の幅を決定する
+	// アンカーポイントが {0.0f, 0.5f} なので、左端固定で右側だけ縮む
+	spriteHp_->SetSize({hpBarBaseSize_.x * hpRate, hpBarBaseSize_.y});
 
 	//カメラ更新
 	followCamera_.Update();
@@ -391,10 +417,14 @@ void Player::Damage(int damage) {
 		return; // 無敵中
 	}
 
-	// HP減少
-	hp_ -= damage;
+	currentHp_ -= damage;
 
-	// 被弾エフェクト開始
+	if (currentHp_ < 0) {
+		currentHp_ = 0;
+		// isDead_ = true;（必要なら）
+	}
+
+	// 被弾エフェクト
 	damageEffectTimer_ = damageEffectDuration_;
 	invincibleTimer_ = invincibleTime_;
 	
@@ -426,6 +456,9 @@ void Player::DrawDamageEffect() {
 		damageSprite_->SetColor({1.0f, 0.0f, 0.0f, alpha * 0.4f});
 		damageSprite_->Draw();
 	}
+
+	spriteHPBack_->Draw();
+	spriteHp_->Draw();
 }
 
 Player::~Player() { 
