@@ -54,6 +54,8 @@ public:
 	void Damage(int damage);
 
 	Shield* GetShield() const { return shield_; }
+	int GetHP() const { return hp_; }
+	int GetMaxHP() const { return 100; }
 
 	
 	
@@ -125,6 +127,16 @@ private:
 	
 	//hp
 	int hp_ = 100;
+	float maxHp_ = 100.0f;
+	float currentHp_ = 100.0f;
+
+	// HPバー
+	KamataEngine::Sprite* spriteHPBack_ = nullptr;
+	KamataEngine::Sprite* spriteHp_ = nullptr;
+	uint32_t textureHandle_ = 0u;
+
+	KamataEngine::Vector2 hpBarBaseSize_ = {876.0f, 67.0f};
+	KamataEngine::Vector2 hpBarPos_ = {0.0f, 0.0f};
 
 	//ダメージエフェクト
 	float damageEffectTimer_ = 0.0f;

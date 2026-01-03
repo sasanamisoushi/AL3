@@ -70,4 +70,6 @@ private:
 	KamataEngine::Model* bossModel_ = nullptr;
 	KamataEngine::Model* bossSwordModel_ = nullptr;
 
+
+	
 };

@@ -60,6 +60,8 @@ void GameScene::Initialize() {
 
 	// 弾の生成
 	bulletManager_->Initialize(bulletModel);
+
+	
 }
 
 void GameScene::Update() {
@@ -146,12 +148,14 @@ void GameScene::Update() {
 		followCamera_.SetLockOnTarget(lockOnTargets_[lockOnIndex]);
 	}
 
+
+#ifdef _DEBUG
+
 	// キーを押したらクリア画面に
 	if (Input::GetInstance()->TriggerKey(DIK_1)) {
 		isFinish = true;
 	}
 
-#ifdef _DEBUG
 	ImGui::Begin("Game Scene");
 	ImGui::Text("R choiceWeapon");
 	ImGui::Text("L lock on");
@@ -167,8 +171,8 @@ void GameScene::Update() {
 
 	// ボス位置表示
 	if (boss_) {
-		Vector3 pos = boss_->GetPosition();
-		ImGui::Text("Boss Pos: %.2f, %.2f, %.2f", pos.x, pos.y, pos.z);
+		Vector3 posB = boss_->GetPosition();
+		ImGui::Text("Boss Pos: %.2f, %.2f, %.2f", posB.x, posB.y, posB.z);
 	} else {
 		ImGui::Text("Boss : nullptr");
 	}
@@ -178,7 +182,7 @@ void GameScene::Update() {
 	ImGui::Checkbox("Enemy Enable", &enemyEnable);
 
 	if (!enemyEnable) {
-		enemyManager_.ClearEnemies(); // ※下で追加
+		enemyManager_.ClearEnemies(); 
 	}
 
 	ImGui::Text("Enemy Count: %d", (int)enemyManager_.GetEnemies().size());
@@ -205,6 +209,7 @@ void GameScene::Draw() {
 	// ===== 2D描画（Sprite）=====
 	Sprite::PreDraw(dxCommon->GetCommandList());
 	player->DrawDamageEffect();
+
 	Sprite::PostDraw();
 }
 
@@ -236,4 +241,5 @@ GameScene::~GameScene() {
 	bulletManager_ = nullptr;
 	delete bulletModel;
 	bulletModel = nullptr;
+
 }
