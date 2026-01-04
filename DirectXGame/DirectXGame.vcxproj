@@ -123,6 +123,7 @@
     <ClCompile Include="Rifle.cpp" />
     <ClCompile Include="saber.cpp" />
     <ClCompile Include="Shield.cpp" />
+    <ClCompile Include="StageBounds.cpp" />
     <ClCompile Include="TitleScene.cpp" />
     <ClCompile Include="WingSword.cpp" />
   </ItemGroup>
@@ -218,6 +219,7 @@
     <ClInclude Include="Rifle.h" />
     <ClInclude Include="saber.h" />
     <ClInclude Include="Shield.h" />
+    <ClInclude Include="StageBounds.h" />
     <ClInclude Include="TitleScene.h" />
     <ClInclude Include="WingSword.h" />
   </ItemGroup>

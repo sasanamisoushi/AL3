@@ -6,6 +6,7 @@
 #include "saber.h"
 #include "Enemy.h"
 #include "Shield.h"
+#include "StageBounds.h"
 #include <vector>
 #include <memory>
 
@@ -146,5 +147,7 @@ private:
 	//無敵タイマー
 	float invincibleTimer_ = 0.0f;
 	const float invincibleTime_ = 0.6f;
+
+	StageBounds* stageBounds_ = nullptr;
 
 };
