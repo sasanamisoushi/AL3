@@ -137,6 +137,8 @@ void Enemy::Update(BulletManager* bulletManager) {
 	// --- プレイヤーとの衝突（重なり防止） ---
 	ResolveCollisionWithPlayer();
 
+	stageBounds_->ClampToStage(worldTransform_.translation_, GetRadius());
+
 	// 行列更新
 	WorldTransformUpdate(worldTransform_);
 #ifdef _DEBUG
@@ -213,6 +215,7 @@ bool Enemy::HitChek(const Vector3& point, float r) {
 
 void Enemy::ResolveCollisionWithPlayer() {
 	Vector3 diff = position_ - player_->GetPosition();
+	diff.y = 0.0f;
 	float dist = Length(diff);
 	float minDist = radius_ + player_->GetRadius();
 
@@ -222,7 +225,8 @@ void Enemy::ResolveCollisionWithPlayer() {
 		float push = (minDist - dist);
 
 		// 50%ずつ押し戻す
-		worldTransform_.translation_ += dir * (push * 0.5f);
+		worldTransform_.translation_.x += dir.x * (push * 0.5f);
+		worldTransform_.translation_.y += dir.y * (push * 0.5f);
 		player_->SetPosition(player_->GetPosition() - dir * (push * 0.5f));
 	}
 }

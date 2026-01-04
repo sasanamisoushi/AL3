@@ -1,6 +1,7 @@
 #pragma once
 #include "KamataEngine.h"
 #include "MyMath.h"
+#include "StageBounds.h"
 
 
 class Player;
@@ -103,5 +104,7 @@ private:
 
 	//死亡フラグ
 	bool isDead_ = false;
+
+	StageBounds* stageBounds_ = nullptr;
 
 };
