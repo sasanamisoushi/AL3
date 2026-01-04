@@ -60,8 +60,6 @@ void GameScene::Initialize() {
 
 	// 弾の生成
 	bulletManager_->Initialize(bulletModel);
-
-	
 }
 
 void GameScene::Update() {
@@ -72,12 +70,17 @@ void GameScene::Update() {
 	// 弾の更新
 	bulletManager_->Update(enemyManager_.GetEnemyPointers(), player);
 
+	// ===== ボスの更新（常に）=====
+	if (boss_) {
+		boss_->Update(player->GetPosition());
+	}
+
 	// ロックオン対象クリア
-	lockOnTargets_.clear();
+	lockOnEnemies_.clear();
 	// ================ 雑魚敵 ================
 	for (Enemy* enemy : enemyManager_.GetEnemyPointers()) {
 		if (!enemy->IsDead()) {
-			lockOnTargets_.push_back(&enemy->GetPosition());
+			lockOnEnemies_.push_back(enemy);
 		}
 	}
 
@@ -88,22 +91,15 @@ void GameScene::Update() {
 	if (!bossSpawned_ && enemyManager_.IsAllDead()) {
 
 		boss_ = new Boss();
-		boss_->Initialize(bossModel_, bossSwordModel_, &camera_, {0.0f, 0.0f, 0.0f}, bulletManager_,player);
+		boss_->Initialize(bossModel_, bossSwordModel_, &camera_, {0.0f, 0.0f, 0.0f}, bulletManager_, player);
 
 		bossSpawned_ = true;
 	}
 
-	// ================ ボス ================
-	// ボスの更新
-	if (boss_) {
-		lockOnTargets_.push_back(&boss_->GetPosition());
-		boss_->Update(player->GetPosition());
-	}
+	  
 
-	auto& enemies_ = enemyManager_.GetEnemies();
-
-	// 敵がいなければロック不可
-	if (lockOnTargets_.empty()) {
+	// 雑魚もボスもいなければロック不可
+	if (lockOnEnemies_.empty() && boss_ == nullptr) {
 		lockOnIndex = -1;
 		player->SetLockOn(false);
 		followCamera_.SetLockOn(false);
@@ -131,7 +127,7 @@ void GameScene::Update() {
 		// → 次の敵
 		if (Input::GetInstance()->TriggerKey(DIK_RIGHT)) {
 			lockOnIndex++;
-			if (lockOnIndex >= enemies_.size()) {
+			if (lockOnIndex >= lockOnEnemies_.size()) {
 				lockOnIndex = 0; // ループ
 			}
 		}
@@ -140,14 +136,35 @@ void GameScene::Update() {
 		if (Input::GetInstance()->TriggerKey(DIK_LEFT)) {
 			lockOnIndex--;
 			if (lockOnIndex < 0) {
-				lockOnIndex = (int)enemies_.size() - 1; // ループ
+				lockOnIndex = (int)lockOnEnemies_.size() - 1; // ループ
 			}
 		}
-		// ロックオン対象をセットする
-		player->SetLockOnTarget(lockOnTargets_[lockOnIndex]);
-		followCamera_.SetLockOnTarget(lockOnTargets_[lockOnIndex]);
-	}
 
+		// ================ ボス ================
+		// ボスの更新
+		if (lockOnEnemies_.empty() && boss_) {
+
+			// Lキーでボスをロックオン
+			if (Input::GetInstance()->TriggerKey(DIK_L)) {
+				player->SetLockOn(true);
+				followCamera_.SetLockOn(true);
+				player->SetLockOnTarget(&boss_->GetPosition());
+				followCamera_.SetLockOnTarget(&boss_->GetPosition());
+			}
+			return;
+		}
+
+		if (lockOnIndex < 0 || lockOnIndex >= (int)lockOnEnemies_.size()) {
+			lockOnIndex = -1;
+			player->SetLockOn(false);
+			followCamera_.SetLockOn(false);
+			return;
+		}
+
+		// ロックオン対象をセットする
+		player->SetLockOnTarget(&lockOnEnemies_[lockOnIndex]->GetPosition());
+		followCamera_.SetLockOnTarget(&lockOnEnemies_[lockOnIndex]->GetPosition());
+	}
 
 #ifdef _DEBUG
 
@@ -182,7 +199,7 @@ void GameScene::Update() {
 	ImGui::Checkbox("Enemy Enable", &enemyEnable);
 
 	if (!enemyEnable) {
-		enemyManager_.ClearEnemies(); 
+		enemyManager_.ClearEnemies();
 	}
 
 	ImGui::Text("Enemy Count: %d", (int)enemyManager_.GetEnemies().size());
@@ -235,11 +252,15 @@ GameScene::~GameScene() {
 	enemyDown = nullptr;
 	// ボスの解放
 	delete boss_;
+	boss_ = nullptr;
+	delete bossModel_;
+	bossModel_ = nullptr;
+	delete bossSwordModel_;
+	bossSwordModel_ = nullptr;
 
 	// 弾の解放
 	delete bulletManager_;
 	bulletManager_ = nullptr;
 	delete bulletModel;
 	bulletModel = nullptr;
-
 }

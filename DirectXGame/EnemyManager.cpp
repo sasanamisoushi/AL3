@@ -39,9 +39,7 @@ void EnemyManager::Update(BulletManager* bulletManager) {
 
 		if (wave_ == 2) {
 			SpawnEnemies(5); // 2wave目：5体
-		} else if (wave_ == 3) {
-			SpawnEnemies(8); // 3wave目：8体など
-		}
+		} 
 	}
 }
 
@@ -70,7 +68,12 @@ void EnemyManager::ResolveEnemyCollisions() {
 			Enemy* a = enemies_[i].get();
 			Enemy* b = enemies_[j].get();
 
+			if (a->IsDown() || b->IsDown() || a->IsDead() || b->IsDead()) {
+				continue;
+			}
+
 			Vector3 diff = a->GetPosition() - b->GetPosition();
+			diff.y = 0.0f;
 			float dist = Length(diff);
 			float minDist = a->GetRadius() + b->GetRadius();
 
@@ -78,8 +81,18 @@ void EnemyManager::ResolveEnemyCollisions() {
 				Vector3 dir = diff / dist;
 				float push = (minDist - dist) * 0.5f;
 
-				a->AddPosition(dir * push);
-				b->AddPosition(-dir * push);
+				Vector3 posA = a->GetPosition();
+				Vector3 posB = b->GetPosition();
+
+				posA += dir * push;
+				posB -= dir * push;
+
+				// ★ Yは絶対固定
+				posA.y = a->GetPosition().y;
+				posB.y = b->GetPosition().y;
+
+				a->AddPosition(posA);
+				b->AddPosition(posB);
 			}
 		}
 	}
@@ -119,4 +132,7 @@ void EnemyManager::SpawnEnemies(int count) {
 	}
 }
 
-void EnemyManager::ClearEnemies() { enemies_.clear(); }
+void EnemyManager::ClearEnemies() { 
+	enemies_.clear(); 
+	return;
+}

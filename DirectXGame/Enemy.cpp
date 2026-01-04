@@ -25,7 +25,7 @@ void Enemy::Initialize(Model* model, Camera* camera, const Vector3& position, Pl
 	worldTransform_.translation_ = position;
 	worldTransform_.rotation_.y = std::numbers::pi_v<float>;
 
-
+	//surroundAngle_ = 0.0f;
 
 	// 自身の座標を保持
 	position_ = position;
@@ -37,6 +37,9 @@ void Enemy::Initialize(Model* model, Camera* camera, const Vector3& position, Pl
 }
 
 void Enemy::Update(BulletManager* bulletManager) {
+
+	// 座標更新
+	position_ = worldTransform_.translation_;
 
 	if (isDead_) {
 		return;
@@ -61,8 +64,7 @@ void Enemy::Update(BulletManager* bulletManager) {
 	float dist = Length(toPlayer);
 
 
-	// 座標更新
-	position_ = worldTransform_.translation_;
+	
 
 	// クールタイム（攻撃間隔）
 	if (attackCoolTime_ > 0) {
@@ -135,7 +137,7 @@ void Enemy::Update(BulletManager* bulletManager) {
 	}
 
 	// --- プレイヤーとの衝突（重なり防止） ---
-	ResolveCollisionWithPlayer();
+	//ResolveCollisionWithPlayer();
 
 	stageBounds_->ClampToStage(worldTransform_.translation_, GetRadius());
 
@@ -214,6 +216,9 @@ bool Enemy::HitChek(const Vector3& point, float r) {
 }
 
 void Enemy::ResolveCollisionWithPlayer() {
+	Vector3 currentPos = worldTransform_.translation_;
+	Vector3 playerPos = player_->GetPosition();
+
 	Vector3 diff = position_ - player_->GetPosition();
 	diff.y = 0.0f;
 	float dist = Length(diff);
@@ -226,8 +231,11 @@ void Enemy::ResolveCollisionWithPlayer() {
 
 		// 50%ずつ押し戻す
 		worldTransform_.translation_.x += dir.x * (push * 0.5f);
-		worldTransform_.translation_.y += dir.y * (push * 0.5f);
-		player_->SetPosition(player_->GetPosition() - dir * (push * 0.5f));
+		worldTransform_.translation_.z += dir.z * (push * 0.5f);
+		Vector3 newPlayerPos = playerPos;
+		newPlayerPos.x -= dir.x * (push * 0.5f);
+		newPlayerPos.z -= dir.z * (push * 0.5f);
+		player_->SetPosition(newPlayerPos);
 	}
 }
 
@@ -254,6 +262,9 @@ void Enemy::Recover() {
 
 	model_ = normalModel_; // 元のモデル
 	worldTransform_.rotation_.x = 0.0f;
+
+	  // ★ Yを地面に戻す
+	worldTransform_.translation_.y -= downHeightOffset_;
 
 	attackCoolTime_ = 60; // 起き上がり後の硬直
 	downCount_ = 0;       // 再びダウン可能

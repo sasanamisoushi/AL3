@@ -30,8 +30,6 @@ public:
 	//セッター
 	void SetOwner(Owner owner) { owner_ = owner; }
 
-	
-
 private:
 	// ワールド変換データ
 	KamataEngine::WorldTransform worldTransform_;

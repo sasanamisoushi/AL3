@@ -127,7 +127,7 @@ private:
 	float radius_ = 1.0f;
 	
 	//hp
-	int hp_ = 100;
+	int hp_ = 10000;
 	float maxHp_ = 100.0f;
 	float currentHp_ = 100.0f;
 

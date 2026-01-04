@@ -60,7 +60,8 @@ private:
 	bool isFinish = false;
 
 	// ロックオン
-	std::vector<const Vector3*> lockOnTargets_;
+	//std::vector<const Vector3*> lockOnTargets_;
+	std::vector<Enemy*> lockOnEnemies_;
 	int lockOnIndex = -1;
 
 	//ボス

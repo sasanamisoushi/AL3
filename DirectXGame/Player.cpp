@@ -366,56 +366,56 @@ void Player::UpdateMovement() {
 }
 
 void Player::ApplyGravity() {
-	//// 重力加速度
-	//const float kGravity = -0.3f;
-	//// 地面高さ
-	//const float kGroundHeight = 0.0f;
-	//// 押している間の上昇速度
-	//const float kJumpPower = 0.005f;
-	// 落下速度の上限
-	/*const float kMaxFallSpeed = -0.2f;*/
+	// 重力加速度
+	const float kGravity = -0.3f;
+	// 地面高さ
+	const float kGroundHeight = 0.0f;
+	// 押している間の上昇速度
+	const float kJumpPower = 0.005f;
+	 //落下速度の上限
+	const float kMaxFallSpeed = -0.2f;
 
-	//auto* input = Input::GetInstance();
+	auto* input = Input::GetInstance();
 
-	//// ====== ジャンプ ======
+	// ====== ジャンプ ======
 	//if (input->TriggerKey(DIK_O) && isOnGround_) {
 	//	isOnGround_ = false;
 	//	velocity_.y = 0.0f; // 上昇開始時は初速0から
 	//}
 
-	// // ===== 押している間は上昇 =====
-	//if (!isOnGround_) {
-	//	if (input->PushKey(DIK_O) && jumpTime_ < kMaxJumpTime) {
-	//		velocity_.y += kJumpPower; // 押してる間は上昇
-	//		jumpTime_ += 1.5f;
-	//	} else {
+	 // ===== 押している間は上昇 =====
+	if (!isOnGround_) {
+		if (input->PushKey(DIK_O) && jumpTime_ < kMaxJumpTime) {
+			velocity_.y += kJumpPower; // 押してる間は上昇
+			jumpTime_ += 1.5f;
+		} else {
 
-	//		if (velocity_.y > 0.0f) {
-	//			velocity_.y *= 0.95f; // 速度を緩やかに減速させる
-	//		}
-	//		velocity_.y += kGravity; // 離したら重力が働く
-	//		jumpTime_ -= 1.0f;
-	//	}
-	//}
+			if (velocity_.y > 0.0f) {
+				velocity_.y *= 0.95f; // 速度を緩やかに減速させる
+			}
+			velocity_.y += kGravity; // 離したら重力が働く
+			jumpTime_ -= 1.0f;
+		}
+	}
 
-	//if (isOnGround_) {
-	//	jumpTime_ = 0.0f;
-	//}
+	if (isOnGround_) {
+		jumpTime_ = 0.0f;
+	}
 
-	//// 落下速度制限
-	//velocity_.y = std::max<float>(velocity_.y, kMaxFallSpeed);
+	// 落下速度制限
+	velocity_.y = std::max<float>(velocity_.y, kMaxFallSpeed);
 
-	//// Y方向の移動
-	//worldTransform_.translation_.y += velocity_.y;
+	// Y方向の移動
+	worldTransform_.translation_.y += velocity_.y;
 
-	//// 地面判定
-	//if (worldTransform_.translation_.y < kGroundHeight) {
-	//	worldTransform_.translation_.y = kGroundHeight;
-	//	velocity_.y = 0.0f;
-	//	isOnGround_ = true;
-	//} 
+	// 地面判定
+	if (worldTransform_.translation_.y < kGroundHeight) {
+		worldTransform_.translation_.y = kGroundHeight;
+		velocity_.y = 0.0f;
+		isOnGround_ = true;
+	} 
 	
-	//WorldTransformUpdate(worldTransform_);
+	WorldTransformUpdate(worldTransform_);
 }
 
 void Player::Damage(int damage) {

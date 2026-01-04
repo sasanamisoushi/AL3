@@ -54,6 +54,8 @@ public:
 	//デストラクタ
 	~Enemy();
 
+	bool IsDown() const { return state_ == EnemyState::Down; }
+
 private:
 
 	// ワールド変換データ
