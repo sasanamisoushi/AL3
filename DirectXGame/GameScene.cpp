@@ -69,6 +69,17 @@ void GameScene::Initialize() {
 
 void GameScene::Update() {
 
+	if (boss_ && boss_->IsDead()) {
+		isGameClear_ = true;
+		return;
+	}
+
+	// プレイヤー死亡判定
+	if (player->IsDead()) {
+		isGameOver_ = true;
+		return;
+	}
+
 	// プレイヤーの更新
 	player->Update(bulletManager_, enemyManager_.GetEnemyPointers());
 
@@ -174,15 +185,7 @@ void GameScene::Update() {
 	// ================ UI ================
 	attackAlert_.Update();
 
-	if (boss_ && boss_->IsDead()) {
-		isGameClear_ = true;
-		return;
-	}
-
-	if (player->IsDead()) {
-		isGameOver_ = true;
-		return;
-	}
+	
 
 #ifdef _DEBUG
 

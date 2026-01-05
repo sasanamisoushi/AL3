@@ -119,6 +119,8 @@ private:
 
 	AttackAlert* attackAlert_=nullptr;
 
-	
+	//待機タイマー
+	int waitTimer_ = 0;       // スポーン後の待機タイマー
+	const int kWaitTime = 60; 
 
 };

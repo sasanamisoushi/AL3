@@ -62,7 +62,7 @@ public:
 	
 	FollowCamera* GetFollowCamera() { return &followCamera_; }
 	
-	bool IsDead() const { return hp_ <= 0; }
+	bool IsDead() const { return currentHp_ <= 0.0f; }
 
 private:
 
@@ -130,9 +130,9 @@ private:
 	float radius_ = 1.0f;
 	
 	//hp
-	int hp_ = 1000;
-	float maxHp_ = 1000.0f;
-	float currentHp_ = 1000.0f;
+	int hp_ = 400;
+	float maxHp_ = 400.0f;
+	float currentHp_ = 400.0f;
 
 	// HPバー
 	KamataEngine::Sprite* spriteHPBack_ = nullptr;

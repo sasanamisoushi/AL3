@@ -65,6 +65,11 @@ void Boss::Initialize(Model* model, Model* swordModel, Camera* camera, const Vec
 
 void Boss::Update(const Vector3& playerPos) {
 
+	//HPが０なら何もしない
+	if (hp_ <= 0) {
+		return;
+	}
+
 	phaseTimer_++;
 
 	switch (phase_) {
@@ -162,11 +167,18 @@ void Boss::Update(const Vector3& playerPos) {
 		phaseTimer_ = 0;
 	}
 
+	ImGui::Text("HP:%d", hp_);
+
 	ImGui::End();
 	#endif
 };
 
 void Boss::Draw() {
+
+	if (hp_ <= 0) {
+		return;
+	}
+
 	model_->Draw(worldTransform_, *camera_);
 
 	 if (rifle_) {
@@ -285,7 +297,7 @@ void Boss::UpdateMeleeAttack(const KamataEngine::Vector3& playerPos) {
 		}
 	}
 
-	float hitRadius = 2.0f;
+	float hitRadius = 5.0f;
 
 	Vector3 diff = playerPos - worldTransform_.translation_;
 

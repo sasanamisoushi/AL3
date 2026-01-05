@@ -34,6 +34,9 @@ void Enemy::Initialize(Model* model, Camera* camera, const Vector3& position, Pl
 	rifle_ = new Rifle();
 	rifle_->Initialize(Model::CreateFromOBJ("Raifl"), camera_, position);
 
+	// スポーン時にタイマーをセット
+	waitTimer_ = kWaitTime;
+
 	WorldTransformUpdate(worldTransform_);
 }
 
@@ -43,6 +46,12 @@ void Enemy::Update(BulletManager* bulletManager) {
 	position_ = worldTransform_.translation_;
 
 	if (isDead_) {
+		return;
+	}
+
+	// タイマーが残っている場合はカウントダウンして何もしない
+	if (waitTimer_ > 0) {
+		waitTimer_--;
 		return;
 	}
 

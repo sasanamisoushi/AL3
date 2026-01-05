@@ -55,6 +55,8 @@ public:
 
 	void Damage(int damage);
 
+	float GetRadius() const { return 2.0f; }
+
 	//コンストラクタ
 	Boss();
 	//デストラクタ
