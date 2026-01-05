@@ -3,6 +3,7 @@
 #include "Rifle.h"
 #include <numbers>
 #include <algorithm> 
+#include <cassert>
 
 using namespace KamataEngine;
 

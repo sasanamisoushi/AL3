@@ -2,6 +2,7 @@
 #include "BulletManager.h"
 #include "Player.h"
 #include <numbers>
+#include <cassert>
 
 using namespace KamataEngine;
 
@@ -127,6 +128,33 @@ void Enemy::Update(BulletManager* bulletManager) {
 				Vector3 muzzle = riflePos + TransformNormal(muzzleOffset_, rotY);
 
 				bulletManager->Fire(muzzle, dir, Bullet::Owner::kEnemy);
+
+				
+				// ===== アラート発火 =====
+				
+				Vector3 toEnemy = worldTransform_.translation_ - playerPos;
+				toEnemy.y = 0.0f;
+
+				if (Length(toEnemy) > 0.001f) {
+					toEnemy = Normalize(toEnemy);
+
+					Vector3 camForward = player_->GetFollowCamera()->GetForward();
+					Vector3 camRight = player_->GetFollowCamera()->GetRight();
+
+					float forwardDot = KamataEngine::MathUtility::Dot(camForward, toEnemy);
+					float rightDot = KamataEngine::MathUtility::Dot(camRight, toEnemy);
+
+					AttackAlert::AlertDir alertDir;
+
+					if (fabs(rightDot) > fabs(forwardDot)) {
+						alertDir = (rightDot > 0) ? AttackAlert::AlertDir::Right : AttackAlert::AlertDir::Left;
+					} else {
+						alertDir = (forwardDot > 0) ? AttackAlert::AlertDir::Front : AttackAlert::AlertDir::Back;
+					}
+
+					player_->GetAttackAlert()->Trigger(alertDir);
+				}
+
 				rifle_->ConsumeAmmo();
 				attackCoolTime_ = 45;
 			} else if (!rifle_->IsReloading()) {

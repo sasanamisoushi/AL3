@@ -39,6 +39,8 @@ void GameScene::Initialize() {
 	// EnemyManager 初期化
 	enemyManager_.Initialize(enemyModel, &camera_, player, enemyDown);
 
+
+
 	////敵の生成
 	// enemies_.push_back(new Enemy());
 	// enemies_.back()->Initialize(enemyModel, &camera_, {-5.0f, 0.5f, 5.0f},player);
@@ -60,6 +62,9 @@ void GameScene::Initialize() {
 
 	// 弾の生成
 	bulletManager_->Initialize(bulletModel);
+
+	//------------UI-----------------
+	attackAlert_.Initialize();
 }
 
 void GameScene::Update() {
@@ -166,6 +171,9 @@ void GameScene::Update() {
 		followCamera_.SetLockOnTarget(&lockOnEnemies_[lockOnIndex]->GetPosition());
 	}
 
+	// ================ UI ================
+	attackAlert_.Update();
+
 #ifdef _DEBUG
 
 	// キーを押したらクリア画面に
@@ -225,10 +233,35 @@ void GameScene::Draw() {
 
 	// ===== 2D描画（Sprite）=====
 	Sprite::PreDraw(dxCommon->GetCommandList());
+	attackAlert_.Draw();
 	player->DrawDamageEffect();
 
 	Sprite::PostDraw();
 }
+
+//void GameScene::ShowAttackAlert(const Vector3& enemyPos) {
+	/*Vector3 playerPos = player->GetPosition();
+	Vector3 toEnemy = Normalize(enemyPos - playerPos);
+
+	Vector3 forward = player->GetForward();
+	Vector3 right = player->GetRight();
+
+	float f = Dot(forward, toEnemy);
+	float r = Dot(right, toEnemy);
+
+	AlertDir dir;
+
+	if (f > 0.7f)
+		dir = AlertDir::Front;
+	else if (f < -0.7f)
+		dir = AlertDir::Back;
+	else if (r > 0.0f)
+		dir = AlertDir::Right;
+	else
+		dir = AlertDir::Left;
+
+	attackAlert_.Trigger(dir);*/
+//}
 
 GameScene::~GameScene() {
 

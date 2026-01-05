@@ -1,6 +1,7 @@
 #include "Shield.h"
 #include "MyMath.h"
 #include <numbers>
+#include <cassert>
 
 
 using namespace KamataEngine;

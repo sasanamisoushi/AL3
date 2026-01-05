@@ -7,6 +7,7 @@
 #include "FollowCamera.h"
 #include "BulletManager.h"
 #include "EnemyManager.h"
+#include "AttackAlert.h"
 #include "Boss.h"
 
 
@@ -25,6 +26,9 @@ public:
 
 	// デスフラグのgetter
 	bool IsFinished() const { return isFinish; }
+
+
+	//void ShowAttackAlert(const Vector3& enemyPos);
 
 	~GameScene();
 
@@ -71,6 +75,6 @@ private:
 	KamataEngine::Model* bossModel_ = nullptr;
 	KamataEngine::Model* bossSwordModel_ = nullptr;
 
-
+	AttackAlert attackAlert_;
 	
 };

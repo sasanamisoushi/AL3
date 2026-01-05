@@ -60,6 +60,9 @@ void Player::Initialize(Model* model, Camera* camera, const Vector3& position) {
 	spriteHp_ = Sprite::Create(textureHandle_, {193.0f, 624.0f}, {0.0f, 0.0f, 1.0f, 1.0f}, {0.0f, 0.0f});
 	spriteHp_->SetSize(hpBarBaseSize_);
 
+	//UI
+	attackAlert_.Initialize();
+
 	WorldTransformUpdate(worldTransform_);
 }
 
@@ -72,6 +75,8 @@ void Player::Update(BulletManager* bulletManager, const std::vector<Enemy*>& ene
 
 	//プレイヤー移動
 	UpdateMovement();
+
+	attackAlert_.Update();
 
 	////カメラの回転をプレイヤーのY回転に合わせる
 	followCamera_.SetTarget(&worldTransform_.translation_);
@@ -453,7 +458,9 @@ void Player::Draw() {
 		saber_->Draw();
 	}
 
-	shield_->Draw();	
+	shield_->Draw();
+
+	
 }
 
 void Player::DrawDamageEffect() {
@@ -463,6 +470,9 @@ void Player::DrawDamageEffect() {
 		damageSprite_->SetColor({1.0f, 0.0f, 0.0f, alpha * 0.4f});
 		damageSprite_->Draw();
 	}
+
+	// UI
+	attackAlert_.Draw();
 
 	spriteHPBack_->Draw();
 	spriteHp_->Draw();

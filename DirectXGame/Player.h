@@ -58,7 +58,9 @@ public:
 	int GetHP() const { return hp_; }
 	int GetMaxHP() const { return 100; }
 
+	AttackAlert* GetAttackAlert() { return &attackAlert_; }
 	
+	FollowCamera* GetFollowCamera() { return &followCamera_; }
 	
 
 private:
@@ -150,4 +152,6 @@ private:
 
 	StageBounds* stageBounds_ = nullptr;
 
+	AttackAlert attackAlert_;
+	
 };

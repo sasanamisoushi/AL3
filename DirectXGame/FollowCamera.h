@@ -27,6 +27,11 @@ public:
 
 	bool GetLockOn() const { return isLockOn_; }
 
+	KamataEngine::Vector3 GetRotation() const { return rotation_; }
+
+	KamataEngine::Vector3 GetForward() const;
+	KamataEngine::Vector3 GetRight() const;
+
 	//シェイク
 	void startShake(float power, int duration) { 
 		isShaking_ = true;

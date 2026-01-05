@@ -108,4 +108,14 @@ void FollowCamera::Update() {
 	camera->UpdateMatrix();
 }
 
+KamataEngine::Vector3 FollowCamera::GetForward() const {  
+	float y = camera->rotation_.y;
+	return {std::sin(y), 0.0f, std::cos(y)};
+}
+
+KamataEngine::Vector3 FollowCamera::GetRight() const {
+	float y = camera->rotation_.y;
+	return {std::cos(y), 0.0f, -std::sin(y)};
+}
+
 

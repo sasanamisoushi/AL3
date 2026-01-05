@@ -1,7 +1,9 @@
 #pragma once
 #include "KamataEngine.h"
-#include "MyMath.h"
 #include "StageBounds.h"
+#include "AttackAlert.h"
+#include "MyMath.h"
+#include <functional>
 
 
 class Player;
@@ -56,6 +58,8 @@ public:
 
 	bool IsDown() const { return state_ == EnemyState::Down; }
 
+	void SetOnAttack(std::function<void(const KamataEngine::Vector3&)> func) { onAttack_ = func; }
+
 private:
 
 	// ワールド変換データ
@@ -108,5 +112,12 @@ private:
 	bool isDead_ = false;
 
 	StageBounds* stageBounds_ = nullptr;
+
+	// 攻撃時のコールバック関数
+	std::function<void(const KamataEngine::Vector3&)> onAttack_;
+
+	AttackAlert* attackAlert_=nullptr;
+
+	
 
 };
