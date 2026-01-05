@@ -73,7 +73,7 @@ void GameScene::Update() {
 	player->Update(bulletManager_, enemyManager_.GetEnemyPointers());
 
 	// 弾の更新
-	bulletManager_->Update(enemyManager_.GetEnemyPointers(), player);
+	bulletManager_->Update(enemyManager_.GetEnemyPointers(), player,boss_);
 
 	// ===== ボスの更新（常に）=====
 	if (boss_) {
@@ -173,6 +173,16 @@ void GameScene::Update() {
 
 	// ================ UI ================
 	attackAlert_.Update();
+
+	if (boss_ && boss_->IsDead()) {
+		isGameClear_ = true;
+		return;
+	}
+
+	if (player->IsDead()) {
+		isGameOver_ = true;
+		return;
+	}
 
 #ifdef _DEBUG
 

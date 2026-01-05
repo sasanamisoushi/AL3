@@ -2,6 +2,7 @@
 #include "GameScene.h"
 #include "KamataEngine.h"
 #include "TitleScene.h"
+#include "GameOver.h"
 #include <Windows.h>
 
 using namespace KamataEngine;
@@ -12,6 +13,7 @@ enum class Scene {
 	kTitle,
 	kGame,
 	kGameClear,
+	kGameOver,
 };
 
 // Windowsアプリでのエントリーポイント(main関数)
@@ -28,6 +30,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	GameScene* gameScene = nullptr;
 	TitleScene* titleScene = nullptr;
 	GameClearScene* gameClearScene = nullptr;
+	GameOver* gameOverScene = nullptr;
 
 	// 現在と次のシーンの状態変数
 	Scene currentSceneEnum = Scene::kTitle;
@@ -63,6 +66,10 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 				delete gameClearScene;
 				gameClearScene = nullptr;
 				break;
+			case Scene::kGameOver:
+				delete gameOverScene;
+				gameOverScene = nullptr;
+				break;
 			default:
 				break;
 			}
@@ -84,6 +91,10 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 				gameClearScene = new GameClearScene();
 				gameClearScene->Initialize();
 				break;
+			case Scene::kGameOver:
+				gameOverScene = new GameOver();
+				gameOverScene->Initialize();
+				break;
 			}
 		}
 
@@ -100,8 +111,11 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		case Scene::kGame:
 			if (gameScene != nullptr) {
 				gameScene->Update();
-				if (gameScene->IsFinished()) {
+
+				if (gameScene->IsGameClear()) {
 					nextSceneEnum = Scene::kGameClear;
+				} else if (gameScene->IsGameOver()) {
+					nextSceneEnum = Scene::kGameOver;
 				}
 			}
 			break;
@@ -109,6 +123,14 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 			if (gameClearScene != nullptr) {
 				gameClearScene->Update();
 				if (gameClearScene->IsFinished()) {
+					nextSceneEnum = Scene::kTitle;
+				}
+			}
+			break;
+		case Scene::kGameOver:
+			if (gameOverScene != nullptr) {
+				gameOverScene->Update();
+				if (gameOverScene->IsFinished()) {
 					nextSceneEnum = Scene::kTitle;
 				}
 			}
@@ -136,6 +158,11 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 				gameClearScene->Draw();
 			}
 			break;
+		case Scene::kGameOver:
+			if (gameOverScene != nullptr) {
+				gameOverScene->Draw();
+			}
+			break;
 		}
 		imguiManager->Draw();
 		// 描画終了
@@ -155,6 +182,10 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	case Scene::kGameClear:
 		delete gameClearScene;
 		gameClearScene = nullptr;
+		break;
+	case Scene::kGameOver:
+		delete gameOverScene;
+		gameOverScene = nullptr;
 		break;
 	}
 

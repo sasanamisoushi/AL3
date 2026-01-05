@@ -116,6 +116,7 @@
     <ClCompile Include="Field.cpp" />
     <ClCompile Include="FollowCamera.cpp" />
     <ClCompile Include="GameClearScene.cpp" />
+    <ClCompile Include="GameOver.cpp" />
     <ClCompile Include="GameScene.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MeleeWeapon.cpp" />
@@ -214,6 +215,7 @@
     <ClInclude Include="Field.h" />
     <ClInclude Include="FollowCamera.h" />
     <ClInclude Include="GameClearScene.h" />
+    <ClInclude Include="GameOver.h" />
     <ClInclude Include="GameScene.h" />
     <ClInclude Include="MeleeWeapon.h" />
     <ClInclude Include="MyMath.h" />

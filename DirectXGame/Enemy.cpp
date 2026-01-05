@@ -156,7 +156,7 @@ void Enemy::Update(BulletManager* bulletManager) {
 				}
 
 				rifle_->ConsumeAmmo();
-				attackCoolTime_ = 45;
+				attackCoolTime_ = 90;
 			} else if (!rifle_->IsReloading()) {
 				rifle_->Reload();
 			}

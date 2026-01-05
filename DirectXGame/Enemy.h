@@ -60,6 +60,7 @@ public:
 
 	void SetOnAttack(std::function<void(const KamataEngine::Vector3&)> func) { onAttack_ = func; }
 
+
 private:
 
 	// ワールド変換データ

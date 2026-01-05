@@ -25,10 +25,11 @@ public:
 	void Draw();
 
 	// デスフラグのgetter
-	bool IsFinished() const { return isFinish; }
+	bool IsFinished() const { return isGameClear_ || isGameOver_; }
 
 
-	//void ShowAttackAlert(const Vector3& enemyPos);
+	bool IsGameClear() const { return isGameClear_; }
+	bool IsGameOver() const { return isGameOver_; }
 
 	~GameScene();
 
@@ -76,5 +77,8 @@ private:
 	KamataEngine::Model* bossSwordModel_ = nullptr;
 
 	AttackAlert attackAlert_;
+
+	 bool isGameClear_ = false;
+	bool isGameOver_ = false;
 	
 };

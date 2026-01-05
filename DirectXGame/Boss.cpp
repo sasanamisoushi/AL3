@@ -1,5 +1,6 @@
 #include "Boss.h"
 #include "MyMath.h"
+#include "WingSword.h"
 #include <numbers>
 
 using namespace KamataEngine;
@@ -328,6 +329,20 @@ void Boss::ResetWingSwords() {
 		sword->ResetToStandby(backPos, bossYaw);
 	}
 }
+
+void Boss::Damage(int damage) {
+	if (hp_ <= 0)
+		return;
+
+	hp_ -= damage;
+	if (hp_ < 0) {
+		hp_ = 0;
+	}
+}
+
+Boss::Boss() = default;
+
+Boss::~Boss() = default;
 
 bool Boss::AreAllSwordsStuck() const {
 	for (const auto& sword : wingSwords_) {

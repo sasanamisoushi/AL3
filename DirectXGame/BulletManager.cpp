@@ -1,12 +1,13 @@
 #include "BulletManager.h"
 #include "Player.h"
+#include "Boss.h"
 
 using namespace KamataEngine;
 
 void BulletManager::Initialize(Model* model) { model_ = model; }
 
 
-void BulletManager::Update(const std::vector<Enemy*>& enemies, Player* player) {
+void BulletManager::Update(const std::vector<Enemy*>& enemies, Player* player,Boss* boss_) {
 
 	// 弾のリストをループして更新
 	for (auto it = bullets_.begin(); it != bullets_.end();) {
@@ -44,6 +45,24 @@ void BulletManager::Update(const std::vector<Enemy*>& enemies, Player* player) {
 		// 弾が削除済みなら次へ
 		if (erased) {
 			continue;
+		}
+
+		// --- ボスとの当たり判定 ---
+		if (boss_ && !boss_->IsDead()) {
+
+			// プレイヤー弾のみ有効
+			if (bullet->GetOwner() == Bullet::Owner::kPlayer) {
+
+				float dist = Length(boss_->GetPosition() - bullet->GetPosition());
+
+				if (dist < (2.0f + bullet->GetRadius())) { // 半径は調整
+					boss_->Damage(10);
+
+					delete bullet;
+					it = bullets_.erase(it);
+					erased = true;
+				}
+			}
 		}
 
 		// --- プレイヤーとの当たり判定 ---

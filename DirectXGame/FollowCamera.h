@@ -80,5 +80,8 @@ private:
 	float shakePower_ = 0.0f;
 	KamataEngine::Vector3 shakeOffset_{};
 
+
+	float yaw_ = 0.0f;   // 水平方向（左右）
+	float pitch_ = 0.0f; // 垂直方向（上下）
 	
 };

@@ -106,6 +106,24 @@ void FollowCamera::Update() {
 	translation_ += shakeOffset_;
 	camera->translation_ = translation_;
 	camera->UpdateMatrix();
+
+
+	// // ===== マウス入力 =====
+ //   Input* input = KamataEngine::Input::GetInstance();
+
+
+ //   const float sensitivity = 0.0025f;
+
+ //   yaw_ += input->GetMouseMove().lX * sensitivity;
+	//pitch_ -= input->GetMouseMove().lY * sensitivity;
+
+ //   // 上下向きすぎ防止
+ //   pitch_ = std::clamp(pitch_, -1.2f, 1.2f);
+
+	//if (!isLockOn_) {
+	//	camera->rotation_.y = yaw_;
+	//	camera->rotation_.x = pitch_;
+	//}
 }
 
 KamataEngine::Vector3 FollowCamera::GetForward() const {  

@@ -1,12 +1,12 @@
 #pragma once
 #include "KamataEngine.h"
-#include "WingSword.h"
 #include "BulletManager.h"
 #include "Rifle.h"
 #include "Player.h"
 #include <vector>
 #include <memory>
 
+class WingSword;
 
 enum class BossPhase {
 	DecideAction,  //次の行動を決める
@@ -50,6 +50,15 @@ public:
 	//羽剣リセット
 	void ResetWingSwords();
 
+	int GetHP() const { return hp_; }
+	bool IsDead() const { return hp_ <= 0; }
+
+	void Damage(int damage);
+
+	//コンストラクタ
+	Boss();
+	//デストラクタ
+	~Boss();
 
 private:
 	// ワールド変換データ
@@ -102,4 +111,6 @@ private:
 	KamataEngine::Vector3 rifleOffset_ = {0.0f, 1.5f, 0.8f};
 
 	Player* player_ = nullptr;
+
+	int hp_ = 200;
 };

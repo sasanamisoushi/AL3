@@ -56,12 +56,13 @@ public:
 
 	Shield* GetShield() const { return shield_; }
 	int GetHP() const { return hp_; }
-	int GetMaxHP() const { return 100; }
+	float GetMaxHP() const { return maxHp_; }
 
 	AttackAlert* GetAttackAlert() { return &attackAlert_; }
 	
 	FollowCamera* GetFollowCamera() { return &followCamera_; }
 	
+	bool IsDead() const { return hp_ <= 0; }
 
 private:
 
@@ -129,9 +130,9 @@ private:
 	float radius_ = 1.0f;
 	
 	//hp
-	int hp_ = 10000;
-	float maxHp_ = 100.0f;
-	float currentHp_ = 100.0f;
+	int hp_ = 1000;
+	float maxHp_ = 1000.0f;
+	float currentHp_ = 1000.0f;
 
 	// HPバー
 	KamataEngine::Sprite* spriteHPBack_ = nullptr;
