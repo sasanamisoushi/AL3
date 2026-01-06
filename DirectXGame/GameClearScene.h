@@ -15,7 +15,11 @@ public:
 	// デスフラグのgetter
 	bool IsFinished() const { return isFinish; }
 
+	~GameClearScene();
+
 private:
 	// 終了フラグ
 	bool isFinish = false;
+
+	KamataEngine::Sprite* gameClear_ = nullptr;
 };

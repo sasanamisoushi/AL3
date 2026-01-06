@@ -24,7 +24,7 @@ public:
 	void Initialize(KamataEngine::Model* model, KamataEngine::Camera* camera, const KamataEngine::Vector3& position, Player* player, KamataEngine::Model* downModel);
 
 	// 更新
-	void Update(BulletManager* bulletManager);
+	void Update(Player* player,BulletManager* bulletManager);
 
 	
 
@@ -32,7 +32,7 @@ public:
 	void Draw();
 
 	//--------------------ゲッター--------------------
-	const KamataEngine::Vector3& GetPosition() const { return position_; }
+	const KamataEngine::Vector3& GetPosition() const { return worldTransform_.translation_; }
 	float GetRadius() const { return radius_; }
 	void AddPosition(const KamataEngine::Vector3& v) { worldTransform_.translation_ += v; }
 	int GetHp() const { return hp_; }

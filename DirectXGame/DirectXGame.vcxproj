@@ -114,6 +114,7 @@
     <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="EnemyManager.cpp" />
     <ClCompile Include="EnemySword.cpp" />
+    <ClCompile Include="Explanation.cpp" />
     <ClCompile Include="Field.cpp" />
     <ClCompile Include="FollowCamera.cpp" />
     <ClCompile Include="GameClearScene.cpp" />
@@ -215,6 +216,7 @@
     <ClInclude Include="Enemy.h" />
     <ClInclude Include="EnemyManager.h" />
     <ClInclude Include="EnemySword.h" />
+    <ClInclude Include="Explanation.h" />
     <ClInclude Include="Field.h" />
     <ClInclude Include="FollowCamera.h" />
     <ClInclude Include="GameClearScene.h" />

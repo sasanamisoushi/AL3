@@ -12,7 +12,7 @@ public:
 	void Initialize(KamataEngine::Model* model, KamataEngine::Camera* camera, Player* player, KamataEngine::Model* downModel);
 
 	//更新
-	void Update(BulletManager* bulletManager);
+	void Update(Player* player, BulletManager* bulletManager);
 
 	//描画
 	void Draw();

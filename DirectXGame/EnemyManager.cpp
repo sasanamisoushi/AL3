@@ -16,10 +16,10 @@ void EnemyManager::Initialize(Model* model, Camera* camera, Player* player, Mode
 	SpawnEnemies(3); // 初期は3体
 }
 
-void EnemyManager::Update(BulletManager* bulletManager) {
+void EnemyManager::Update(Player* player, BulletManager* bulletManager) {
 	// 敵更新
 	for (auto& enemy : enemies_) {
-		enemy->Update(bulletManager);
+		enemy->Update(player,bulletManager);
 	}
 
 	// 敵同士の衝突
@@ -82,22 +82,12 @@ void EnemyManager::ResolveEnemyCollisions() {
 				Vector3 dir = diff / dist;
 				float push = (minDist - dist) * 0.5f;
 
-				// 最大押し戻し量を制限
-				const float maxPush = 0.05f;
-				push = std::min(push, maxPush);
+				// 押し戻すベクトルを作成
+				Vector3 pushVec = dir * push;
 
-				Vector3 posA = a->GetPosition();
-				Vector3 posB = b->GetPosition();
-
-				posA += dir * push;
-				posB -= dir * push;
-
-				// ★ Yは絶対固定
-				posA.y = a->GetPosition().y;
-				posB.y = b->GetPosition().y;
-
-				a->AddPosition(posA);
-				b->AddPosition(posB);
+				// ★修正点：絶対座標ではなく「移動ベクトル」を渡す
+				a->AddPosition(pushVec);
+				b->AddPosition(-pushVec); // bは逆方向に押し出す
 			}
 		}
 	}

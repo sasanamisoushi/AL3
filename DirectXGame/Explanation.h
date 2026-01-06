@@ -1,7 +1,7 @@
 #pragma once
 #include "KamataEngine.h"
 
-class GameOver {
+class Explanation {
 public:
 	// 初期化
 	void Initialize();
@@ -15,11 +15,13 @@ public:
 	// デスフラグのgetter
 	bool IsFinished() const { return isFinish; }
 
-	~GameOver();
+	~Explanation();
 
 private:
 	// 終了フラグ
 	bool isFinish = false;
 
-	KamataEngine::Sprite* gameOver_ = nullptr;
+	//スプライト
+	KamataEngine::Sprite* explanation_ = nullptr;
+
 };

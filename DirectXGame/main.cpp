@@ -3,6 +3,7 @@
 #include "KamataEngine.h"
 #include "TitleScene.h"
 #include "GameOver.h"
+#include "Explanation.h"
 #include <Windows.h>
 
 using namespace KamataEngine;
@@ -11,6 +12,7 @@ using namespace KamataEngine;
 enum class Scene {
 	kUnknown = 0,
 	kTitle,
+	kExp,
 	kGame,
 	kGameClear,
 	kGameOver,
@@ -20,7 +22,7 @@ enum class Scene {
 int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 
 	// エンジンの初期化
-	KamataEngine::Initialize(L"AL3");
+	KamataEngine::Initialize(L"LE2C_ササナミ_ソウシ_蹴散らせ！　ロボット兵！");
 
 	// 描画のためのDirectXCommmonインスタンスの取得
 	DirectXCommon* dxCommmon = DirectXCommon::GetInstance();
@@ -29,6 +31,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	// シーンオブジェクトへのポインタ
 	GameScene* gameScene = nullptr;
 	TitleScene* titleScene = nullptr;
+	Explanation* explanationScene = nullptr;
 	GameClearScene* gameClearScene = nullptr;
 	GameOver* gameOverScene = nullptr;
 
@@ -58,6 +61,10 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 				delete titleScene;
 				titleScene = nullptr;
 				break;
+			case Scene::kExp:
+				delete explanationScene;
+				explanationScene = nullptr;
+				break;
 			case Scene::kGame:
 				delete gameScene;
 				gameScene = nullptr;
@@ -83,6 +90,10 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 				titleScene = new TitleScene();
 				titleScene->Initialize();
 				break;
+			case Scene::kExp:
+				explanationScene = new Explanation();
+				explanationScene->Initialize();
+				break;
 			case Scene::kGame:
 				gameScene = new GameScene();
 				gameScene->Initialize();
@@ -104,6 +115,15 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 			if (titleScene != nullptr) {
 				titleScene->Update();
 				if (titleScene->IsFinished()) {
+					nextSceneEnum = Scene::kExp;
+				}
+			}
+			break;
+		case Scene::kExp:
+			if (explanationScene != nullptr) {
+				explanationScene->Update();
+				if (explanationScene->IsFinished()) {
+
 					nextSceneEnum = Scene::kGame;
 				}
 			}
@@ -148,6 +168,11 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 				titleScene->Draw();
 			}
 			break;
+		case Scene::kExp:
+			if (explanationScene != nullptr) {
+				explanationScene->Draw();
+			}
+			break;
 		case Scene::kGame:
 			if (gameScene != nullptr) {
 				gameScene->Draw();
@@ -174,6 +199,10 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	case Scene::kTitle:
 		delete titleScene;
 		titleScene = nullptr;
+		break;
+	case Scene::kExp:
+		delete explanationScene;
+		explanationScene = nullptr;
 		break;
 	case Scene::kGame:
 		delete gameScene;
