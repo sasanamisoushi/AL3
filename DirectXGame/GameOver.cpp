@@ -4,6 +4,8 @@ using namespace KamataEngine;
 
 void GameOver::Initialize() {
 
+	gameOver_ = Sprite::Create(TextureManager::Load("./Resources/GAME OVER.png"), {0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.0f, 0.0f});
+
 }
 
 void GameOver::Update() {
@@ -19,5 +21,18 @@ void GameOver::Update() {
 }
 
 void GameOver::Draw() {
+	// ===== 2D描画（Sprite）=====
+	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
+	Sprite::PreDraw(dxCommon->GetCommandList());
+	if (gameOver_) {
+		gameOver_->Draw();
+	}
+	Sprite::PostDraw();
+}
+
+GameOver::~GameOver() {
+
+	delete gameOver_;
+	gameOver_ = nullptr;
 
 }

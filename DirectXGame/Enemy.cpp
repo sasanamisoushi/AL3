@@ -45,7 +45,7 @@ void Enemy::Initialize(Model* model, Camera* camera, const Vector3& position, Pl
 	WorldTransformUpdate(worldTransform_);
 }
 
-void Enemy::Update(BulletManager* bulletManager) {
+void Enemy::Update(Player* player,BulletManager* bulletManager) {
 
 	// 座標更新
 	position_ = worldTransform_.translation_;
@@ -74,22 +74,15 @@ void Enemy::Update(BulletManager* bulletManager) {
 	
 
 	// ----------プレイヤー情報----------
-	Vector3 playerPos = player_->GetPosition();
+	Vector3 playerPos = player->GetPosition();
 	Vector3 toPlayer = playerPos - position_;
 	float dist = Length(toPlayer);
-
-
-	
 
 	// クールタイム（攻撃間隔）
 	if (attackCoolTime_ > 0) {
 		attackCoolTime_--;
 	}
 	
-	
-
-	
-
 	//----------移動----------
 	
 	// プレイヤーからの距離
@@ -124,7 +117,7 @@ void Enemy::Update(BulletManager* bulletManager) {
 	saber_->SetPosition(riflePos, rifleRot);
 	saber_->Update();
 
-	playerPos = player_->GetPosition();
+	playerPos = player->GetPosition();
 	dist = Length(playerPos - worldTransform_.translation_);
 
 	if (dist < attackRange_) {
@@ -132,14 +125,7 @@ void Enemy::Update(BulletManager* bulletManager) {
 		// ----- 近距離（サーベル攻撃） -----
 		if (attackCoolTime_ <= 0) {
 
-			// 攻撃開始
 			saber_->StartAttack();
-
-			if (saber_->IsAttacking()) {
-				if (saber_->CheckHitPlayer(player_)) {
-					player_->Damage(35);
-				}
-			}
 			attackCoolTime_ = 60; // 60フレーム攻撃間隔
 		}
 
@@ -167,8 +153,8 @@ void Enemy::Update(BulletManager* bulletManager) {
 				if (Length(toEnemy) > 0.001f) {
 					toEnemy = Normalize(toEnemy);
 
-					Vector3 camForward = player_->GetFollowCamera()->GetForward();
-					Vector3 camRight = player_->GetFollowCamera()->GetRight();
+					Vector3 camForward = player->GetFollowCamera()->GetForward();
+					Vector3 camRight = player->GetFollowCamera()->GetRight();
 
 					float forwardDot = KamataEngine::MathUtility::Dot(camForward, toEnemy);
 					float rightDot = KamataEngine::MathUtility::Dot(camRight, toEnemy);
@@ -181,7 +167,7 @@ void Enemy::Update(BulletManager* bulletManager) {
 						alertDir = (forwardDot > 0) ? AttackAlert::AlertDir::Front : AttackAlert::AlertDir::Back;
 					}
 
-					player_->GetAttackAlert()->Trigger(alertDir);
+					player->GetAttackAlert()->Trigger(alertDir);
 				}
 
 				rifle_->ConsumeAmmo();
@@ -191,6 +177,13 @@ void Enemy::Update(BulletManager* bulletManager) {
 			}
 		}
 		
+	}
+
+	if (saber_->IsAttacking()) {
+		if (saber_->CheckHitPlayer(player)) {
+			player->Damage(35);
+			// 重複ダメージを防ぎたい場合は、ここで saber_->FinishAttack() などで判定を止める
+		}
 	}
 
 	// --- プレイヤーとの衝突（重なり防止） ---

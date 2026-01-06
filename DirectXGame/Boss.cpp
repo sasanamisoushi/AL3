@@ -383,8 +383,6 @@ void Boss::Damage(int damage) {
 Boss::Boss() = default;
 
 Boss::~Boss() {
-
-	delete rifle_;
 	rifle_ = nullptr;
 
 };

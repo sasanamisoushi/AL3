@@ -508,7 +508,7 @@ void Player::DrawDamageEffect() {
 
 Player::~Player() {
 
-	delete rifle_;
+	rifle_=nullptr;
 
 	delete saber_;
 

@@ -132,4 +132,4 @@ void Rifle::Reload() {
 
 }
 
-Rifle::~Rifle() { delete model_; }
+Rifle::~Rifle() { model_ = nullptr; }

@@ -115,7 +115,7 @@ void GameScene::Update() {
 	}
 
 	// 敵の更新
-	enemyManager_.Update(bulletManager_);
+	enemyManager_.Update(player,bulletManager_);
 
 	// 　雑魚全滅チェック
 	if (!bossSpawned_ && enemyManager_.IsAllDead()) {
