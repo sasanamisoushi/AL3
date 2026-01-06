@@ -106,7 +106,7 @@ void GameScene::Update() {
 	lockOnEnemies_.clear();
 	// ================ 雑魚敵 ================
 	for (Enemy* enemy : enemyManager_.GetEnemyPointers()) {
-		if (!enemy->IsDead()) {
+		if (enemy &&!enemy->IsDead()) {
 			lockOnEnemies_.push_back(enemy);
 		}
 	}
@@ -123,83 +123,73 @@ void GameScene::Update() {
 		bossSpawned_ = true;
 	}
 
-	  
+	  if (Input::GetInstance()->TriggerKey(DIK_L)) {
+		if (lockOnIndex == -1) {
+			// --- ロックオン開始処理 ---
+			if (!lockOnEnemies_.empty()) {
+				// 雑魚敵がいれば0番目をロック
+				lockOnIndex = 0;
+			} else if (boss_) {
+				// 雑魚がいなくてボスがいれば、ボス専用の番号(999)にする
+				lockOnIndex = 999;
+			}
+		} else {
+			// すでにロックオン中なら解除
+			lockOnIndex = -1;
+		}
+	}
 
-	// 雑魚もボスもいなければロック不可
-	if (lockOnEnemies_.empty() && boss_ == nullptr) {
-		lockOnIndex = -1;
+	// 3. ロックオン状態の維持と更新（ここを安全にする）
+	if (lockOnIndex != -1) {
+		if (lockOnIndex == 999) {
+			// --- ボスをロックオン中の場合 ---
+			if (boss_ && !boss_->IsDead()) {
+				player->SetLockOn(true);
+				player->SetLockOnTarget(&boss_->GetPosition());
+				followCamera_.SetLockOn(true);
+				followCamera_.SetLockOnTarget(&boss_->GetPosition());
+			} else {
+				// ボスが死んだら解除
+				lockOnIndex = -1;
+			}
+		} else {
+			// --- 雑魚敵をロックオン中の場合 ---
+			if (!lockOnEnemies_.empty()) {
+				// 敵が死んで数が減った時、インデックスが範囲外にならないよう調整
+				if (lockOnIndex >= (int)lockOnEnemies_.size()) {
+					lockOnIndex = 0;
+				}
+
+				// 切り替え（DIK_Oキーなど）
+				if (Input::GetInstance()->TriggerKey(DIK_O)) {
+					lockOnIndex = (lockOnIndex + 1) % (int)lockOnEnemies_.size();
+				}
+
+				// 安全に確定したインデックスで要素にアクセス
+				Enemy* targetEnemy = lockOnEnemies_[lockOnIndex];
+				player->SetLockOn(true);
+				player->SetLockOnEnemy(targetEnemy);
+				player->SetLockOnTarget(&targetEnemy->GetPosition());
+
+				followCamera_.SetLockOn(true);
+				followCamera_.SetLockOnTarget(&targetEnemy->GetPosition());
+			} else {
+				// 雑魚敵が全滅したら、ボスがいればボスへ、いなければ解除
+				if (boss_) {
+					lockOnIndex = 999;
+				} else {
+					lockOnIndex = -1;
+				}
+			}
+		}
+	}
+
+	// 4. ロックオン解除時の後処理
+	if (lockOnIndex == -1) {
 		player->SetLockOn(false);
+		player->ClearLockOn();
 		followCamera_.SetLockOn(false);
 		player->SetLockOnTarget(nullptr);
-		return;
-	}
-
-	// Lキーでロックオン切り替え
-	if (Input::GetInstance()->TriggerKey(DIK_L)) {
-		if (lockOnIndex == -1) {
-			// ロックオン開始
-			lockOnIndex = 0;
-			player->SetLockOn(true);
-			followCamera_.SetLockOn(true);
-
-			// ★ ロックオン対象をセット
-			player->SetLockOnEnemy(lockOnEnemies_[lockOnIndex]);
-			player->SetLockOnTarget(&lockOnEnemies_[lockOnIndex]->GetPosition());
-			followCamera_.SetLockOnTarget(&lockOnEnemies_[lockOnIndex]->GetPosition());
-		} else {
-			// ロック解除
-			lockOnIndex = -1;
-			player->SetLockOn(false);
-			followCamera_.SetLockOn(false);
-
-			player->SetLockOnEnemy(nullptr);
-			player->SetLockOnTarget(nullptr);
-		}
-	}
-
-	// --- ロックオン中に矢印で敵を切り替える ---
-	if (lockOnIndex != -1) {
-
-		// → 次の敵
-		if (Input::GetInstance()->TriggerKey(DIK_RIGHT)) {
-			lockOnIndex++;
-			if (lockOnIndex >= lockOnEnemies_.size()) {
-				lockOnIndex = 0; // ループ
-			}
-		}
-
-		// ← 前の敵
-		if (Input::GetInstance()->TriggerKey(DIK_LEFT)) {
-			lockOnIndex--;
-			if (lockOnIndex < 0) {
-				lockOnIndex = (int)lockOnEnemies_.size() - 1; // ループ
-			}
-		}
-
-		// ================ ボス ================
-		// ボスの更新
-		if (lockOnEnemies_.empty() && boss_) {
-
-			// Lキーでボスをロックオン
-			if (Input::GetInstance()->TriggerKey(DIK_L)) {
-				player->SetLockOn(true);
-				followCamera_.SetLockOn(true);
-				player->SetLockOnTarget(&boss_->GetPosition());
-				followCamera_.SetLockOnTarget(&boss_->GetPosition());
-			}
-			return;
-		}
-
-		if (lockOnIndex < 0 || lockOnIndex >= (int)lockOnEnemies_.size()) {
-			lockOnIndex = -1;
-			player->SetLockOn(false);
-			followCamera_.SetLockOn(false);
-			return;
-		}
-
-		// ロックオン対象をセットする
-		player->SetLockOnTarget(&lockOnEnemies_[lockOnIndex]->GetPosition());
-		followCamera_.SetLockOnTarget(&lockOnEnemies_[lockOnIndex]->GetPosition());
 	}
 
 	// ================ UI ================
@@ -269,6 +259,10 @@ void GameScene::Draw() {
 	Sprite::PreDraw(dxCommon->GetCommandList());
 	attackAlert_.Draw();
 	player->DrawDamageEffect();
+
+	if (boss_) {
+		boss_->DrawUI();
+	}
 
 	Sprite::PostDraw();
 }

@@ -2,6 +2,7 @@
 #include "MyMath.h"
 #include "WingSword.h"
 #include <numbers>
+#include <algorithm>
 
 using namespace KamataEngine;
 
@@ -60,13 +61,27 @@ void Boss::Initialize(Model* model, Model* swordModel, Camera* camera, const Vec
 
 		wingSwords_.push_back(std::move(sword));
 	}
+
+	// HPバーのテクスチャ（Playerと同じものや、ボス用の赤い画像など）
+	uint32_t whiteTex = TextureManager::Load("./Resources/white1x1.png");
+	uint32_t hpBack = TextureManager::Load("./Resources/UI/BOSSHPBar.png");
+
+	// 背景バーの生成 (少し大きめに作るか、色を変える)
+	spriteHPBack_ = Sprite::Create(hpBack, {0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.0f, 0.0f});
+	spriteHPBack_->SetSize({1280.0f, 720.0f});
+
+
+	// HP本体の生成 (赤色にするなど)
+	spriteHp_ = Sprite::Create(whiteTex, hpBarPos_, {1.0f, 0.0f, 0.0f, 1.0f}, {0.0f, 0.0f});
+	spriteHp_->SetSize(hpBarBaseSize_);
+	
 };
 
 
 void Boss::Update(const Vector3& playerPos) {
 
 	//HPが０なら何もしない
-	if (hp_ <= 0) {
+	if (currentHp_ <= 0) {
 		return;
 	}
 
@@ -125,7 +140,14 @@ void Boss::Update(const Vector3& playerPos) {
 
 	//float rotateSpeed = 0.01f;
 
-	
+	// HPが範囲外にならないようクランプ
+	currentHp_ = std::clamp(currentHp_, 0.0f, maxHp_);
+
+	// HPの割合を計算 (0.0 ～ 1.0)
+	float hpRate = currentHp_ / maxHp_;
+
+	// 横幅を割合に応じて変化させる
+	spriteHp_->SetSize({hpBarBaseSize_.x * hpRate, hpBarBaseSize_.y});
 
 	//timer_++;
 
@@ -167,7 +189,7 @@ void Boss::Update(const Vector3& playerPos) {
 		phaseTimer_ = 0;
 	}
 
-	ImGui::Text("HP:%d", hp_);
+	ImGui::Text("HP:%d", currentHp_);
 
 	ImGui::End();
 	#endif
@@ -175,7 +197,7 @@ void Boss::Update(const Vector3& playerPos) {
 
 void Boss::Draw() {
 
-	if (hp_ <= 0) {
+	if (currentHp_ <= 0) {
 		return;
 	}
 
@@ -187,6 +209,15 @@ void Boss::Draw() {
 
 	for (auto& sword : wingSwords_) {
 		sword->Draw(camera_);
+	}
+}
+
+void Boss::DrawUI() {
+	if (spriteHPBack_) {
+		spriteHPBack_->Draw();
+	}
+	if (spriteHp_) {
+		spriteHp_->Draw();
 	}
 }
 
@@ -343,12 +374,13 @@ void Boss::ResetWingSwords() {
 }
 
 void Boss::Damage(int damage) {
-	if (hp_ <= 0)
+	if (currentHp_ <= 0) {
 		return;
+	}
 
-	hp_ -= damage;
-	if (hp_ < 0) {
-		hp_ = 0;
+	currentHp_ -= damage;
+	if (currentHp_ < 0) {
+		currentHp_ = 0;
 	}
 }
 
