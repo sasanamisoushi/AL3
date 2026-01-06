@@ -12,6 +12,9 @@ void GameScene::Initialize() {
 	camera_.rotation_ = {0.3f, 0.0f, 0.0f};
 	camera_.UpdateMatrix();
 
+
+	rifleModel_ = Model::CreateFromOBJ("Raifl");
+
 	//------------フェールド-----------------
 
 	// フィールドオブジェクト
@@ -28,7 +31,7 @@ void GameScene::Initialize() {
 
 	// プレイヤーの生成
 	player = new Player();
-	player->Initialize(playerModel_, &camera_, {0.0f, 0.5f, 0.0f});
+	player->Initialize(playerModel_, rifleModel_,&camera_, {0.0f, 0.5f, 0.0f});
 
 	//------------敵-----------------
 
@@ -47,7 +50,7 @@ void GameScene::Initialize() {
 
 	//------------ボス-----------------
 
-	bossModel_ = Model::CreateFromOBJ("boss", true);
+	bossModel_ = Model::CreateFromOBJ("boss");
 	bossSwordModel_ = Model::CreateFromOBJ("saber", true);
 
 	boss_ = nullptr;
@@ -118,7 +121,7 @@ void GameScene::Update() {
 	if (!bossSpawned_ && enemyManager_.IsAllDead()) {
 
 		boss_ = new Boss();
-		boss_->Initialize(bossModel_, bossSwordModel_, &camera_, {0.0f, 0.0f, 0.0f}, bulletManager_, player);
+		boss_->Initialize(bossModel_, bossSwordModel_, rifleModel_, & camera_, {0.0f, 0.0f, 0.0f}, bulletManager_, player);
 
 		bossSpawned_ = true;
 	}
@@ -195,48 +198,7 @@ void GameScene::Update() {
 	// ================ UI ================
 	attackAlert_.Update();
 
-	
 
-#ifdef _DEBUG
-
-	// キーを押したらクリア画面に
-	if (Input::GetInstance()->TriggerKey(DIK_1)) {
-		isFinish = true;
-	}
-
-	ImGui::Begin("Game Scene");
-	ImGui::Text("R choiceWeapon");
-	ImGui::Text("L lock on");
-	ImGui::Text("E Reload");
-	ImGui::Text("O Jump");
-	ImGui::Text("SPACE attack");
-	ImGui::End();
-
-	ImGui::Begin("Game Scene Debug");
-
-	// ===== ボス =====
-	ImGui::Checkbox("Boss Spawned", &bossSpawned_);
-
-	// ボス位置表示
-	if (boss_) {
-		Vector3 posB = boss_->GetPosition();
-		ImGui::Text("Boss Pos: %.2f, %.2f, %.2f", posB.x, posB.y, posB.z);
-	} else {
-		ImGui::Text("Boss : nullptr");
-	}
-
-	// ===== 敵 =====
-	static bool enemyEnable = true;
-	ImGui::Checkbox("Enemy Enable", &enemyEnable);
-
-	if (!enemyEnable) {
-		enemyManager_.ClearEnemies();
-	}
-
-	ImGui::Text("Enemy Count: %d", (int)enemyManager_.GetEnemies().size());
-
-	ImGui::End();
-#endif
 }
 
 void GameScene::Draw() {
@@ -266,30 +228,6 @@ void GameScene::Draw() {
 
 	Sprite::PostDraw();
 }
-
-//void GameScene::ShowAttackAlert(const Vector3& enemyPos) {
-	/*Vector3 playerPos = player->GetPosition();
-	Vector3 toEnemy = Normalize(enemyPos - playerPos);
-
-	Vector3 forward = player->GetForward();
-	Vector3 right = player->GetRight();
-
-	float f = Dot(forward, toEnemy);
-	float r = Dot(right, toEnemy);
-
-	AlertDir dir;
-
-	if (f > 0.7f)
-		dir = AlertDir::Front;
-	else if (f < -0.7f)
-		dir = AlertDir::Back;
-	else if (r > 0.0f)
-		dir = AlertDir::Right;
-	else
-		dir = AlertDir::Left;
-
-	attackAlert_.Trigger(dir);*/
-//}
 
 GameScene::~GameScene() {
 
@@ -328,4 +266,7 @@ GameScene::~GameScene() {
 	bulletManager_ = nullptr;
 	delete bulletModel;
 	bulletModel = nullptr;
+
+	delete rifleModel_;
+	rifleModel_ = nullptr;
 }

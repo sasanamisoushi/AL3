@@ -25,7 +25,7 @@ static const char* BossPhaseToString(BossPhase phase) {
 }
 #endif
 
-void Boss::Initialize(Model* model, Model* swordModel, Camera* camera, const Vector3& position, BulletManager* bulletManager,Player* player) {
+void Boss::Initialize(Model* model, Model* swordModel, Model* rifle, Camera* camera, const Vector3& position, BulletManager* bulletManager, Player* player) {
 	model_ = model;
 	swordModel_ = swordModel;
 	camera_ = camera;
@@ -34,13 +34,14 @@ void Boss::Initialize(Model* model, Model* swordModel, Camera* camera, const Vec
 	// ワールドトランスフォーム初期化
 	worldTransform_.Initialize();
 	worldTransform_.translation_ = position;
-	worldTransform_.scale_ = {1.5f, 1.5f, 1.5f};
+	worldTransform_.scale_ = {1.0f, 1.0f, 1.0f};
 
 	 // ===== Rifle生成 =====
 	rifle_ = new Rifle();
 	rifle_->Initialize(
-	    Model::CreateFromOBJ("Raifl"), // Enemyと同じ
+	   rifle, 
 	    camera_, position);
+
 
 	WorldTransformUpdate(worldTransform_);
 
@@ -203,9 +204,7 @@ void Boss::Draw() {
 
 	model_->Draw(worldTransform_, *camera_);
 
-	 if (rifle_) {
-		rifle_->Draw();
-	}
+	
 
 	for (auto& sword : wingSwords_) {
 		sword->Draw(camera_);
@@ -252,12 +251,9 @@ void Boss::ChangePhase(BossPhase next) {
 	
 
 	// 剣を戻すのは SwordRing に入る時だけ
-	if (phase_ == BossPhase::SwordRing) {
-		ResetWingSwords();
-	}
-
-	if (next != BossPhase::FunnelAttack) {
-		nextLaunchIndex_ = 0;
+	if (phase_ == BossPhase::FunnelAttack || phase_ == BossPhase::SwordRing) {
+		ResetWingSwords();    // 剣を地面から回収し、IsStuckをfalseにする
+		nextLaunchIndex_ = 0; // 発射カウントを最初に戻す
 	}
 
 }
@@ -321,7 +317,7 @@ void Boss::UpdateMeleeAttack(const KamataEngine::Vector3& playerPos) {
 	if (shootCoolTime_ <= 0) {
 
 		if (rifle_->GetAmmo() > 0) {
-			rifle_->Fire(bulletManager_);
+			rifle_->Fire(bulletManager_, Bullet::Owner::kEnemy);
 			shootCoolTime_ = shootInterval_;
 		} else if (!rifle_->IsReloading()) {
 			rifle_->Reload();
@@ -386,7 +382,12 @@ void Boss::Damage(int damage) {
 
 Boss::Boss() = default;
 
-Boss::~Boss() = default;
+Boss::~Boss() {
+
+	delete rifle_;
+	rifle_ = nullptr;
+
+};
 
 bool Boss::AreAllSwordsStuck() const {
 	for (const auto& sword : wingSwords_) {

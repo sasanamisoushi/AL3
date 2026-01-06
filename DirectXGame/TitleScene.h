@@ -17,4 +17,6 @@ public:
 private:
 	// 終了フラグ
 	bool isFinish = false;
+
+	KamataEngine::Sprite* titleSprite_ = nullptr;
 };

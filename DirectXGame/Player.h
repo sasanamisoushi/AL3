@@ -26,7 +26,7 @@ public:
 
 
 	// 初期化
-	void Initialize(KamataEngine::Model* model, KamataEngine::Camera* camera, const KamataEngine::Vector3& position);
+	void Initialize(KamataEngine::Model* model, KamataEngine::Model*rifle, KamataEngine::Camera* camera, const KamataEngine::Vector3& position);
 
 	// 更新
 	void Update(BulletManager* bulletManager, const std::vector<Enemy*>& enemies);
@@ -170,7 +170,6 @@ private:
 
 	AttackAlert attackAlert_;
 
-	KamataEngine::Sprite* lockOnSprite_ = nullptr;
 	Enemy* lockOnEnemy_ = nullptr;
 
 	KamataEngine::Sprite* bulletNumber_ = nullptr;

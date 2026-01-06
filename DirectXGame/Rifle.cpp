@@ -86,7 +86,7 @@ Vector3 Rifle::GetMuzzlePosition() const {
 	return worldTransform_.translation_+TransformNormal(muzzleoffset,rotMat); 
 }
 
-void Rifle::Fire(BulletManager* bulletManager) { 
+void Rifle::Fire(BulletManager* bulletManager, Bullet::Owner owner) { 
 	// リロード中は発射できない
 	if (isReloading_) {
 		return;
@@ -105,7 +105,8 @@ void Rifle::Fire(BulletManager* bulletManager) {
 	// 弾の発射処理	
 	Vector3 pos = GetMuzzlePosition();
 	Vector3 dir = GetForwardVector();
-	bulletManager->Fire(pos, dir,Bullet::Owner::kPlayer);
+
+	bulletManager->Fire(pos, dir, owner);
 
 	ammo_--;
 	fireTimer_ = fireInterval_;

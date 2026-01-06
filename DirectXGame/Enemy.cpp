@@ -337,4 +337,8 @@ void Enemy::Recover() {
 Enemy::~Enemy() {
 	delete rifle_;
 	rifle_ = nullptr;
+
+	delete saber_;
+	saber_ = nullptr;
+
 }

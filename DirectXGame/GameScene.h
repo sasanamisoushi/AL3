@@ -76,6 +76,7 @@ private:
 
 	KamataEngine::Model* bossModel_ = nullptr;
 	KamataEngine::Model* bossSwordModel_ = nullptr;
+	KamataEngine::Model* rifleModel_ = nullptr;
 
 	AttackAlert attackAlert_;
 

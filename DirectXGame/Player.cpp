@@ -6,7 +6,7 @@
 
 using namespace KamataEngine;
 
-void Player::Initialize(Model* model, Camera* camera, const Vector3& position) {
+void Player::Initialize(Model* model,Model* rifle, Camera* camera, const Vector3& position) {
 	// NULLポインタチェック
 	assert(model);
 	// モデル
@@ -23,7 +23,7 @@ void Player::Initialize(Model* model, Camera* camera, const Vector3& position) {
 
 	// 銃
 	rifle_ = new Rifle();
-	rifle_->Initialize(Model::CreateFromOBJ("Raifl"), camera_, position);
+	rifle_->Initialize(rifle, camera_, position);
 	choiceRifle_ = false;
 
 	// 剣
@@ -63,11 +63,6 @@ void Player::Initialize(Model* model, Camera* camera, const Vector3& position) {
 
 	bulletNumber_ = Sprite::Create(TextureManager::Load("./Resources/UI/Number of bullets.png"), {0.0f, 0.0f}, {1, 1, 1, 1}, {0.0f, 0.0f});
 
-	lockOnSprite_ = Sprite::Create(TextureManager::Load("./Resources/UI/aiming.png"), {0, 0});
-
-	lockOnSprite_->SetAnchorPoint({0.5f, 0.5f});
-	lockOnSprite_->SetSize({100.0f, 100.0f});
-
 	//弾数のUI
 	ammoUI_.Initialize();
 
@@ -97,8 +92,6 @@ void Player::Update(BulletManager* bulletManager, const std::vector<Enemy*>& ene
 		enemyPos.y += 2.0f;
 
 		Vector2 screenPos = WorldToScreen(enemyPos);
-
-		lockOnSprite_->SetPosition(screenPos);
 	}
 
 	// ロックオン時は敵方向を向く
@@ -176,7 +169,7 @@ void Player::Update(BulletManager* bulletManager, const std::vector<Enemy*>& ene
 
 		// 弾の発射処理
 		if (Input::GetInstance()->TriggerKey(DIK_SPACE)) {
-			rifle_->Fire(bulletManager);
+			rifle_->Fire(bulletManager, Bullet::Owner::kPlayer);
 		}
 
 		// リロード
@@ -498,10 +491,6 @@ void Player::DrawDamageEffect() {
 		float alpha = damageEffectTimer_ / damageEffectDuration_;
 		damageSprite_->SetColor({1.0f, 0.0f, 0.0f, alpha * 0.4f});
 		damageSprite_->Draw();
-	}
-
-	if (isLockOn_ && lockOnEnemy_ && !lockOnEnemy_->IsDead()) {
-		lockOnSprite_->Draw();
 	}
 
 	// UI
