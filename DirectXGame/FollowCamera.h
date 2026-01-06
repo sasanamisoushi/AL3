@@ -27,6 +27,11 @@ public:
 
 	bool GetLockOn() const { return isLockOn_; }
 
+	KamataEngine::Vector3 GetRotation() const { return rotation_; }
+
+	KamataEngine::Vector3 GetForward() const;
+	KamataEngine::Vector3 GetRight() const;
+
 	//シェイク
 	void startShake(float power, int duration) { 
 		isShaking_ = true;
@@ -75,5 +80,8 @@ private:
 	float shakePower_ = 0.0f;
 	KamataEngine::Vector3 shakeOffset_{};
 
+
+	float yaw_ = 0.0f;   // 水平方向（左右）
+	float pitch_ = 0.0f; // 垂直方向（上下）
 	
 };

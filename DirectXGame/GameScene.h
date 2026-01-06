@@ -7,6 +7,8 @@
 #include "FollowCamera.h"
 #include "BulletManager.h"
 #include "EnemyManager.h"
+#include "AttackAlert.h"
+#include "Skydome.h"
 #include "Boss.h"
 
 
@@ -24,7 +26,11 @@ public:
 	void Draw();
 
 	// デスフラグのgetter
-	bool IsFinished() const { return isFinish; }
+	bool IsFinished() const { return isGameClear_ || isGameOver_; }
+
+
+	bool IsGameClear() const { return isGameClear_; }
+	bool IsGameOver() const { return isGameOver_; }
 
 	~GameScene();
 
@@ -60,7 +66,8 @@ private:
 	bool isFinish = false;
 
 	// ロックオン
-	std::vector<const Vector3*> lockOnTargets_;
+	//std::vector<const Vector3*> lockOnTargets_;
+	std::vector<Enemy*> lockOnEnemies_;
 	int lockOnIndex = -1;
 
 	//ボス
@@ -69,7 +76,15 @@ private:
 
 	KamataEngine::Model* bossModel_ = nullptr;
 	KamataEngine::Model* bossSwordModel_ = nullptr;
+	KamataEngine::Model* rifleModel_ = nullptr;
 
+	AttackAlert attackAlert_;
 
+	 bool isGameClear_ = false;
+	bool isGameOver_ = false;
+
+	//天球
+	Skydome* skydome_ = nullptr;
+	KamataEngine::Model* skydomeModel_ = nullptr;
 	
 };

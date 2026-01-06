@@ -24,7 +24,7 @@ public:
 	KamataEngine::Vector3 GetMuzzlePosition() const;
 
 	//弾の発射処理
-	void Fire(BulletManager* bulletManager);
+	void Fire(BulletManager* bulletManager, Bullet::Owner owner);
 
 	//弾のリロード
 	void Reload();

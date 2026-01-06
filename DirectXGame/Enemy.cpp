@@ -2,6 +2,7 @@
 #include "BulletManager.h"
 #include "Player.h"
 #include <numbers>
+#include <cassert>
 
 using namespace KamataEngine;
 
@@ -25,20 +26,37 @@ void Enemy::Initialize(Model* model, Camera* camera, const Vector3& position, Pl
 	worldTransform_.translation_ = position;
 	worldTransform_.rotation_.y = std::numbers::pi_v<float>;
 
-
+	//surroundAngle_ = 0.0f;
 
 	// 自身の座標を保持
 	position_ = position;
 
+	//銃
 	rifle_ = new Rifle();
 	rifle_->Initialize(Model::CreateFromOBJ("Raifl"), camera_, position);
+
+	//剣
+	saber_ = new saber();
+	saber_->Initialize(Model::CreateFromOBJ("saber"), camera_, position);
+
+	// スポーン時にタイマーをセット
+	waitTimer_ = kWaitTime;
 
 	WorldTransformUpdate(worldTransform_);
 }
 
 void Enemy::Update(BulletManager* bulletManager) {
 
+	// 座標更新
+	position_ = worldTransform_.translation_;
+
 	if (isDead_) {
+		return;
+	}
+
+	// タイマーが残っている場合はカウントダウンして何もしない
+	if (waitTimer_ > 0) {
+		waitTimer_--;
 		return;
 	}
 
@@ -61,8 +79,7 @@ void Enemy::Update(BulletManager* bulletManager) {
 	float dist = Length(toPlayer);
 
 
-	// 座標更新
-	position_ = worldTransform_.translation_;
+	
 
 	// クールタイム（攻撃間隔）
 	if (attackCoolTime_ > 0) {
@@ -104,16 +121,31 @@ void Enemy::Update(BulletManager* bulletManager) {
 
 	rifle_->Update();
 
+	saber_->SetPosition(riflePos, rifleRot);
+	saber_->Update();
+
 	playerPos = player_->GetPosition();
 	dist = Length(playerPos - worldTransform_.translation_);
 
 	if (dist < attackRange_) {
+		choiceSaber_ = true;
 		// ----- 近距離（サーベル攻撃） -----
 		if (attackCoolTime_ <= 0) {
-			player_->Damage(10);  // 例：プレイヤーにダメージ
+
+			// 攻撃開始
+			saber_->StartAttack();
+
+			if (saber_->IsAttacking()) {
+				if (saber_->CheckHitPlayer(player_)) {
+					player_->Damage(35);
+				}
+			}
 			attackCoolTime_ = 60; // 60フレーム攻撃間隔
 		}
+
+		
 	} else if (dist < shootRange_) {
+		choiceSaber_ = false;
 		// ----- 遠距離（ライフル） -----
 
 		if (attackCoolTime_ <= 0) {
@@ -125,8 +157,35 @@ void Enemy::Update(BulletManager* bulletManager) {
 				Vector3 muzzle = riflePos + TransformNormal(muzzleOffset_, rotY);
 
 				bulletManager->Fire(muzzle, dir, Bullet::Owner::kEnemy);
+
+				
+				// ===== アラート発火 =====
+				
+				Vector3 toEnemy = worldTransform_.translation_ - playerPos;
+				toEnemy.y = 0.0f;
+
+				if (Length(toEnemy) > 0.001f) {
+					toEnemy = Normalize(toEnemy);
+
+					Vector3 camForward = player_->GetFollowCamera()->GetForward();
+					Vector3 camRight = player_->GetFollowCamera()->GetRight();
+
+					float forwardDot = KamataEngine::MathUtility::Dot(camForward, toEnemy);
+					float rightDot = KamataEngine::MathUtility::Dot(camRight, toEnemy);
+
+					AttackAlert::AlertDir alertDir;
+
+					if (fabs(rightDot) > fabs(forwardDot)) {
+						alertDir = (rightDot > 0) ? AttackAlert::AlertDir::Right : AttackAlert::AlertDir::Left;
+					} else {
+						alertDir = (forwardDot > 0) ? AttackAlert::AlertDir::Front : AttackAlert::AlertDir::Back;
+					}
+
+					player_->GetAttackAlert()->Trigger(alertDir);
+				}
+
 				rifle_->ConsumeAmmo();
-				attackCoolTime_ = 45;
+				attackCoolTime_ = 90;
 			} else if (!rifle_->IsReloading()) {
 				rifle_->Reload();
 			}
@@ -135,7 +194,7 @@ void Enemy::Update(BulletManager* bulletManager) {
 	}
 
 	// --- プレイヤーとの衝突（重なり防止） ---
-	ResolveCollisionWithPlayer();
+	//ResolveCollisionWithPlayer();
 
 	stageBounds_->ClampToStage(worldTransform_.translation_, GetRadius());
 
@@ -154,9 +213,16 @@ void Enemy::Draw() {
 	}
 
 	model_->Draw(worldTransform_, *camera_);
+	if (!choiceSaber_) {
+		if (rifle_) {
+			rifle_->Draw();
+		}
+	}
 
-	if (rifle_) {
-		rifle_->Draw();
+	if (choiceSaber_) {
+		if (saber_) {
+			saber_->Draw();
+		}
 	}
 }
 
@@ -214,6 +280,9 @@ bool Enemy::HitChek(const Vector3& point, float r) {
 }
 
 void Enemy::ResolveCollisionWithPlayer() {
+	Vector3 currentPos = worldTransform_.translation_;
+	Vector3 playerPos = player_->GetPosition();
+
 	Vector3 diff = position_ - player_->GetPosition();
 	diff.y = 0.0f;
 	float dist = Length(diff);
@@ -226,8 +295,11 @@ void Enemy::ResolveCollisionWithPlayer() {
 
 		// 50%ずつ押し戻す
 		worldTransform_.translation_.x += dir.x * (push * 0.5f);
-		worldTransform_.translation_.y += dir.y * (push * 0.5f);
-		player_->SetPosition(player_->GetPosition() - dir * (push * 0.5f));
+		worldTransform_.translation_.z += dir.z * (push * 0.5f);
+		Vector3 newPlayerPos = playerPos;
+		newPlayerPos.x -= dir.x * (push * 0.5f);
+		newPlayerPos.z -= dir.z * (push * 0.5f);
+		player_->SetPosition(newPlayerPos);
 	}
 }
 
@@ -255,6 +327,9 @@ void Enemy::Recover() {
 	model_ = normalModel_; // 元のモデル
 	worldTransform_.rotation_.x = 0.0f;
 
+	  // ★ Yを地面に戻す
+	worldTransform_.translation_.y -= downHeightOffset_;
+
 	attackCoolTime_ = 60; // 起き上がり後の硬直
 	downCount_ = 0;       // 再びダウン可能
 }
@@ -262,4 +337,8 @@ void Enemy::Recover() {
 Enemy::~Enemy() {
 	delete rifle_;
 	rifle_ = nullptr;
+
+	delete saber_;
+	saber_ = nullptr;
+
 }

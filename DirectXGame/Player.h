@@ -7,9 +7,11 @@
 #include "Enemy.h"
 #include "Shield.h"
 #include "StageBounds.h"
+#include "AmmoUI.h"
 #include <vector>
 #include <memory>
 
+using namespace KamataEngine;
 
 class Player {
 public:
@@ -24,7 +26,7 @@ public:
 
 
 	// 初期化
-	void Initialize(Model* model, Camera* camera, const Vector3& position);
+	void Initialize(KamataEngine::Model* model, KamataEngine::Model*rifle, KamataEngine::Camera* camera, const KamataEngine::Vector3& position);
 
 	// 更新
 	void Update(BulletManager* bulletManager, const std::vector<Enemy*>& enemies);
@@ -43,11 +45,14 @@ public:
 	//解放
 	~Player();
 
-	void SetLockOnTarget(const Vector3* target) { lockOnTarget_ = target; }
+	void SetLockOnTarget(const KamataEngine::Vector3* target) { lockOnTarget_ = target; }
 	void SetLockOn(bool flag) { isLockOn_ = flag; }
-	void SetPosition(const Vector3& pos) {worldTransform_.translation_ = pos;WorldTransformUpdate(worldTransform_);} 
+	void SetPosition(const KamataEngine::Vector3& pos) {
+		worldTransform_.translation_ = pos;
+		WorldTransformUpdate(worldTransform_);
+	} 
 	bool GetLockOn() const { return isLockOn_; }
-	Vector3 GetPosition() const { return worldTransform_.translation_; }
+	KamataEngine::Vector3 GetPosition() const { return worldTransform_.translation_; }
 
 	// あたり判定
 	float GetRadius() const { return radius_; }
@@ -56,10 +61,23 @@ public:
 
 	Shield* GetShield() const { return shield_; }
 	int GetHP() const { return hp_; }
-	int GetMaxHP() const { return 100; }
+	float GetMaxHP() const { return maxHp_; }
 
+	AttackAlert* GetAttackAlert() { return &attackAlert_; }
 	
+	FollowCamera* GetFollowCamera() { return &followCamera_; }
 	
+	bool IsDead() const { return currentHp_ <= 0.0f; }
+
+	Vector2 WorldToScreen(const Vector3& worldPos);
+
+	void SetLockOn(Enemy* enemy);
+	void ClearLockOn();
+
+	void SetLockOnEnemy(Enemy* enemy) { lockOnEnemy_ = enemy; }
+
+	 bool IsLockOn() const { return isLockOn_; }
+	Enemy* GetLockOnEnemy() const { return lockOnEnemy_; }
 
 private:
 
@@ -67,13 +85,13 @@ private:
 	KamataEngine::WorldTransform worldTransform_;
 
 	// モデル
-	Model* model_ = nullptr;
+	KamataEngine::Model* model_ = nullptr;
 
 	// カメラ
-	Camera* camera_ = nullptr;
+	KamataEngine::Camera* camera_ = nullptr;
 
 	//速度
-	Vector3 velocity_ = {};
+	KamataEngine::Vector3 velocity_ = {};
 
 	//------------地上------------
 
@@ -127,9 +145,9 @@ private:
 	float radius_ = 1.0f;
 	
 	//hp
-	int hp_ = 100;
-	float maxHp_ = 100.0f;
-	float currentHp_ = 100.0f;
+	int hp_ = 400;
+	float maxHp_ = 400.0f;
+	float currentHp_ = 400.0f;
 
 	// HPバー
 	KamataEngine::Sprite* spriteHPBack_ = nullptr;
@@ -150,4 +168,13 @@ private:
 
 	StageBounds* stageBounds_ = nullptr;
 
+	AttackAlert attackAlert_;
+
+	Enemy* lockOnEnemy_ = nullptr;
+
+	KamataEngine::Sprite* bulletNumber_ = nullptr;
+	KamataEngine::Sprite* bulletNumberTotal_ = nullptr;
+
+	AmmoUI ammoUI_;
+	
 };

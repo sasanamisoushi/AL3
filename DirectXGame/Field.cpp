@@ -1,4 +1,5 @@
 #include "Field.h"
+#include <cassert>
 
 void Field::Initialize(Model* model, Camera* camera, const Vector3& position) {
 	// NULLポインタチェック

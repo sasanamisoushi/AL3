@@ -1,6 +1,8 @@
 #include "Boss.h"
 #include "MyMath.h"
+#include "WingSword.h"
 #include <numbers>
+#include <algorithm>
 
 using namespace KamataEngine;
 
@@ -23,7 +25,7 @@ static const char* BossPhaseToString(BossPhase phase) {
 }
 #endif
 
-void Boss::Initialize(Model* model, Model* swordModel, Camera* camera, const Vector3& position, BulletManager* bulletManager,Player* player) {
+void Boss::Initialize(Model* model, Model* swordModel, Model* rifle, Camera* camera, const Vector3& position, BulletManager* bulletManager, Player* player) {
 	model_ = model;
 	swordModel_ = swordModel;
 	camera_ = camera;
@@ -32,13 +34,14 @@ void Boss::Initialize(Model* model, Model* swordModel, Camera* camera, const Vec
 	// ワールドトランスフォーム初期化
 	worldTransform_.Initialize();
 	worldTransform_.translation_ = position;
-	worldTransform_.scale_ = {1.5f, 1.5f, 1.5f};
+	worldTransform_.scale_ = {1.0f, 1.0f, 1.0f};
 
 	 // ===== Rifle生成 =====
 	rifle_ = new Rifle();
 	rifle_->Initialize(
-	    Model::CreateFromOBJ("Raifl"), // Enemyと同じ
+	   rifle, 
 	    camera_, position);
+
 
 	WorldTransformUpdate(worldTransform_);
 
@@ -59,10 +62,29 @@ void Boss::Initialize(Model* model, Model* swordModel, Camera* camera, const Vec
 
 		wingSwords_.push_back(std::move(sword));
 	}
+
+	// HPバーのテクスチャ（Playerと同じものや、ボス用の赤い画像など）
+	uint32_t whiteTex = TextureManager::Load("./Resources/white1x1.png");
+	uint32_t hpBack = TextureManager::Load("./Resources/UI/BOSSHPBar.png");
+
+	// 背景バーの生成 (少し大きめに作るか、色を変える)
+	spriteHPBack_ = Sprite::Create(hpBack, {0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.0f, 0.0f});
+	spriteHPBack_->SetSize({1280.0f, 720.0f});
+
+
+	// HP本体の生成 (赤色にするなど)
+	spriteHp_ = Sprite::Create(whiteTex, hpBarPos_, {1.0f, 0.0f, 0.0f, 1.0f}, {0.0f, 0.0f});
+	spriteHp_->SetSize(hpBarBaseSize_);
+	
 };
 
 
 void Boss::Update(const Vector3& playerPos) {
+
+	//HPが０なら何もしない
+	if (currentHp_ <= 0) {
+		return;
+	}
 
 	phaseTimer_++;
 
@@ -119,7 +141,14 @@ void Boss::Update(const Vector3& playerPos) {
 
 	//float rotateSpeed = 0.01f;
 
-	
+	// HPが範囲外にならないようクランプ
+	currentHp_ = std::clamp(currentHp_, 0.0f, maxHp_);
+
+	// HPの割合を計算 (0.0 ～ 1.0)
+	float hpRate = currentHp_ / maxHp_;
+
+	// 横幅を割合に応じて変化させる
+	spriteHp_->SetSize({hpBarBaseSize_.x * hpRate, hpBarBaseSize_.y});
 
 	//timer_++;
 
@@ -161,19 +190,33 @@ void Boss::Update(const Vector3& playerPos) {
 		phaseTimer_ = 0;
 	}
 
+	ImGui::Text("HP:%d", currentHp_);
+
 	ImGui::End();
 	#endif
 };
 
 void Boss::Draw() {
+
+	if (currentHp_ <= 0) {
+		return;
+	}
+
 	model_->Draw(worldTransform_, *camera_);
 
-	 if (rifle_) {
-		rifle_->Draw();
-	}
+	
 
 	for (auto& sword : wingSwords_) {
 		sword->Draw(camera_);
+	}
+}
+
+void Boss::DrawUI() {
+	if (spriteHPBack_) {
+		spriteHPBack_->Draw();
+	}
+	if (spriteHp_) {
+		spriteHp_->Draw();
 	}
 }
 
@@ -208,12 +251,9 @@ void Boss::ChangePhase(BossPhase next) {
 	
 
 	// 剣を戻すのは SwordRing に入る時だけ
-	if (phase_ == BossPhase::SwordRing) {
-		ResetWingSwords();
-	}
-
-	if (next != BossPhase::FunnelAttack) {
-		nextLaunchIndex_ = 0;
+	if (phase_ == BossPhase::FunnelAttack || phase_ == BossPhase::SwordRing) {
+		ResetWingSwords();    // 剣を地面から回収し、IsStuckをfalseにする
+		nextLaunchIndex_ = 0; // 発射カウントを最初に戻す
 	}
 
 }
@@ -277,14 +317,14 @@ void Boss::UpdateMeleeAttack(const KamataEngine::Vector3& playerPos) {
 	if (shootCoolTime_ <= 0) {
 
 		if (rifle_->GetAmmo() > 0) {
-			rifle_->Fire(bulletManager_);
+			rifle_->Fire(bulletManager_, Bullet::Owner::kEnemy);
 			shootCoolTime_ = shootInterval_;
 		} else if (!rifle_->IsReloading()) {
 			rifle_->Reload();
 		}
 	}
 
-	float hitRadius = 2.0f;
+	float hitRadius = 5.0f;
 
 	Vector3 diff = playerPos - worldTransform_.translation_;
 
@@ -328,6 +368,26 @@ void Boss::ResetWingSwords() {
 		sword->ResetToStandby(backPos, bossYaw);
 	}
 }
+
+void Boss::Damage(int damage) {
+	if (currentHp_ <= 0) {
+		return;
+	}
+
+	currentHp_ -= damage;
+	if (currentHp_ < 0) {
+		currentHp_ = 0;
+	}
+}
+
+Boss::Boss() = default;
+
+Boss::~Boss() {
+
+	delete rifle_;
+	rifle_ = nullptr;
+
+};
 
 bool Boss::AreAllSwordsStuck() const {
 	for (const auto& sword : wingSwords_) {

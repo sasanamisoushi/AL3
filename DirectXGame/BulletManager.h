@@ -5,6 +5,8 @@
 #include "Enemy.h"
 #include <vector>
 
+class Boss;
+
 
 class BulletManager {
 public:
@@ -13,7 +15,7 @@ public:
 	void Initialize(KamataEngine::Model* model);
 
 	//更新
-	void Update(const std::vector<Enemy*>& enemies, Player* player);
+	void Update(const std::vector<Enemy*>& enemies, Player* player,Boss* boss);
 
 	//描画
 	void Draw(KamataEngine::Camera* camera);

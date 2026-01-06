@@ -3,6 +3,8 @@
 #include <numbers>
 #include "MeleeWeapon.h"
 
+using namespace KamataEngine;
+
 void saber::Initialize(Model* model, Camera* camera, const Vector3& position) {
 	model_ = model;
 	camera_ = camera;
@@ -83,6 +85,28 @@ void saber::StartAttack() {
 		// ヒットした敵リストをクリア
 		hitEnemies_.clear();
 	}
+}
+
+bool saber::CheckHitPlayer(const Player* player) {
+	if (!isAttacking_) {
+		return false;
+	}
+
+	// すでに当たっていたら無効
+	if (hitPlayers_.count(player) > 0) {
+		return false;
+	}
+
+	// プレイヤー中心との距離
+	float dist = Length(player->GetPosition() - GetPosition());
+	bool hit = dist < (player->GetRadius() + GetRadius());
+
+	if (hit) {
+		hitPlayers_.insert(player); // 記録
+		return true;
+	}
+
+	return false;
 }
 
 bool saber::CheckHit(const Enemy* enemy)  {

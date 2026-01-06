@@ -12,6 +12,9 @@ void GameScene::Initialize() {
 	camera_.rotation_ = {0.3f, 0.0f, 0.0f};
 	camera_.UpdateMatrix();
 
+
+	rifleModel_ = Model::CreateFromOBJ("Raifl");
+
 	//------------フェールド-----------------
 
 	// フィールドオブジェクト
@@ -28,7 +31,7 @@ void GameScene::Initialize() {
 
 	// プレイヤーの生成
 	player = new Player();
-	player->Initialize(playerModel_, &camera_, {0.0f, 0.5f, 0.0f});
+	player->Initialize(playerModel_, rifleModel_,&camera_, {0.0f, 0.5f, 0.0f});
 
 	//------------敵-----------------
 
@@ -39,13 +42,15 @@ void GameScene::Initialize() {
 	// EnemyManager 初期化
 	enemyManager_.Initialize(enemyModel, &camera_, player, enemyDown);
 
+
+
 	////敵の生成
 	// enemies_.push_back(new Enemy());
 	// enemies_.back()->Initialize(enemyModel, &camera_, {-5.0f, 0.5f, 5.0f},player);
 
 	//------------ボス-----------------
 
-	bossModel_ = Model::CreateFromOBJ("boss", true);
+	bossModel_ = Model::CreateFromOBJ("boss");
 	bossSwordModel_ = Model::CreateFromOBJ("saber", true);
 
 	boss_ = nullptr;
@@ -61,23 +66,51 @@ void GameScene::Initialize() {
 	// 弾の生成
 	bulletManager_->Initialize(bulletModel);
 
-	
+	//------------UI-----------------
+	attackAlert_.Initialize();
+
+	//------------天球-----------------
+	//モデルの生成
+	skydomeModel_ = Model::CreateFromOBJ("skydome", true);
+	//天球の生成
+	skydome_ = new Skydome();
+	//天球の初期化
+	skydome_->Initialize(skydomeModel_, &camera_);
 }
 
 void GameScene::Update() {
+
+	if (boss_ && boss_->IsDead()) {
+		isGameClear_ = true;
+		return;
+	}
+
+	// プレイヤー死亡判定
+	if (player->IsDead()) {
+		isGameOver_ = true;
+		return;
+	}
+
+	//天球の更新
+	skydome_->Update();
 
 	// プレイヤーの更新
 	player->Update(bulletManager_, enemyManager_.GetEnemyPointers());
 
 	// 弾の更新
-	bulletManager_->Update(enemyManager_.GetEnemyPointers(), player);
+	bulletManager_->Update(enemyManager_.GetEnemyPointers(), player,boss_);
+
+	// ===== ボスの更新（常に）=====
+	if (boss_) {
+		boss_->Update(player->GetPosition());
+	}
 
 	// ロックオン対象クリア
-	lockOnTargets_.clear();
+	lockOnEnemies_.clear();
 	// ================ 雑魚敵 ================
 	for (Enemy* enemy : enemyManager_.GetEnemyPointers()) {
-		if (!enemy->IsDead()) {
-			lockOnTargets_.push_back(&enemy->GetPosition());
+		if (enemy &&!enemy->IsDead()) {
+			lockOnEnemies_.push_back(enemy);
 		}
 	}
 
@@ -88,107 +121,84 @@ void GameScene::Update() {
 	if (!bossSpawned_ && enemyManager_.IsAllDead()) {
 
 		boss_ = new Boss();
-		boss_->Initialize(bossModel_, bossSwordModel_, &camera_, {0.0f, 0.0f, 0.0f}, bulletManager_,player);
+		boss_->Initialize(bossModel_, bossSwordModel_, rifleModel_, & camera_, {0.0f, 0.0f, 0.0f}, bulletManager_, player);
 
 		bossSpawned_ = true;
 	}
 
-	// ================ ボス ================
-	// ボスの更新
-	if (boss_) {
-		lockOnTargets_.push_back(&boss_->GetPosition());
-		boss_->Update(player->GetPosition());
-	}
-
-	auto& enemies_ = enemyManager_.GetEnemies();
-
-	// 敵がいなければロック不可
-	if (lockOnTargets_.empty()) {
-		lockOnIndex = -1;
-		player->SetLockOn(false);
-		followCamera_.SetLockOn(false);
-		return;
-	}
-
-	// Lキーでロックオン切り替え
-	if (Input::GetInstance()->TriggerKey(DIK_L)) {
+	  if (Input::GetInstance()->TriggerKey(DIK_L)) {
 		if (lockOnIndex == -1) {
-			// ロックオン開始
-			lockOnIndex = 0;
-			player->SetLockOn(true);
-			followCamera_.SetLockOn(true);
+			// --- ロックオン開始処理 ---
+			if (!lockOnEnemies_.empty()) {
+				// 雑魚敵がいれば0番目をロック
+				lockOnIndex = 0;
+			} else if (boss_) {
+				// 雑魚がいなくてボスがいれば、ボス専用の番号(999)にする
+				lockOnIndex = 999;
+			}
 		} else {
-			// ロック解除
+			// すでにロックオン中なら解除
 			lockOnIndex = -1;
-			player->SetLockOn(false);
-			followCamera_.SetLockOn(false);
 		}
 	}
 
-	// --- ロックオン中に矢印で敵を切り替える ---
+	// 3. ロックオン状態の維持と更新（ここを安全にする）
 	if (lockOnIndex != -1) {
+		if (lockOnIndex == 999) {
+			// --- ボスをロックオン中の場合 ---
+			if (boss_ && !boss_->IsDead()) {
+				player->SetLockOn(true);
+				player->SetLockOnTarget(&boss_->GetPosition());
+				followCamera_.SetLockOn(true);
+				followCamera_.SetLockOnTarget(&boss_->GetPosition());
+			} else {
+				// ボスが死んだら解除
+				lockOnIndex = -1;
+			}
+		} else {
+			// --- 雑魚敵をロックオン中の場合 ---
+			if (!lockOnEnemies_.empty()) {
+				// 敵が死んで数が減った時、インデックスが範囲外にならないよう調整
+				if (lockOnIndex >= (int)lockOnEnemies_.size()) {
+					lockOnIndex = 0;
+				}
 
-		// → 次の敵
-		if (Input::GetInstance()->TriggerKey(DIK_RIGHT)) {
-			lockOnIndex++;
-			if (lockOnIndex >= enemies_.size()) {
-				lockOnIndex = 0; // ループ
+				// 切り替え（DIK_Oキーなど）
+				if (Input::GetInstance()->TriggerKey(DIK_O)) {
+					lockOnIndex = (lockOnIndex + 1) % (int)lockOnEnemies_.size();
+				}
+
+				// 安全に確定したインデックスで要素にアクセス
+				Enemy* targetEnemy = lockOnEnemies_[lockOnIndex];
+				player->SetLockOn(true);
+				player->SetLockOnEnemy(targetEnemy);
+				player->SetLockOnTarget(&targetEnemy->GetPosition());
+
+				followCamera_.SetLockOn(true);
+				followCamera_.SetLockOnTarget(&targetEnemy->GetPosition());
+			} else {
+				// 雑魚敵が全滅したら、ボスがいればボスへ、いなければ解除
+				if (boss_) {
+					lockOnIndex = 999;
+				} else {
+					lockOnIndex = -1;
+				}
 			}
 		}
-
-		// ← 前の敵
-		if (Input::GetInstance()->TriggerKey(DIK_LEFT)) {
-			lockOnIndex--;
-			if (lockOnIndex < 0) {
-				lockOnIndex = (int)enemies_.size() - 1; // ループ
-			}
-		}
-		// ロックオン対象をセットする
-		player->SetLockOnTarget(lockOnTargets_[lockOnIndex]);
-		followCamera_.SetLockOnTarget(lockOnTargets_[lockOnIndex]);
 	}
 
-
-#ifdef _DEBUG
-
-	// キーを押したらクリア画面に
-	if (Input::GetInstance()->TriggerKey(DIK_1)) {
-		isFinish = true;
+	// 4. ロックオン解除時の後処理
+	if (lockOnIndex == -1) {
+		player->SetLockOn(false);
+		player->ClearLockOn();
+		followCamera_.SetLockOn(false);
+		player->SetLockOnTarget(nullptr);
 	}
 
-	ImGui::Begin("Game Scene");
-	ImGui::Text("R choiceWeapon");
-	ImGui::Text("L lock on");
-	ImGui::Text("E Reload");
-	ImGui::Text("O Jump");
-	ImGui::Text("SPACE attack");
-	ImGui::End();
+	// ================ UI ================
+	attackAlert_.Update();
 
-	ImGui::Begin("Game Scene Debug");
 
-	// ===== ボス =====
-	ImGui::Checkbox("Boss Spawned", &bossSpawned_);
-
-	// ボス位置表示
-	if (boss_) {
-		Vector3 posB = boss_->GetPosition();
-		ImGui::Text("Boss Pos: %.2f, %.2f, %.2f", posB.x, posB.y, posB.z);
-	} else {
-		ImGui::Text("Boss : nullptr");
-	}
-
-	// ===== 敵 =====
-	static bool enemyEnable = true;
-	ImGui::Checkbox("Enemy Enable", &enemyEnable);
-
-	if (!enemyEnable) {
-		enemyManager_.ClearEnemies(); 
-	}
-
-	ImGui::Text("Enemy Count: %d", (int)enemyManager_.GetEnemies().size());
-
-	ImGui::End();
-#endif
 }
 
 void GameScene::Draw() {
@@ -197,6 +207,7 @@ void GameScene::Draw() {
 	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
 	// 3Dモデル描画前処理
 	Model::PreDraw(dxCommon->GetCommandList());
+	skydome_->Draw();
 	field->Draw();
 	bulletManager_->Draw(&camera_);
 	player->Draw();
@@ -208,7 +219,12 @@ void GameScene::Draw() {
 
 	// ===== 2D描画（Sprite）=====
 	Sprite::PreDraw(dxCommon->GetCommandList());
+	attackAlert_.Draw();
 	player->DrawDamageEffect();
+
+	if (boss_) {
+		boss_->DrawUI();
+	}
 
 	Sprite::PostDraw();
 }
@@ -220,6 +236,10 @@ GameScene::~GameScene() {
 	field = nullptr;
 	delete fieldModel_;
 	fieldModel_ = nullptr;
+
+	//天球
+	delete skydome_;
+	skydome_ = nullptr;
 
 	// プレイヤーの解放
 	delete player;
@@ -235,6 +255,11 @@ GameScene::~GameScene() {
 	enemyDown = nullptr;
 	// ボスの解放
 	delete boss_;
+	boss_ = nullptr;
+	delete bossModel_;
+	bossModel_ = nullptr;
+	delete bossSwordModel_;
+	bossSwordModel_ = nullptr;
 
 	// 弾の解放
 	delete bulletManager_;
@@ -242,4 +267,6 @@ GameScene::~GameScene() {
 	delete bulletModel;
 	bulletModel = nullptr;
 
+	delete rifleModel_;
+	rifleModel_ = nullptr;
 }
