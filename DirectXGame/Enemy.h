@@ -3,12 +3,14 @@
 #include "StageBounds.h"
 #include "AttackAlert.h"
 #include "MyMath.h"
+#include "MeleeWeapon.h"
 #include <functional>
 
 
 class Player;
 class BulletManager;
 class Rifle;
+class saber;
 
 
 enum class EnemyState {
@@ -33,6 +35,9 @@ public:
 	const KamataEngine::Vector3& GetPosition() const { return position_; }
 	float GetRadius() const { return radius_; }
 	void AddPosition(const KamataEngine::Vector3& v) { worldTransform_.translation_ += v; }
+	int GetHp() const { return hp_; }
+	int GetMaxHp() const { return maxHp_; }
+	//KamataEngine::Vector3 GetWorldPosition() const { return worldTransform_.translation_; }
 
 	//--------------------セッター--------------------
 	void SetSurroundAngle(float angle) { surroundAngle_ = angle; }
@@ -60,6 +65,7 @@ public:
 
 	void SetOnAttack(std::function<void(const KamataEngine::Vector3&)> func) { onAttack_ = func; }
 
+	
 
 private:
 
@@ -84,6 +90,7 @@ private:
 
 	//HP
 	int hp_ = 100;
+	int maxHp_ = 100;
 
 	//攻撃
 	float attackRange_ = 5.0f; //サーベル距離
@@ -98,6 +105,7 @@ private:
 
 	//武器
 	Rifle* rifle_ = nullptr;
+	saber* saber_ = nullptr;
 
 	KamataEngine::Vector3 rifleOffset_ = {1.0f, 1.2f, -0.4f}; // 敵の手元
 	KamataEngine::Vector3 muzzleOffset_ = {0.0f, -0.35f, 0.8f}; // 銃口
@@ -122,5 +130,7 @@ private:
 	//待機タイマー
 	int waitTimer_ = 0;       // スポーン後の待機タイマー
 	const int kWaitTime = 60; 
+
+	bool choiceSaber_ = true;
 
 };

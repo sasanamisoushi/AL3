@@ -1,3 +1,4 @@
+#define NOMINMAX
 #include "EnemyManager.h"
 #include <random>
 #include <numbers>
@@ -80,6 +81,10 @@ void EnemyManager::ResolveEnemyCollisions() {
 			if (dist < minDist && dist > 0.0001f) {
 				Vector3 dir = diff / dist;
 				float push = (minDist - dist) * 0.5f;
+
+				// 最大押し戻し量を制限
+				const float maxPush = 0.05f;
+				push = std::min(push, maxPush);
 
 				Vector3 posA = a->GetPosition();
 				Vector3 posB = b->GetPosition();

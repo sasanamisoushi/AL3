@@ -106,6 +106,7 @@
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AmmoUI.cpp" />
     <ClCompile Include="AttackAlert.cpp" />
     <ClCompile Include="Boss.cpp" />
     <ClCompile Include="Bullet.cpp" />
@@ -125,6 +126,7 @@
     <ClCompile Include="Rifle.cpp" />
     <ClCompile Include="saber.cpp" />
     <ClCompile Include="Shield.cpp" />
+    <ClCompile Include="Skydome.cpp" />
     <ClCompile Include="StageBounds.cpp" />
     <ClCompile Include="TitleScene.cpp" />
     <ClCompile Include="WingSword.cpp" />
@@ -205,6 +207,7 @@
     <None Include="Resources\shaders\Sprite.hlsli" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AmmoUI.h" />
     <ClInclude Include="AttackAlert.h" />
     <ClInclude Include="Boss.h" />
     <ClInclude Include="Bullet.h" />
@@ -223,6 +226,7 @@
     <ClInclude Include="Rifle.h" />
     <ClInclude Include="saber.h" />
     <ClInclude Include="Shield.h" />
+    <ClInclude Include="Skydome.h" />
     <ClInclude Include="StageBounds.h" />
     <ClInclude Include="TitleScene.h" />
     <ClInclude Include="WingSword.h" />

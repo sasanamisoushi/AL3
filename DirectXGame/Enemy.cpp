@@ -31,8 +31,13 @@ void Enemy::Initialize(Model* model, Camera* camera, const Vector3& position, Pl
 	// 自身の座標を保持
 	position_ = position;
 
+	//銃
 	rifle_ = new Rifle();
 	rifle_->Initialize(Model::CreateFromOBJ("Raifl"), camera_, position);
+
+	//剣
+	saber_ = new saber();
+	saber_->Initialize(Model::CreateFromOBJ("saber"), camera_, position);
 
 	// スポーン時にタイマーをセット
 	waitTimer_ = kWaitTime;
@@ -116,16 +121,31 @@ void Enemy::Update(BulletManager* bulletManager) {
 
 	rifle_->Update();
 
+	saber_->SetPosition(riflePos, rifleRot);
+	saber_->Update();
+
 	playerPos = player_->GetPosition();
 	dist = Length(playerPos - worldTransform_.translation_);
 
 	if (dist < attackRange_) {
+		choiceSaber_ = true;
 		// ----- 近距離（サーベル攻撃） -----
 		if (attackCoolTime_ <= 0) {
-			player_->Damage(10);  // 例：プレイヤーにダメージ
+
+			// 攻撃開始
+			saber_->StartAttack();
+
+			if (saber_->IsAttacking()) {
+				if (saber_->CheckHitPlayer(player_)) {
+					player_->Damage(35);
+				}
+			}
 			attackCoolTime_ = 60; // 60フレーム攻撃間隔
 		}
+
+		
 	} else if (dist < shootRange_) {
+		choiceSaber_ = false;
 		// ----- 遠距離（ライフル） -----
 
 		if (attackCoolTime_ <= 0) {
@@ -193,9 +213,16 @@ void Enemy::Draw() {
 	}
 
 	model_->Draw(worldTransform_, *camera_);
+	if (!choiceSaber_) {
+		if (rifle_) {
+			rifle_->Draw();
+		}
+	}
 
-	if (rifle_) {
-		rifle_->Draw();
+	if (choiceSaber_) {
+		if (saber_) {
+			saber_->Draw();
+		}
 	}
 }
 

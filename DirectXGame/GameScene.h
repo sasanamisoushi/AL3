@@ -8,6 +8,7 @@
 #include "BulletManager.h"
 #include "EnemyManager.h"
 #include "AttackAlert.h"
+#include "Skydome.h"
 #include "Boss.h"
 
 
@@ -80,5 +81,9 @@ private:
 
 	 bool isGameClear_ = false;
 	bool isGameOver_ = false;
+
+	//天球
+	Skydome* skydome_ = nullptr;
+	KamataEngine::Model* skydomeModel_ = nullptr;
 	
 };

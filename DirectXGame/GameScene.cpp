@@ -65,6 +65,14 @@ void GameScene::Initialize() {
 
 	//------------UI-----------------
 	attackAlert_.Initialize();
+
+	//------------天球-----------------
+	//モデルの生成
+	skydomeModel_ = Model::CreateFromOBJ("skydome", true);
+	//天球の生成
+	skydome_ = new Skydome();
+	//天球の初期化
+	skydome_->Initialize(skydomeModel_, &camera_);
 }
 
 void GameScene::Update() {
@@ -79,6 +87,9 @@ void GameScene::Update() {
 		isGameOver_ = true;
 		return;
 	}
+
+	//天球の更新
+	skydome_->Update();
 
 	// プレイヤーの更新
 	player->Update(bulletManager_, enemyManager_.GetEnemyPointers());
@@ -119,6 +130,7 @@ void GameScene::Update() {
 		lockOnIndex = -1;
 		player->SetLockOn(false);
 		followCamera_.SetLockOn(false);
+		player->SetLockOnTarget(nullptr);
 		return;
 	}
 
@@ -129,11 +141,19 @@ void GameScene::Update() {
 			lockOnIndex = 0;
 			player->SetLockOn(true);
 			followCamera_.SetLockOn(true);
+
+			// ★ ロックオン対象をセット
+			player->SetLockOnEnemy(lockOnEnemies_[lockOnIndex]);
+			player->SetLockOnTarget(&lockOnEnemies_[lockOnIndex]->GetPosition());
+			followCamera_.SetLockOnTarget(&lockOnEnemies_[lockOnIndex]->GetPosition());
 		} else {
 			// ロック解除
 			lockOnIndex = -1;
 			player->SetLockOn(false);
 			followCamera_.SetLockOn(false);
+
+			player->SetLockOnEnemy(nullptr);
+			player->SetLockOnTarget(nullptr);
 		}
 	}
 
@@ -235,6 +255,7 @@ void GameScene::Draw() {
 	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
 	// 3Dモデル描画前処理
 	Model::PreDraw(dxCommon->GetCommandList());
+	skydome_->Draw();
 	field->Draw();
 	bulletManager_->Draw(&camera_);
 	player->Draw();
@@ -283,6 +304,10 @@ GameScene::~GameScene() {
 	field = nullptr;
 	delete fieldModel_;
 	fieldModel_ = nullptr;
+
+	//天球
+	delete skydome_;
+	skydome_ = nullptr;
 
 	// プレイヤーの解放
 	delete player;
