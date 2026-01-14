@@ -37,6 +37,21 @@ public:
 	//重力と地面判定
 	void ApplyGravity();
 
+	//ロックオン中の移動
+	void UpdateLockOnMovement(const std::vector<Enemy*>&);
+
+	//非ロックオン中の移動
+	void UpdateFreeMovement();
+
+	//武器操作
+	void UpdateWeapons(BulletManager* bulletManager, const std::vector<Enemy*>& enemies);
+
+	//盾
+	void UpdateShield();
+
+	//UI
+	void UpdateStatusUI();
+
 	// 描画
 	void Draw();
 

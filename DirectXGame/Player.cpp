@@ -6,7 +6,7 @@
 
 using namespace KamataEngine;
 
-void Player::Initialize(Model* model,Model* rifle, Camera* camera, const Vector3& position) {
+void Player::Initialize(Model* model, Model* rifle, Camera* camera, const Vector3& position) {
 	// NULLポインタチェック
 	assert(model);
 	// モデル
@@ -63,205 +63,45 @@ void Player::Initialize(Model* model,Model* rifle, Camera* camera, const Vector3
 
 	bulletNumber_ = Sprite::Create(TextureManager::Load("./Resources/UI/Number of bullets.png"), {0.0f, 0.0f}, {1, 1, 1, 1}, {0.0f, 0.0f});
 
-	//弾数のUI
+	// 弾数のUI
 	ammoUI_.Initialize();
-
 
 	WorldTransformUpdate(worldTransform_);
 }
 
 void Player::Update(BulletManager* bulletManager, const std::vector<Enemy*>& enemies) {
 
-	// 重力と地面判定
+	// ========重力と地面判定========
 	ApplyGravity();
 
-	// プレイヤー移動
-	UpdateMovement();
+	// ========移動========
+	if (isLockOn_) {
+		UpdateLockOnMovement(enemies); // ロックオン中の移動
+	} else {
+		UpdateFreeMovement(); // 自由移動
+	}
 
-	attackAlert_.Update();
+	// ========武器========
+	UpdateWeapons(bulletManager, enemies);
 
-	////カメラの回転をプレイヤーのY回転に合わせる
+	// ========盾========
+	UpdateShield();
+
+	// ========UI========
+	UpdateStatusUI();
+
+	// ========カメラ========
+
+	// カメラの回転をプレイヤーのY回転に合わせる
 	followCamera_.SetTarget(&worldTransform_.translation_);
 
 	followCamera_.SetTargetRotation(&worldTransform_.rotation_);
-
-	camera_->UpdateMatrix();
-
-	if (isLockOn_ && lockOnEnemy_ && !lockOnEnemy_->IsDead()) {
-		Vector3 enemyPos = lockOnEnemy_->GetPosition();
-		enemyPos.y += 2.0f;
-
-		Vector2 screenPos = WorldToScreen(enemyPos);
-	}
-
-	// ロックオン時は敵方向を向く
-	if (isLockOn_ && lockOnTarget_) {
-		Vector3 toEnemy = *lockOnTarget_ - worldTransform_.translation_;
-		worldTransform_.rotation_.y = std::atan2(toEnemy.x, toEnemy.z) + std::numbers::pi_v<float> / 2.0f;
-	}
-
-	// 装備切り替え
-	if (Input::GetInstance()->TriggerKey(DIK_R)) {
-		choiceRifle_ = !choiceRifle_;
-		choiceSaber_ = !choiceSaber_;
-	}
-
-	// 手元位置
-	Vector3 handOffset = {0.0f, 0.5f, 1.5f};
-	// プレイヤーの回転を考慮したオフセットを計算
-	Matrix4x4 rifleRotY = MakeRotateYMatrix(worldTransform_.rotation_.y);
-	Vector3 rotatedOffset = TransformNormal(handOffset, rifleRotY);
-
-	// ワールド座標での銃の位置
-	Vector3 handPos = worldTransform_.translation_ + rotatedOffset;
-
-	// 銃の回転（プレイヤーと同じY回転でOK）
-	Vector3 weaponRotation = {0.0f, worldTransform_.rotation_.y - std::numbers::pi_v<float> / 2.0f, 0.0f};
-
-	// --- プレイヤー本体と敵の衝突（重なり防止） ---
-	for (Enemy* enemy : enemies) {
-		if (enemy->IsDead())
-			continue;
-
-		Vector3 diff = worldTransform_.translation_ - enemy->GetPosition();
-		diff.y = 0.0f;
-		float dist = Length(diff);
-		float minDist = GetRadius() + enemy->GetRadius();
-
-		// 重なっているか？
-		if (dist < minDist && dist > 0.001f) {
-
-			// 正規化（方向）
-			Vector3 dir = diff / dist;
-
-			// 押し戻し量
-			float push = minDist - dist;
-
-			// XZ方向だけ押し戻す
-			worldTransform_.translation_.x += dir.x * push;
-			worldTransform_.translation_.z += dir.z * push;
-
-			// 座標をワールドに反映
-			WorldTransformUpdate(worldTransform_);
-		}
-	}
-
-	// 銃を選んでいるときはプレイヤーの手元に追従
-	if (choiceRifle_) {
-
-		rifle_->SetPosition(handPos, weaponRotation);
-		// ロックオン中は敵の方向を向かせる
-		if (isLockOn_ && lockOnTarget_) {
-			Vector3 toEnemy = *lockOnTarget_ - handPos;
-
-			// --- 水平角度（Y回転） ---
-			float ry = std::atan2(toEnemy.x, toEnemy.z);
-
-			// --- 垂直角度（X回転：ピッチ） ---
-			float horizontalDist = std::sqrt(toEnemy.x * toEnemy.x + toEnemy.z * toEnemy.z);
-			float rx = std::atan2(-toEnemy.y, horizontalDist); // 上下の角度（上を向くとマイナス）
-
-			// 銃の回転を設定（Z回転は使わない）
-			rifle_->SetPosition(handPos, {rx, ry, 0.0f});
-		}
-
-		rifle_->Update();
-
-		// 弾の発射処理
-		if (Input::GetInstance()->TriggerKey(DIK_SPACE)) {
-			rifle_->Fire(bulletManager, Bullet::Owner::kPlayer);
-		}
-
-		// リロード
-		if (Input::GetInstance()->TriggerKey(DIK_E)) {
-			rifle_->Reload();
-		}
-	}
-
-	// 剣を選んでいるときはプレイヤーの手元に追従
-	if (choiceSaber_) {
-
-		saber_->SetPosition(handPos, weaponRotation);
-
-		saber_->Update();
-
-		// 攻撃開始
-		if (Input::GetInstance()->TriggerKey(DIK_SPACE)) {
-			saber_->StartAttack();
-		}
-
-		if (saber_->IsAttacking()) {
-			for (Enemy* enemy : enemies) {
-				if (!enemy->IsDead() && saber_->CheckHit(enemy)) {
-					enemy->Damage(35); // ← ここがダメージ処理の正しい場所
-				}
-			}
-		}
-	}
-
-	//---------------------盾----------------------
-
-	// 盾の位置オフセット（左手の横に）
-	Vector3 shieldOffsetSide = {0.0f, -0.3f, -1.3f};
-
-	// 盾を前に構えるオフセット
-	Vector3 shieldOffsetFront = {-1.0f, -0.3f, 0.0f};
-
-	// プレイヤーの回転を考慮
-	Matrix4x4 rotY = MakeRotateYMatrix(worldTransform_.rotation_.y);
-
-	// 回転後のオフセット
-	Vector3 shieldPosSide = worldTransform_.translation_ + TransformNormal(shieldOffsetSide, rotY);
-	Vector3 shieldPosFront = worldTransform_.translation_ + TransformNormal(shieldOffsetFront, rotY);
-
-	// ガード中（P押しっぱなし）かどうか
-	bool guarding = Input::GetInstance()->PushKey(DIK_P);
-	shield_->SetGuarding(guarding);
-
-	if (guarding) {
-		// 盾を前に構える
-		shield_->SetPosition(shieldPosFront, {0.0f, worldTransform_.rotation_.y + std::numbers::pi_v<float> / 2.0f, 0.0f});
-	} else {
-		// 盾を横に構える
-		shield_->SetPosition(shieldPosSide, {0.0f, worldTransform_.rotation_.y, 0.0f});
-	}
-
-	// ダメージエフェクトタイマー更新
-	if (damageEffectTimer_ > 0.0f) {
-		damageEffectTimer_ -= 1.0f / 60.0f;
-	}
-
-	// 無敵タイマー
-	if (invincibleTimer_ > 0.0f) {
-		invincibleTimer_ -= 1.0f / 60.0f;
-	}
-
-	// HPが0未満にならないように
-	if (currentHp_ < 0) {
-		currentHp_ = 0;
-	}
-
-	// HPが範囲外にならないようクランプ
-	currentHp_ = std::clamp(currentHp_, 0.0f, maxHp_);
-
-	// HPの割合を計算 (0.0 ～ 1.0)
-	float hpRate = currentHp_ / maxHp_;
-
-	// 元の最大幅（hpBarBaseSize_.x）に割合を掛けて、現在の幅を決定する
-	// アンカーポイントが {0.0f, 0.5f} なので、左端固定で右側だけ縮む
-	spriteHp_->SetSize({hpBarBaseSize_.x * hpRate, hpBarBaseSize_.y});
-
 	// カメラ更新
 	followCamera_.Update();
 
 	// ===== ステージ外に出ないようにする =====
 	stageBounds_->ClampToStage(worldTransform_.translation_, GetRadius());
 	WorldTransformUpdate(worldTransform_);
-
-	// 銃を装備している時だけUIを更新
-	if ( rifle_) {
-		ammoUI_.Update(rifle_->GetAmmo(), rifle_->GetReserveAmmo());
-	}
 
 #ifdef _DEBUG
 
@@ -416,6 +256,194 @@ void Player::ApplyGravity() {
 	WorldTransformUpdate(worldTransform_);
 }
 
+void Player::UpdateLockOnMovement(const std::vector<Enemy*>&) {
+	if (!lockOnTarget_) {
+		return;
+	}
+
+	Input* input = Input::GetInstance();
+
+	//敵方向
+	Vector3 toEnemy = *lockOnTarget_ - worldTransform_.translation_;
+	toEnemy.y = 0.0f;
+
+	// float dist = Length(toEnemy);
+	Vector3 dirToEnemy = Normalize(toEnemy);
+
+	// ロックオン中は即座に敵を向く
+	float targetY = std::atan2(dirToEnemy.x, dirToEnemy.z) + std::numbers::pi_v<float> / 2.0f;
+	worldTransform_.rotation_.y = targetY;
+
+	Vector3 move = {0, 0, 0};
+
+	// 前後（距離調整）
+	if (input->PushKey(DIK_W)) {
+		move += dirToEnemy;
+	}
+	if (input->PushKey(DIK_S)) {
+		move -= dirToEnemy;
+	}
+
+	// 左右（円運動）
+	Vector3 right = {dirToEnemy.z, 0.0f, -dirToEnemy.x};
+
+	if (input->PushKey(DIK_D)) {
+		move += right;
+	}
+	if (input->PushKey(DIK_A)) {
+		move -= right;
+	}
+
+	if (Length(move) > 0.0f) {
+		move = Normalize(move) * KLimitRunSpeed;
+		worldTransform_.translation_ += move;
+	}
+}
+
+void Player::UpdateFreeMovement() {
+	// プレイヤー移動
+	UpdateMovement();
+}
+
+void Player::UpdateWeapons(BulletManager* bulletManager, const std::vector<Enemy*>& enemies) {
+
+	// 装備切り替え
+	if (Input::GetInstance()->TriggerKey(DIK_R)) {
+		choiceRifle_ = !choiceRifle_;
+		choiceSaber_ = !choiceSaber_;
+	}
+
+	// 手元位置
+	Vector3 handOffset = {0.0f, 0.5f, 1.5f};
+	// プレイヤーの回転を考慮したオフセットを計算
+	Matrix4x4 rifleRotY = MakeRotateYMatrix(worldTransform_.rotation_.y);
+	Vector3 rotatedOffset = TransformNormal(handOffset, rifleRotY);
+
+	// ワールド座標での銃の位置
+	Vector3 handPos = worldTransform_.translation_ + rotatedOffset;
+
+	// 銃の回転（プレイヤーと同じY回転でOK）
+	Vector3 weaponRotation = {0.0f, worldTransform_.rotation_.y - std::numbers::pi_v<float> / 2.0f, 0.0f};
+
+	// 銃を選んでいるときはプレイヤーの手元に追従
+	if (choiceRifle_) {
+
+		rifle_->SetPosition(handPos, weaponRotation);
+		// ロックオン中は敵の方向を向かせる
+		if (isLockOn_ && lockOnTarget_) {
+			Vector3 toEnemy = *lockOnTarget_ - handPos;
+
+			// --- 水平角度（Y回転） ---
+			float ry = std::atan2(toEnemy.x, toEnemy.z);
+
+			// --- 垂直角度（X回転：ピッチ） ---
+			float horizontalDist = std::sqrt(toEnemy.x * toEnemy.x + toEnemy.z * toEnemy.z);
+			float rx = std::atan2(-toEnemy.y, horizontalDist); // 上下の角度（上を向くとマイナス）
+
+			// 銃の回転を設定（Z回転は使わない）
+			rifle_->SetPosition(handPos, {rx, ry, 0.0f});
+		}
+
+		rifle_->Update();
+
+		// 弾の発射処理
+		if (Input::GetInstance()->TriggerKey(DIK_SPACE)) {
+			rifle_->Fire(bulletManager, Bullet::Owner::kPlayer);
+		}
+
+		// リロード
+		if (Input::GetInstance()->TriggerKey(DIK_E)) {
+			rifle_->Reload();
+		}
+	}
+
+	// 剣を選んでいるときはプレイヤーの手元に追従
+	if (choiceSaber_) {
+
+		saber_->SetPosition(handPos, weaponRotation);
+
+		saber_->Update();
+
+		// 攻撃開始
+		if (Input::GetInstance()->TriggerKey(DIK_SPACE)) {
+			saber_->StartAttack();
+		}
+
+		if (saber_->IsAttacking()) {
+			for (Enemy* enemy : enemies) {
+				if (!enemy->IsDead() && saber_->CheckHit(enemy)) {
+					enemy->Damage(35); // ← ここがダメージ処理の正しい場所
+				}
+			}
+		}
+	}
+}
+
+void Player::UpdateShield() {
+
+	//---------------------盾----------------------
+
+	// 盾の位置オフセット（左手の横に）
+	Vector3 shieldOffsetSide = {0.0f, -0.3f, -1.3f};
+
+	// 盾を前に構えるオフセット
+	Vector3 shieldOffsetFront = {-1.0f, -0.3f, 0.0f};
+
+	// プレイヤーの回転を考慮
+	Matrix4x4 rotY = MakeRotateYMatrix(worldTransform_.rotation_.y);
+
+	// 回転後のオフセット
+	Vector3 shieldPosSide = worldTransform_.translation_ + TransformNormal(shieldOffsetSide, rotY);
+	Vector3 shieldPosFront = worldTransform_.translation_ + TransformNormal(shieldOffsetFront, rotY);
+
+	// ガード中（P押しっぱなし）かどうか
+	bool guarding = Input::GetInstance()->PushKey(DIK_P);
+	shield_->SetGuarding(guarding);
+
+	if (guarding) {
+		// 盾を前に構える
+		shield_->SetPosition(shieldPosFront, {0.0f, worldTransform_.rotation_.y + std::numbers::pi_v<float> / 2.0f, 0.0f});
+	} else {
+		// 盾を横に構える
+		shield_->SetPosition(shieldPosSide, {0.0f, worldTransform_.rotation_.y, 0.0f});
+	}
+}
+
+void Player::UpdateStatusUI() {
+
+	attackAlert_.Update();
+
+	// ダメージエフェクトタイマー更新
+	if (damageEffectTimer_ > 0.0f) {
+		damageEffectTimer_ -= 1.0f / 60.0f;
+	}
+
+	// 無敵タイマー
+	if (invincibleTimer_ > 0.0f) {
+		invincibleTimer_ -= 1.0f / 60.0f;
+	}
+
+	// HPが0未満にならないように
+	if (currentHp_ < 0) {
+		currentHp_ = 0;
+	}
+
+	// HPが範囲外にならないようクランプ
+	currentHp_ = std::clamp(currentHp_, 0.0f, maxHp_);
+
+	// HPの割合を計算 (0.0 ～ 1.0)
+	float hpRate = currentHp_ / maxHp_;
+
+	// 元の最大幅（hpBarBaseSize_.x）に割合を掛けて、現在の幅を決定する
+	// アンカーポイントが {0.0f, 0.5f} なので、左端固定で右側だけ縮む
+	spriteHp_->SetSize({hpBarBaseSize_.x * hpRate, hpBarBaseSize_.y});
+
+	// 銃を装備している時だけUIを更新
+	if (rifle_) {
+		ammoUI_.Update(rifle_->GetAmmo(), rifle_->GetReserveAmmo());
+	}
+}
+
 void Player::Damage(int damage) {
 
 	if (invincibleTimer_ > 0.0f) {
@@ -508,7 +536,7 @@ void Player::DrawDamageEffect() {
 
 Player::~Player() {
 
-	rifle_=nullptr;
+	rifle_ = nullptr;
 
 	delete saber_;
 
