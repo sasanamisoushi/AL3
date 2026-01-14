@@ -11,7 +11,7 @@ void FollowCamera::Initialize(Camera* camera_) {
 
 void FollowCamera::Update() {
 
-	if (!target_) {
+	if (!target_ || !targetRotation_) {
 		return;
 	}
 
@@ -108,22 +108,39 @@ void FollowCamera::Update() {
 	camera->UpdateMatrix();
 
 
-	// // ===== マウス入力 =====
- //   Input* input = KamataEngine::Input::GetInstance();
+	 // ===== マウス入力 =====
+    Input* input = Input::GetInstance();
+	auto mouse = input->GetMouseMove();
 
+   // マウスで回転
+	yaw_ += mouse.lX * sensitivity_;
+	pitch_ += mouse.lY * sensitivity_;
 
- //   const float sensitivity = 0.0025f;
+    // 上下向きすぎ防止
+    pitch_ = std::clamp(pitch_, -1.2f, 1.2f);
 
- //   yaw_ += input->GetMouseMove().lX * sensitivity;
-	//pitch_ -= input->GetMouseMove().lY * sensitivity;
+	if (!isLockOn_) {
+		camera->rotation_.y = yaw_;
+		camera->rotation_.x = pitch_;
+	}
 
- //   // 上下向きすぎ防止
- //   pitch_ = std::clamp(pitch_, -1.2f, 1.2f);
+	 // 回転行列
+	Matrix4x4 rotX = MakeRotateXMatrix(pitch_);
+	Matrix4x4 rotY = MakeRotateYMatrix(yaw_);
+	Matrix4x4 rot = Multiply(rotX, rotY);
 
-	//if (!isLockOn_) {
-	//	camera->rotation_.y = yaw_;
-	//	camera->rotation_.x = pitch_;
-	//}
+	// カメラの相対位置（後ろ）
+	offset = {0.0f, 0.0f, -distance_};
+	Vector3 cameraOffset = TransformNormal(offset, rot);
+
+	// カメラ位置 = プレイヤー + オフセット
+	camera->translation_ = *target_ + cameraOffset;
+
+	// 注視点はプレイヤー
+	camera->rotation_.x = pitch_;
+	camera->rotation_.y = yaw_;
+
+	camera->UpdateMatrix();
 }
 
 KamataEngine::Vector3 FollowCamera::GetForward() const {  

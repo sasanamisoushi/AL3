@@ -19,7 +19,7 @@ void Player::Initialize(Model* model,Model* rifle, Camera* camera, const Vector3
 	worldTransform_.Initialize();
 	worldTransform_.scale_ = {0.5f, 0.5f, 0.5f};
 	worldTransform_.translation_ = position;
-	worldTransform_.rotation_.y = 0.0f;
+	worldTransform_.rotation_.y = followCamera_.GetYaw();
 
 	// 銃
 	rifle_ = new Rifle();

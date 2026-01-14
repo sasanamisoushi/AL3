@@ -26,7 +26,7 @@ KamataEngine::Matrix4x4 MakeTranslateMatrix(const KamataEngine::Vector3& transla
 KamataEngine::Matrix4x4 MakeScaleMatrix(const KamataEngine::Vector3& scale);
 
 // X軸回転行列
-KamataEngine::Matrix4x4 MakeRoteXMatrix(float radian);
+KamataEngine::Matrix4x4 MakeRotateXMatrix(float radian);
 
 // Y軸回転行列
 KamataEngine::Matrix4x4 MakeRotateYMatrix(float radian);

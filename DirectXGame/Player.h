@@ -52,7 +52,9 @@ public:
 		WorldTransformUpdate(worldTransform_);
 	} 
 	bool GetLockOn() const { return isLockOn_; }
-	KamataEngine::Vector3 GetPosition() const { return worldTransform_.translation_; }
+	const KamataEngine::Vector3& GetPosition() const { return worldTransform_.translation_; }
+
+	const KamataEngine::Vector3& GetRotation() const { return worldTransform_.rotation_; }
 
 	// あたり判定
 	float GetRadius() const { return radius_; }

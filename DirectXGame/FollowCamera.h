@@ -31,6 +31,8 @@ public:
 
 	KamataEngine::Vector3 GetForward() const;
 	KamataEngine::Vector3 GetRight() const;
+	float GetYaw() const { return yaw_; };
+
 
 	//シェイク
 	void startShake(float power, int duration) { 
@@ -44,6 +46,9 @@ public:
 	
 
 private:
+	// カメラ
+	KamataEngine::Camera* camera = nullptr;
+
 	// プレイヤー位置へのポインタ
 	const KamataEngine::Vector3* target_ = nullptr; 
 
@@ -57,10 +62,6 @@ private:
 
 	//注視店のオフセット
 	KamataEngine::Vector3 targetOffset_ = {0.0f, 2.0f, 0.0f};
-	//プレイヤーとの距離
-	float distance_ = 10.0f;
-	//カメラ
-	KamataEngine::Camera* camera = nullptr;
 
 	//カメラの位置
 	KamataEngine::Vector3 translation_ = {0, 0, 0};
@@ -83,5 +84,7 @@ private:
 
 	float yaw_ = 0.0f;   // 水平方向（左右）
 	float pitch_ = 0.0f; // 垂直方向（上下）
+	float distance_ = 10.0f; // プレイヤーとの距離
+	float sensitivity_ = 0.0025f;
 	
 };
