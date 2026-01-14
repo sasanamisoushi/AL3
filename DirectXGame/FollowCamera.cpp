@@ -7,11 +7,15 @@ using namespace KamataEngine;
 void FollowCamera::Initialize(Camera* camera_) {
 	camera = camera_;
 	camera->Initialize();
+
+	 translation_ = {0.0f, 3.0f, -10.0f};
+	yaw_ = 0.0f;
+	pitch_ = 0.25f;
 }
 
 void FollowCamera::Update() {
 
-	if (!target_ || !targetRotation_) {
+	if (!target_ ) {
 		return;
 	}
 
@@ -48,21 +52,15 @@ void FollowCamera::Update() {
 		// 上下向きすぎ防止
 		pitch_ = std::clamp(pitch_, -1.2f, 1.2f);
 
-
 		// 通常時は一定距離
 		distance_ = 10.0f;
 	}
 
 	// ===== カメラの相対位置 =====
-	float sideOffset = 0.0f;
-
-	if (isLockOn_) {
-		sideOffset = 1.5f; 
-	}
-
+	float heightOffset = 0.0f;
 
 	// カメラの回転を反転した距離方向
-	Vector3 offset = {0.0f, sideOffset, -distance_};
+	Vector3 offset = {0.0f, heightOffset, -distance_};
 
 	 // 回転行列
 	Matrix4x4 rotX = MakeRotateXMatrix(pitch_);
@@ -143,6 +141,11 @@ void FollowCamera::Update() {
 	//}
 
 	// 最後に足す
+	const float kMinCameraHeight = 1.0f;
+	if (translation_.y < kMinCameraHeight) {
+		translation_.y = kMinCameraHeight;
+	}
+
 	camera->translation_ = translation_;
 	camera->UpdateMatrix();
 
