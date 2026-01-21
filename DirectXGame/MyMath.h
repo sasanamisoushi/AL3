@@ -26,7 +26,7 @@ KamataEngine::Matrix4x4 MakeTranslateMatrix(const KamataEngine::Vector3& transla
 KamataEngine::Matrix4x4 MakeScaleMatrix(const KamataEngine::Vector3& scale);
 
 // X軸回転行列
-KamataEngine::Matrix4x4 MakeRoteXMatrix(float radian);
+KamataEngine::Matrix4x4 MakeRotateXMatrix(float radian);
 
 // Y軸回転行列
 KamataEngine::Matrix4x4 MakeRotateYMatrix(float radian);
@@ -79,3 +79,5 @@ inline float ToDegrees(float radians) { return radians * (180.0f / 3.1415f); }
 float Length(const KamataEngine::Vector3& v);
 
 KamataEngine::Vector3 Normalize(const KamataEngine::Vector3& v);
+
+inline float Dot(const KamataEngine::Vector3& a, const KamataEngine::Vector3& b) { return a.x * b.x + a.y * b.y + a.z * b.z; }

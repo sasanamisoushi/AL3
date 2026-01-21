@@ -70,7 +70,7 @@ Vector3 Rifle::GetForwardVector() const {
 	// 銃の前方向ベクトル（Z軸正方向）
 	Vector3 forward = {0.0f, 0.0f, 1.0f};
 	// 銃のX,Y回転を反映
-	Matrix4x4 rotX = MakeRoteXMatrix(worldTransform_.rotation_.x);
+	Matrix4x4 rotX = MakeRotateXMatrix(worldTransform_.rotation_.x);
 	Matrix4x4 rotY = MakeRotateYMatrix(worldTransform_.rotation_.y);
 
 	//回転合成

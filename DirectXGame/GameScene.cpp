@@ -12,6 +12,9 @@ void GameScene::Initialize() {
 	camera_.rotation_ = {0.3f, 0.0f, 0.0f};
 	camera_.UpdateMatrix();
 
+	followCamera_.Initialize(&camera_);
+	followCamera_.SetTarget(&player->GetPosition());
+	followCamera_.SetTargetRotation(&player->GetRotation());
 
 	rifleModel_ = Model::CreateFromOBJ("Raifl");
 
@@ -194,6 +197,11 @@ void GameScene::Update() {
 		followCamera_.SetLockOn(false);
 		player->SetLockOnTarget(nullptr);
 	}
+
+	// カメラ更新は最後
+	followCamera_.SetTarget(&player->GetPosition());
+	followCamera_.SetTargetRotation(&player->GetRotation());
+	followCamera_.Update();
 
 	// ================ UI ================
 	attackAlert_.Update();

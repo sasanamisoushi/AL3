@@ -3,7 +3,7 @@
 #include "Enemy.h"
 #include "Player.h"
 #include <unordered_set>
-
+#include "MyMath.h"
 
 
 class saber {
@@ -46,6 +46,8 @@ private:
 
 	//カメラ
 	KamataEngine::Camera* camera_ = nullptr;
+
+	bool isDebugDraw_ = true;
 
 	//攻撃モーション用
 	std::unordered_set<const Enemy*> hitEnemies_;

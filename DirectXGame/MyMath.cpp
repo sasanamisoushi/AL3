@@ -69,7 +69,7 @@ Matrix4x4 MakeScaleMatrix(const Vector3& scale) {
 }
 
 // X軸回転行列
-Matrix4x4 MakeRoteXMatrix(float radian) {
+Matrix4x4 MakeRotateXMatrix(float radian) {
 	Matrix4x4 result = {
 	    1, 0, 0, 0, 0, std::cosf(radian), std::sinf(radian), 0, 0, -std::sinf(radian), std::cosf(radian), 0, 0, 0, 0, 1,
 	};
@@ -107,7 +107,7 @@ Matrix4x4 Multiply(const Matrix4x4& m1, const Matrix4x4& m2) {
 
 // アフィン変換
 Matrix4x4 MakeAffineMatrix(const Vector3& scale, const Vector3& rotate, const Vector3& translate) {
-	Matrix4x4 rot = Multiply(Multiply(MakeRoteXMatrix(rotate.x), MakeRotateYMatrix(rotate.y)), MakeRotateZMatrix(rotate.z));
+	Matrix4x4 rot = Multiply(Multiply(MakeRotateXMatrix(rotate.x), MakeRotateYMatrix(rotate.y)), MakeRotateZMatrix(rotate.z));
 	Matrix4x4 result = Multiply(Multiply(MakeScaleMatrix(scale), rot), MakeTranslateMatrix(translate));
 
 	return result;
