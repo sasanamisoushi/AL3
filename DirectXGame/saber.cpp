@@ -1,6 +1,7 @@
 #include "saber.h"
 #include "MyMath.h"
 #include <numbers>
+#include <cmath>
 #include "MeleeWeapon.h"
 
 using namespace KamataEngine;
@@ -60,7 +61,10 @@ void saber::Update() {
 	}
 }
 
-void saber::Draw() { model_->Draw(worldTransform_, *camera_); }
+void saber::Draw() {
+	model_->Draw(worldTransform_, *camera_);
+
+}
 
 void saber::SetPosition(const Vector3& position, const Vector3& rotation) {
 	worldTransform_.translation_ = position;
@@ -119,16 +123,27 @@ bool saber::CheckHit(const Enemy* enemy)  {
 		return false;
 	}
 
-	// 敵の中心との距離
-	float dist = Length(enemy->GetPosition() - GetPosition());
-	bool hit = dist < (enemy->GetRadius() + GetRadius());
-
-	if (hit) {
-		hitEnemies_.insert(enemy); // 記録
-		return true;
+	 // 距離判定
+	Vector3 toEnemyVec = enemy->GetPosition() - GetPosition();
+	float dist = Length(toEnemyVec);
+	if (dist > enemy->GetRadius() + GetRadius()) {
+		return false;
 	}
 
-	return false;
+	// 前方判定
+	Vector3 saberForward = {std::sin(worldTransform_.rotation_.y), 0.0f, std::cos(worldTransform_.rotation_.y)};
+
+	Vector3 toEnemy = Normalize(Vector3{toEnemyVec.x, 0.0f, toEnemyVec.z});
+	float dot = Dot(saberForward, toEnemy);
+
+	const float kAttackAngleCos = std::cos(std::numbers::pi_v<float> / 4.0f);
+	if (dot < kAttackAngleCos) {
+		return false;
+	}
+
+	hitEnemies_.insert(enemy);
+
+	return true;
 }
 
 saber::~saber() { delete model_; }

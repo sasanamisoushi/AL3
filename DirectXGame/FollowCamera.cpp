@@ -112,13 +112,15 @@ void FollowCamera::Update() {
 	}
 
 	// --- カメラ回転を補間 ---
-	camera->rotation_.y = LerpAngle(camera->rotation_.y, desiredY, 0.15f);
+	if (isLockOn_ && lockOnTarget_) {
+		yaw_ = LerpAngle(yaw_, desiredY, 0.15f);
+	}
  
 	// カメラへの反転
 	camera->translation_ = translation_;
 	camera->rotation_.x = pitch_;
-	camera->rotation_.y = yaw_;
-	camera->UpdateMatrix();
+	//camera->rotation_.y = yaw_;
+	//camera->UpdateMatrix();
 
 
 	// ===== カメラシェイク =====
@@ -147,7 +149,7 @@ void FollowCamera::Update() {
 	}
 
 	camera->translation_ = translation_;
-	camera->UpdateMatrix();
+	//camera->UpdateMatrix();
 
 
 	 // ===== マウス入力 =====
@@ -155,11 +157,11 @@ void FollowCamera::Update() {
 	auto mouse = input->GetMouseMove();
 
    // マウスで回転
-	yaw_ += mouse.lX * sensitivity_;
-	pitch_ += mouse.lY * sensitivity_;
+	/*yaw_ += mouse.lX * sensitivity_;
+	pitch_ += mouse.lY * sensitivity_;*/
 
     // 上下向きすぎ防止
-    pitch_ = std::clamp(pitch_, -1.2f, 1.2f);
+    //pitch_ = std::clamp(pitch_, -1.2f, 1.2f);
 
 	if (!isLockOn_) {
 		camera->rotation_.y = yaw_;
@@ -173,6 +175,18 @@ void FollowCamera::Update() {
 
 	// カメラ位置 = プレイヤー + オフセット
 	camera->translation_ = *target_ + cameraOffset;
+
+	bool hitFloor = false;
+
+	// カメラの高さ制限
+	if (camera->translation_.y < kMinCameraHeight) {
+		camera->translation_.y = kMinCameraHeight;
+		hitFloor = true;
+	}
+
+	if (hitFloor) {
+		pitch_ = max(pitch_, -0.1f); // 下を向きすぎない
+	}
 
 	// 注視点はプレイヤー
 	camera->rotation_.x = pitch_;
