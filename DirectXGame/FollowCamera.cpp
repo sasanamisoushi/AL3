@@ -153,8 +153,8 @@ void FollowCamera::Update() {
 
 
 	 // ===== マウス入力 =====
-    Input* input = Input::GetInstance();
-	auto mouse = input->GetMouseMove();
+   /* Input* input = Input::GetInstance();
+	auto mouse = input->GetMouseMove();*/
 
    // マウスで回転
 	/*yaw_ += mouse.lX * sensitivity_;
@@ -170,7 +170,8 @@ void FollowCamera::Update() {
 
 
 	// カメラの相対位置（後ろ）
-	//offset = {0.0f, 0.0f, -distance_};
+	offset = {0.0f, 0.0f, -distance_};
+	
 	Vector3 cameraOffset = TransformNormal(offset, rot);
 
 	// カメラ位置 = プレイヤー + オフセット

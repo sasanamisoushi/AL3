@@ -250,6 +250,7 @@ void Enemy::Damage(int damage) {
 
 void Enemy::Die() {
 	isDead_ = true;
+	justDied_ = true;
 
 	// 行動停止
 	state_ = EnemyState::Down;

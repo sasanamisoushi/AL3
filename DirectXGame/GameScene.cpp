@@ -1,5 +1,6 @@
 #include "GameScene.h"
 
+
 using namespace KamataEngine;
 
 void GameScene::Initialize() {
@@ -79,6 +80,11 @@ void GameScene::Initialize() {
 	skydome_ = new Skydome();
 	//天球の初期化
 	skydome_->Initialize(skydomeModel_, &camera_);
+
+	//------------エフェクト-----------------
+
+	explosionManager_ = new ExplosionManager();
+	explosionManager_->Initialize();
 }
 
 void GameScene::Update() {
@@ -103,6 +109,8 @@ void GameScene::Update() {
 	// 弾の更新
 	bulletManager_->Update(enemyManager_.GetEnemyPointers(), player,boss_);
 
+	explosionManager_->Update();
+
 	// ===== ボスの更新（常に）=====
 	if (boss_) {
 		boss_->Update(player->GetPosition());
@@ -112,8 +120,27 @@ void GameScene::Update() {
 	lockOnEnemies_.clear();
 	// ================ 雑魚敵 ================
 	for (Enemy* enemy : enemyManager_.GetEnemyPointers()) {
-		if (enemy &&!enemy->IsDead()) {
+
+		// 死んだ瞬間の判定
+		if (enemy->IsJustDied()) {
+
+			//10回ループして爆発を生成
+			for (int i = 0; i < 10; i++) {
+				Vector3 pos = enemy->GetPosition();
+
+				//座標をランダムにずらす
+				float spread = 1.5f;
+				pos.x += ((float)rand() / RAND_MAX - 0.5f) * 2.0f * spread;
+				pos.y += ((float)rand() / RAND_MAX - 0.5f) * 2.0f * spread;
+				pos.z += ((float)rand() / RAND_MAX - 0.5f) * 2.0f * spread;
+
+				explosionManager_->Add(pos, &camera_);
+			}
+		}
+
+		if (!enemy->IsDead()) {
 			lockOnEnemies_.push_back(enemy);
+			
 		}
 	}
 
@@ -206,13 +233,15 @@ void GameScene::Update() {
 	// ================ UI ================
 	attackAlert_.Update();
 
-
+	// 爆発のデバッグ表示
+	explosionManager_->DrawUI();
 }
 
 void GameScene::Draw() {
 
-	// ===== 3D描画 =====
 	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
+
+	// ===== 3D描画 =====
 	// 3Dモデル描画前処理
 	Model::PreDraw(dxCommon->GetCommandList());
 	skydome_->Draw();
@@ -223,6 +252,7 @@ void GameScene::Draw() {
 	if (boss_) {
 		boss_->Draw();
 	}
+	explosionManager_->Draw();
 	Model::PostDraw();
 
 	// ===== 2D描画（Sprite）=====

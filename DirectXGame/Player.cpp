@@ -90,6 +90,9 @@ void Player::Update(BulletManager* bulletManager, const std::vector<Enemy*>& ene
 	// ========UI========
 	UpdateStatusUI();
 
+	// ===== ステージ外に出ないようにする =====
+	stageBounds_->ClampToStage(worldTransform_.translation_, GetRadius());
+
 	// ========カメラ========
 
 	// カメラの回転をプレイヤーのY回転に合わせる
@@ -99,8 +102,7 @@ void Player::Update(BulletManager* bulletManager, const std::vector<Enemy*>& ene
 	// カメラ更新
 	followCamera_.Update();
 
-	// ===== ステージ外に出ないようにする =====
-	stageBounds_->ClampToStage(worldTransform_.translation_, GetRadius());
+	
 	WorldTransformUpdate(worldTransform_);
 
 #ifdef _DEBUG
