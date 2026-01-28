@@ -10,6 +10,7 @@
 #include "AttackAlert.h"
 #include "Skydome.h"
 #include "Boss.h"
+#include "ExplosionManager.h"
 
 
 
@@ -86,5 +87,7 @@ private:
 	//天球
 	Skydome* skydome_ = nullptr;
 	KamataEngine::Model* skydomeModel_ = nullptr;
+
+	ExplosionManager* explosionManager_ = nullptr;
 	
 };
