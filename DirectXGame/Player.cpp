@@ -79,6 +79,14 @@ void Player::Update(BulletManager* bulletManager, const std::vector<Enemy*>& ene
 		UpdateLockOnMovement(enemies); // ロックオン中の移動
 	} else {
 		UpdateFreeMovement(); // 自由移動
+
+		if (camera_) {
+			// カメラのY軸回転（横方向の向き）をそのままプレイヤーに適用
+			// これで「移動方向」ではなく「カメラの正面」を常にくようになります
+			float offset = std::numbers::pi_v<float> / 2.0f;
+
+			worldTransform_.rotation_.y = camera_->rotation_.y + offset;
+		}
 	}
 
 	// ========武器========

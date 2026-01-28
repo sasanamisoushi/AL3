@@ -187,7 +187,7 @@ void Enemy::Update(Player* player,BulletManager* bulletManager) {
 	}
 
 	// --- プレイヤーとの衝突（重なり防止） ---
-	//ResolveCollisionWithPlayer();
+	ResolveCollisionWithPlayer();
 
 	stageBounds_->ClampToStage(worldTransform_.translation_, GetRadius());
 
@@ -277,19 +277,24 @@ void Enemy::ResolveCollisionWithPlayer() {
 	Vector3 currentPos = worldTransform_.translation_;
 	Vector3 playerPos = player_->GetPosition();
 
-	Vector3 diff = position_ - player_->GetPosition();
+	// 敵からプレイヤーへのベクトル
+	Vector3 diff = currentPos - player_->GetPosition();
 	diff.y = 0.0f;
 	float dist = Length(diff);
 	float minDist = radius_ + player_->GetRadius();
 
+	// 接触している（距離 < 半径の和）かつ、完全に重なっていない（dist > 0）
 	if (dist < minDist && dist > 0.001f) {
 
+		// 正規化（方向）
 		Vector3 dir = diff / dist;
+		// 重なっている量
 		float push = (minDist - dist);
 
 		// 50%ずつ押し戻す
 		worldTransform_.translation_.x += dir.x * (push * 0.5f);
 		worldTransform_.translation_.z += dir.z * (push * 0.5f);
+		// プレイヤーの位置をずらす
 		Vector3 newPlayerPos = playerPos;
 		newPlayerPos.x -= dir.x * (push * 0.5f);
 		newPlayerPos.z -= dir.z * (push * 0.5f);
