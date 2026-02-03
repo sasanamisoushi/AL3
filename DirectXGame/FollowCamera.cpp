@@ -1,6 +1,7 @@
 #include "FollowCamera.h"
 #include <numbers>
 #include <algorithm>
+#include <Windows.h>
 
 using namespace KamataEngine;
 

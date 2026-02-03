@@ -3,6 +3,7 @@
 #include "WingSword.h"
 #include <numbers>
 #include <algorithm>
+#include "StageBounds.h"
 
 using namespace KamataEngine;
 
@@ -107,6 +108,9 @@ void Boss::Update(const Vector3& playerPos) {
 	case BossPhase::MeleeAttack:
 		UpdateMeleeAttack(playerPos);
 		break;
+	case BossPhase::DrillDash:
+		UpdateDrillDash(playerPos);
+		break;
 	case BossPhase::Cooldown:
 		if (phaseTimer_ > 60) {
 			ChangePhase(BossPhase::DecideAction);
@@ -118,9 +122,14 @@ void Boss::Update(const Vector3& playerPos) {
 
 
 	// 向き
-	Vector3 toPlayer = playerPos - worldTransform_.translation_;
-	Vector3 dir = Normalize(toPlayer);
-	worldTransform_.rotation_.y = std::atan2(dir.x, dir.z);
+	if (phase_ != BossPhase::DrillDash) {
+		Vector3 toPlayer = playerPos - worldTransform_.translation_;
+		// 距離が近すぎると計算がおかしくなるのでチェック
+		if (Length(toPlayer) > 0.1f) {
+			Vector3 dir = Normalize(toPlayer);
+			worldTransform_.rotation_.y = std::atan2(dir.x, dir.z);
+		}
+	}
 
 	// BossのY回転のみ反映
 	Matrix4x4 rotY = MakeRotateYMatrix(worldTransform_.rotation_.y);
@@ -165,6 +174,12 @@ void Boss::Update(const Vector3& playerPos) {
 	//	}
 	//}
 
+	//フィールド外に出ないようにする
+	StageBounds stageBounds;
+	// ボスの半径（GetRadius() で 2.0f を返しているのでそれを使う）
+	stageBounds.ClampToStage(worldTransform_.translation_, GetRadius());
+
+	WorldTransformUpdate(worldTransform_);
 
 	#ifdef _DEBUG
 	ImGui::Begin("Boss Debug");
@@ -340,7 +355,7 @@ void Boss::UpdateMeleeAttack(const KamataEngine::Vector3& playerPos) {
 
 	// フェーズ終了条件（例）
 	if (phaseTimer_ > 240) {
-		ChangePhase(BossPhase::Cooldown);
+		ChangePhase(BossPhase::DrillDash);
 	}
 }
 
@@ -366,6 +381,50 @@ void Boss::ResetWingSwords() {
 
 	for (auto& sword : wingSwords_) {
 		sword->ResetToStandby(backPos, bossYaw);
+	}
+}
+
+void Boss::UpdateDrillDash(const Vector3& playerPos) {
+	const int chargeTime = 60; // 1秒間のタメ
+
+	if (phaseTimer_ < chargeTime) {
+		// --- 1. タメ：剣を前方に円錐形に並べる ---
+		Vector3 bossForward = {std::sin(worldTransform_.rotation_.y), 0.0f, std::cos(worldTransform_.rotation_.y)};
+		Vector3 drillCenter = worldTransform_.translation_ + bossForward * 3.0f; // ボスの少し前
+
+		for (int i = 0; i < wingSwords_.size(); i++) {
+			float angle = (2.0f * std::numbers::pi_v<float> / wingSwords_.size()) * i + (phaseTimer_ * 0.5f); // 高速回転
+			float radius = 1.5f * (1.0f - (float)i / wingSwords_.size());                                     // 先端にいくほど細く（ドリル形状）
+
+			Vector3 offset = {std::cos(angle) * radius, std::sin(angle) * radius, 0.0f};
+			// ボスの向きに合わせてオフセットを回転させて配置
+			wingSwords_[i]->SetTargetPosition(drillCenter + TransformNormal(offset, MakeRotateYMatrix(worldTransform_.rotation_.y)));
+		}
+
+		// プレイヤーの方向をロックし続ける
+		Vector3 toPlayer = Normalize(playerPos - worldTransform_.translation_);
+		worldTransform_.rotation_.y = std::atan2(toPlayer.x, toPlayer.z);
+
+		// 突撃方向を確定させる
+		dashVelocity_ = toPlayer * drillSpeed_;
+
+	} else if (phaseTimer_ < chargeTime + 90) {
+		// --- 2. 突撃：確定した方向に一直線 ---
+		worldTransform_.translation_ += dashVelocity_;
+
+		// 突撃中は剣も一緒に移動させる
+		for (auto& sword : wingSwords_) {
+			sword->AddPosition(dashVelocity_);
+		}
+
+		// プレイヤーへの当たり判定（既存の MeleeAttack の流用）
+		float dist = Length(playerPos - worldTransform_.translation_);
+		if (dist < 4.0f) {       // ドリルなので判定を少し大きく
+			player_->Damage(30); // 強力なダメージ
+		}
+	} else {
+		// 終了
+		ChangePhase(BossPhase::Cooldown);
 	}
 }
 

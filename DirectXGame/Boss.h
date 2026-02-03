@@ -13,6 +13,7 @@ enum class BossPhase {
 	SwordRing,     //羽剣攻撃
 	FunnelAttack,  //ファンネル攻撃
 	MeleeAttack,   //近距離攻撃
+	DrillDash,    // ドリル突撃
 	Cooldown,      //クールタイム
 };
 
@@ -53,6 +54,8 @@ public:
 
 	//羽剣リセット
 	void ResetWingSwords();
+
+	void UpdateDrillDash(const Vector3& playerPos);
 
 	int GetHP() const { return int(currentHp_); }
 	bool IsDead() const { return currentHp_ <= 0; }
@@ -124,11 +127,14 @@ private:
 	KamataEngine::Sprite* spriteHPBack_ = nullptr; // 背景
 	KamataEngine::Sprite* spriteHp_ = nullptr;     // HP本体
 
-	float maxHp_ = 200.0f; // ボスの最大HP
-	float currentHp_ = 200.0f; // ボスの現在HP
+	float maxHp_ = 300.0f; // ボスの最大HP
+	float currentHp_ = 300.0f; // ボスの現在HP
 
 	// HPバーの基準サイズ
 	KamataEngine::Vector2 hpBarBaseSize_ = {850.0f, 65.0f};
 	// 表示位置
 	KamataEngine::Vector2 hpBarPos_ = {225.0f, 48.0f}; // 画面中央上部
+
+	float drillSpeed_ = 1.5f; // 突撃速度
+	KamataEngine::Vector3 dashVelocity_ = {0, 0, 0}; // 突撃の移動量
 };

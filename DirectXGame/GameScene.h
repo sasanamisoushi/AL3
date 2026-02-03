@@ -89,5 +89,9 @@ private:
 	KamataEngine::Model* skydomeModel_ = nullptr;
 
 	ExplosionManager* explosionManager_ = nullptr;
+
+	bool isPaused_ = false;                       // ポーズフラグ
+	KamataEngine::Sprite* pauseSprite_ = nullptr; // ポーズ画面用の画像（あれば）
+	uint32_t pauseTextureHandle_ = 0;
 	
 };

@@ -318,7 +318,7 @@ void Player::UpdateFreeMovement() {
 void Player::UpdateWeapons(BulletManager* bulletManager, const std::vector<Enemy*>& enemies) {
 
 	// 装備切り替え
-	if (Input::GetInstance()->TriggerKey(DIK_R)) {
+	if (Input::GetInstance()->TriggerKey(DIK_E)) {
 		choiceRifle_ = !choiceRifle_;
 		choiceSaber_ = !choiceSaber_;
 	}
@@ -357,12 +357,12 @@ void Player::UpdateWeapons(BulletManager* bulletManager, const std::vector<Enemy
 		rifle_->Update();
 
 		// 弾の発射処理
-		if (Input::GetInstance()->TriggerKey(DIK_SPACE)) {
+		if (Input::GetInstance()->IsTriggerMouse(0)) {
 			rifle_->Fire(bulletManager, Bullet::Owner::kPlayer);
 		}
 
 		// リロード
-		if (Input::GetInstance()->TriggerKey(DIK_E)) {
+		if (Input::GetInstance()->IsTriggerMouse(1)) {
 			rifle_->Reload();
 		}
 	}
@@ -375,7 +375,7 @@ void Player::UpdateWeapons(BulletManager* bulletManager, const std::vector<Enemy
 		saber_->Update();
 
 		// 攻撃開始
-		if (Input::GetInstance()->TriggerKey(DIK_SPACE)) {
+		if (Input::GetInstance()->IsTriggerMouse(0)) {
 			saber_->StartAttack();
 		}
 
@@ -407,7 +407,7 @@ void Player::UpdateShield() {
 	Vector3 shieldPosFront = worldTransform_.translation_ + TransformNormal(shieldOffsetFront, rotY);
 
 	// ガード中（P押しっぱなし）かどうか
-	bool guarding = Input::GetInstance()->PushKey(DIK_P);
+	bool guarding = Input::GetInstance()->PushKey(DIK_LSHIFT);
 	shield_->SetGuarding(guarding);
 
 	if (guarding) {
