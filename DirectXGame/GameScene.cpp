@@ -1,6 +1,5 @@
 #include "GameScene.h"
 
-
 using namespace KamataEngine;
 
 void GameScene::Initialize() {
@@ -35,7 +34,7 @@ void GameScene::Initialize() {
 
 	// プレイヤーの生成
 	player = new Player();
-	player->Initialize(playerModel_, rifleModel_,&camera_, {0.0f, 0.5f, 0.0f});
+	player->Initialize(playerModel_, rifleModel_, &camera_, {0.0f, 0.5f, 0.0f});
 
 	//------------敵-----------------
 
@@ -45,8 +44,6 @@ void GameScene::Initialize() {
 
 	// EnemyManager 初期化
 	enemyManager_.Initialize(enemyModel, &camera_, player, enemyDown);
-
-
 
 	////敵の生成
 	// enemies_.push_back(new Enemy());
@@ -74,17 +71,22 @@ void GameScene::Initialize() {
 	attackAlert_.Initialize();
 
 	//------------天球-----------------
-	//モデルの生成
+	// モデルの生成
 	skydomeModel_ = Model::CreateFromOBJ("skydome", true);
-	//天球の生成
+	// 天球の生成
 	skydome_ = new Skydome();
-	//天球の初期化
+	// 天球の初期化
 	skydome_->Initialize(skydomeModel_, &camera_);
 
 	//------------エフェクト-----------------
 
 	explosionManager_ = new ExplosionManager();
 	explosionManager_->Initialize();
+
+	//------------BGM-----------------
+	bgmHandle_ = Audio::GetInstance()->LoadWave("./Resources/BGM/kiheisen.wav");
+
+	bgmVoiceHandle_ = Audio::GetInstance()->PlayWave(bgmHandle_, true, 0.5f);
 }
 
 void GameScene::Update() {
@@ -100,14 +102,14 @@ void GameScene::Update() {
 		return;
 	}
 
-	//天球の更新
+	// 天球の更新
 	skydome_->Update();
 
 	// プレイヤーの更新
 	player->Update(bulletManager_, enemyManager_.GetEnemyPointers());
 
 	// 弾の更新
-	bulletManager_->Update(enemyManager_.GetEnemyPointers(), player,boss_);
+	bulletManager_->Update(enemyManager_.GetEnemyPointers(), player, boss_);
 
 	explosionManager_->Update();
 
@@ -131,11 +133,11 @@ void GameScene::Update() {
 		// 死んだ瞬間の判定
 		if (enemy->IsJustDied()) {
 
-			//10回ループして爆発を生成
+			// 10回ループして爆発を生成
 			for (int i = 0; i < 10; i++) {
 				Vector3 pos = enemy->GetPosition();
 
-				//座標をランダムにずらす
+				// 座標をランダムにずらす
 				float spread = 1.5f;
 				pos.x += ((float)rand() / RAND_MAX - 0.5f) * 2.0f * spread;
 				pos.y += ((float)rand() / RAND_MAX - 0.5f) * 2.0f * spread;
@@ -147,7 +149,6 @@ void GameScene::Update() {
 
 		if (!enemy->IsDead()) {
 			lockOnEnemies_.push_back(enemy);
-			
 		}
 	}
 
@@ -171,18 +172,18 @@ void GameScene::Update() {
 	}
 
 	// 敵の更新
-	enemyManager_.Update(player,bulletManager_);
+	enemyManager_.Update(player, bulletManager_);
 
 	// 　雑魚全滅チェック
 	if (!bossSpawned_ && enemyManager_.IsAllDead()) {
 
 		boss_ = new Boss();
-		boss_->Initialize(bossModel_, bossSwordModel_, rifleModel_, & camera_, {0.0f, 0.0f, 0.0f}, bulletManager_, player);
+		boss_->Initialize(bossModel_, bossSwordModel_, rifleModel_, &camera_, {0.0f, 0.0f, 0.0f}, bulletManager_, player);
 
 		bossSpawned_ = true;
 	}
 
-	  if (Input::GetInstance()->TriggerKey(DIK_Q)) {
+	if (Input::GetInstance()->TriggerKey(DIK_Q)) {
 		if (lockOnIndex == -1) {
 			// --- ロックオン開始処理 ---
 			if (!lockOnEnemies_.empty()) {
@@ -337,7 +338,7 @@ GameScene::~GameScene() {
 	delete fieldModel_;
 	fieldModel_ = nullptr;
 
-	//天球
+	// 天球
 	delete skydome_;
 	skydome_ = nullptr;
 
@@ -369,4 +370,6 @@ GameScene::~GameScene() {
 
 	delete rifleModel_;
 	rifleModel_ = nullptr;
+
+	Audio::GetInstance()->StopWave(bgmVoiceHandle_);
 }

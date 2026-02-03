@@ -362,7 +362,7 @@ void Player::UpdateWeapons(BulletManager* bulletManager, const std::vector<Enemy
 		}
 
 		// リロード
-		if (Input::GetInstance()->IsTriggerMouse(1)) {
+		if (Input::GetInstance()->TriggerKey(DIK_R)) {
 			rifle_->Reload();
 		}
 	}
@@ -407,7 +407,7 @@ void Player::UpdateShield() {
 	Vector3 shieldPosFront = worldTransform_.translation_ + TransformNormal(shieldOffsetFront, rotY);
 
 	// ガード中（P押しっぱなし）かどうか
-	bool guarding = Input::GetInstance()->PushKey(DIK_LSHIFT);
+	bool guarding = Input::GetInstance()->IsPressMouse(1);
 	shield_->SetGuarding(guarding);
 
 	if (guarding) {

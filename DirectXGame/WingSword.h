@@ -34,6 +34,9 @@ public:
 	void SetStandbyParam(float angle, float radius);
 	void SetStandbyPosition(const KamataEngine::Vector3& bossPos, float bossYaw);
 	void AddStandbyAngle(float delta);
+
+	// スケール変更用の関数
+	void SetScale(const KamataEngine::Vector3& scale) { worldTransform_.scale_ = scale; }
 	
 	void ResetToStandby(const KamataEngine::Vector3& centerPos, float bossYaw);
 
@@ -72,9 +75,9 @@ private:
 	float riseHeight_ = 5.0f;
 	float riseSpeed_ = 0.2f;
 
-	float hitRadius_ = 0.5f;
+	float hitRadius_ = 1.5f;
 
-	float damageRadius_ = 1.5f; // 刺さっている剣の危険範囲
+	float damageRadius_ = 2.0f; // 刺さっている剣の危険範囲
 	int damage_ = 15;
 
 	int damageCooldown_ = 0; // 連続ヒット防止
