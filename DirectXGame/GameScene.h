@@ -93,5 +93,9 @@ private:
 	bool isPaused_ = false;                       // ポーズフラグ
 	KamataEngine::Sprite* pauseSprite_ = nullptr; // ポーズ画面用の画像（あれば）
 	uint32_t pauseTextureHandle_ = 0;
+
+	// BGMのハンドル
+	uint32_t bgmHandle_ = 0;
+	uint32_t bgmVoiceHandle_ = 0;
 	
 };

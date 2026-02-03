@@ -8,7 +8,7 @@ using namespace KamataEngine;
 void WingSword::Initialize(Model *model) {
 	model_ = model;
 	worldTransform_.Initialize();
-	worldTransform_.scale_ = {0.1f, 0.1f, 0.1f};
+	worldTransform_.scale_ = {0.15f, 0.15f, 0.15f};
 	WorldTransformUpdate(worldTransform_);
 }
 
@@ -44,8 +44,8 @@ void WingSword::Update(Player* player) {
 		
 
 		// 地面に刺さる
-		if (worldTransform_.translation_.y <= 0.0f) {
-			worldTransform_.translation_.y = 1.0f;
+		if (worldTransform_.translation_.y <= 1.0f) {
+			worldTransform_.translation_.y = 2.0f;
 			state_ = WingSwordState::Stuck;
 
 			// 刺さる向き
@@ -60,9 +60,15 @@ void WingSword::Update(Player* player) {
 			damageCooldown_--;
 		}
 
-		// プレイヤーと距離判定
-		float dist = Length(player->GetPosition() - worldTransform_.translation_);
+		// プレイヤーとの位置の差分を計算
+		Vector3 diff = player->GetPosition() - worldTransform_.translation_;
 
+		// ★重要：高さ（Y）の差を 0 にして無視する！
+		// これにより、剣が浮いていても埋まっていても、近くにいれば当たるようになります
+		diff.y = 0.0f;
+
+		// XとZだけの距離を計算
+		float dist = Length(diff);
 		// 使用 <= so touching at exact radius counts
 		if (dist <= damageRadius_) {
 
