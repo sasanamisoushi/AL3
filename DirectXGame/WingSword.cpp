@@ -139,3 +139,21 @@ void WingSword::ResetToStandby(const Vector3& centerPos, float bossYaw) {
 
 	WorldTransformUpdate(worldTransform_);
 }
+
+void WingSword::SetTargetPosition(const KamataEngine::Vector3& position) {
+	// 剣の現在の座標を直接書き換える
+	worldTransform_.translation_ = position;
+
+	// 行列の更新を忘れずに行う
+	WorldTransformUpdate(worldTransform_);
+}
+
+void WingSword::AddPosition(const KamataEngine::Vector3& velocity) {
+	// 突撃の速度（velocity）分だけ座標を進める
+	worldTransform_.translation_.x += velocity.x;
+	worldTransform_.translation_.y += velocity.y;
+	worldTransform_.translation_.z += velocity.z;
+
+	// 行列の更新
+	WorldTransformUpdate(worldTransform_);
+}

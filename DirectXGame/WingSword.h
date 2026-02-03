@@ -36,6 +36,12 @@ public:
 	void AddStandbyAngle(float delta);
 	
 	void ResetToStandby(const KamataEngine::Vector3& centerPos, float bossYaw);
+
+	// 座標を直接指定する（ドリル形成用）
+	void SetTargetPosition(const KamataEngine::Vector3& position);
+
+	// 指定した量だけ移動させる（突撃中の追従用）
+	void AddPosition(const KamataEngine::Vector3& velocity);
 	
 	//ゲッター
 	KamataEngine::Vector3 GetPosition() const { return worldTransform_.translation_; }

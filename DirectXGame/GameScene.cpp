@@ -116,6 +116,13 @@ void GameScene::Update() {
 		boss_->Update(player->GetPosition());
 	}
 
+	// 1. リストをクリアする前に、現在ロックオンしている敵を覚えておく
+	Enemy* prevTarget = nullptr;
+	// 雑魚敵をロックオン中(999以外かつ-1以外)ならポインタを取得
+	if (lockOnIndex != -1 && lockOnIndex != 999 && lockOnIndex < (int)lockOnEnemies_.size()) {
+		prevTarget = lockOnEnemies_[lockOnIndex];
+	}
+
 	// ロックオン対象クリア
 	lockOnEnemies_.clear();
 	// ================ 雑魚敵 ================
@@ -144,6 +151,25 @@ void GameScene::Update() {
 		}
 	}
 
+	// 2. 覚えておいた敵がまだリストにいるか確認
+	if (prevTarget) {
+		bool found = false;
+		// 新しいリストの中から、さっきの敵を探す
+		for (int i = 0; i < (int)lockOnEnemies_.size(); i++) {
+			if (lockOnEnemies_[i] == prevTarget) {
+				// 見つかった！ -> リスト内の場所が変わっているかもしれないのでインデックスを更新
+				lockOnIndex = i;
+				found = true;
+				break;
+			}
+		}
+
+		// リストに見つからなかった ＝ 倒された
+		if (!found) {
+			lockOnIndex = -1; // ロックオン解除
+		}
+	}
+
 	// 敵の更新
 	enemyManager_.Update(player,bulletManager_);
 
@@ -156,7 +182,7 @@ void GameScene::Update() {
 		bossSpawned_ = true;
 	}
 
-	  if (Input::GetInstance()->TriggerKey(DIK_L)) {
+	  if (Input::GetInstance()->TriggerKey(DIK_Q)) {
 		if (lockOnIndex == -1) {
 			// --- ロックオン開始処理 ---
 			if (!lockOnEnemies_.empty()) {
@@ -193,9 +219,22 @@ void GameScene::Update() {
 					lockOnIndex = 0;
 				}
 
-				// 切り替え（DIK_Oキーなど）
-				if (Input::GetInstance()->TriggerKey(DIK_O)) {
-					lockOnIndex = (lockOnIndex + 1) % (int)lockOnEnemies_.size();
+				// マウスホイールでロックオン対象を切り替え
+				int wheel = Input::GetInstance()->GetWheel();
+				if (wheel != 0) {
+					if (wheel > 0) {
+						// 奥に回したら次の敵へ
+						lockOnIndex++;
+						if (lockOnIndex >= (int)lockOnEnemies_.size()) {
+							lockOnIndex = 0;
+						}
+					} else {
+						// 手前に回したら前の敵へ
+						lockOnIndex--;
+						if (lockOnIndex < 0) {
+							lockOnIndex = (int)lockOnEnemies_.size() - 1;
+						}
+					}
 				}
 
 				// 安全に確定したインデックスで要素にアクセス
@@ -235,6 +274,29 @@ void GameScene::Update() {
 
 	// 爆発のデバッグ表示
 	explosionManager_->DrawUI();
+#ifdef _DEBUG
+
+	if (ImGui::Button("Force Spawn Boss")) {
+
+		// 1. 雑魚敵をすべて消去
+		enemyManager_.ClearEnemies();
+
+		// 2. ロックオン情報をリセット（重要：参照先が消えるため）
+		lockOnEnemies_.clear();
+		lockOnIndex = -1;
+
+		if (player) {
+			player->SetLockOn(false); // ロックオンフラグを下ろす
+			player->ClearLockOn();    // ターゲット情報を消す
+		}
+		followCamera_.SetLockOn(false); // カメラのロックオンも解除
+
+		// 3. ボス生成（既存のコード）
+		boss_ = new Boss();
+		boss_->Initialize(bossModel_, bossSwordModel_, rifleModel_, &camera_, {0.0f, 0.0f, 0.0f}, bulletManager_, player);
+		bossSpawned_ = true;
+	}
+#endif // DEBUG
 }
 
 void GameScene::Draw() {

@@ -79,6 +79,14 @@ void Player::Update(BulletManager* bulletManager, const std::vector<Enemy*>& ene
 		UpdateLockOnMovement(enemies); // ロックオン中の移動
 	} else {
 		UpdateFreeMovement(); // 自由移動
+
+		if (camera_) {
+			// カメラのY軸回転（横方向の向き）をそのままプレイヤーに適用
+			// これで「移動方向」ではなく「カメラの正面」を常にくようになります
+			float offset = std::numbers::pi_v<float> / 2.0f;
+
+			worldTransform_.rotation_.y = camera_->rotation_.y + offset;
+		}
 	}
 
 	// ========武器========
@@ -310,7 +318,7 @@ void Player::UpdateFreeMovement() {
 void Player::UpdateWeapons(BulletManager* bulletManager, const std::vector<Enemy*>& enemies) {
 
 	// 装備切り替え
-	if (Input::GetInstance()->TriggerKey(DIK_R)) {
+	if (Input::GetInstance()->TriggerKey(DIK_E)) {
 		choiceRifle_ = !choiceRifle_;
 		choiceSaber_ = !choiceSaber_;
 	}
@@ -349,12 +357,12 @@ void Player::UpdateWeapons(BulletManager* bulletManager, const std::vector<Enemy
 		rifle_->Update();
 
 		// 弾の発射処理
-		if (Input::GetInstance()->TriggerKey(DIK_SPACE)) {
+		if (Input::GetInstance()->IsTriggerMouse(0)) {
 			rifle_->Fire(bulletManager, Bullet::Owner::kPlayer);
 		}
 
 		// リロード
-		if (Input::GetInstance()->TriggerKey(DIK_E)) {
+		if (Input::GetInstance()->IsTriggerMouse(1)) {
 			rifle_->Reload();
 		}
 	}
@@ -367,7 +375,7 @@ void Player::UpdateWeapons(BulletManager* bulletManager, const std::vector<Enemy
 		saber_->Update();
 
 		// 攻撃開始
-		if (Input::GetInstance()->TriggerKey(DIK_SPACE)) {
+		if (Input::GetInstance()->IsTriggerMouse(0)) {
 			saber_->StartAttack();
 		}
 
@@ -399,7 +407,7 @@ void Player::UpdateShield() {
 	Vector3 shieldPosFront = worldTransform_.translation_ + TransformNormal(shieldOffsetFront, rotY);
 
 	// ガード中（P押しっぱなし）かどうか
-	bool guarding = Input::GetInstance()->PushKey(DIK_P);
+	bool guarding = Input::GetInstance()->PushKey(DIK_LSHIFT);
 	shield_->SetGuarding(guarding);
 
 	if (guarding) {
