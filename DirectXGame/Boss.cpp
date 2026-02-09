@@ -241,6 +241,7 @@ Vector3 Boss::GetBackPosition() const {
 	return worldTransform_.translation_ - forward * 0.0f + Vector3{0.0f, 0.0f, 0.0f};
 	;
 }
+
 void Boss::DecideNextAction(const KamataEngine::Vector3& playerPos) { 
 	float dist = Length(playerPos - worldTransform_.translation_);
 	if (dist < 5.0f) {
@@ -250,6 +251,7 @@ void Boss::DecideNextAction(const KamataEngine::Vector3& playerPos) {
 	}
 
 }
+
 void Boss::ChangePhase(BossPhase next) { 
 	// ===== フェーズ終了時の処理（必要なら） =====
 	switch (phase_) {
